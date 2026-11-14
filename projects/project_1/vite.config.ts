@@ -6,27 +6,59 @@ import tailwindcss from '@tailwindcss/vite';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const osdrProxy = {
-  '/proxy/osdr': {
-    target: 'https://osdr.nasa.gov',
-    changeOrigin: true,
-    rewrite: (p: string) => p.replace(/^\/proxy\/osdr/, ''),
-    configure: (proxy: { on: (event: string, cb: (req: { removeHeader: (h: string) => void }) => void) => void }) => {
-      proxy.on('proxyReq', (proxyReq) => {
-        proxyReq.removeHeader('origin');
-        proxyReq.removeHeader('referer');
-      });
+function makeNasaProxy(prefix: string, target: string) {
+  const prefixRegex = new RegExp(`^${prefix}`);
+  return {
+    [prefix]: {
+      target,
+      changeOrigin: true,
+      rewrite: (p: string) => p.replace(prefixRegex, ''),
+      configure: (proxy: {
+        on: (event: string, cb: (req: { removeHeader: (h: string) => void }) => void) => void;
+      }) => {
+        proxy.on('proxyReq', (proxyReq) => {
+          proxyReq.removeHeader('origin');
+          proxyReq.removeHeader('referer');
+        });
+      },
     },
-  },
+  };
+}
+
+const nasaProxies = {
+  ...makeNasaProxy('/proxy/osdr', 'https://osdr.nasa.gov'),
+  ...makeNasaProxy('/proxy/firms', 'https://firms.modaps.eosdis.nasa.gov'),
+  ...makeNasaProxy('/proxy/asf', 'https://api.daac.asf.alaska.edu'),
+  ...makeNasaProxy('/proxy/cmr', 'https://cmr.earthdata.nasa.gov'),
 };
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    proxy: osdrProxy,
+    proxy: nasaProxies,
   },
   preview: {
-    proxy: osdrProxy,
+    proxy: nasaProxies,
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) {
+            return 'vendor-react';
+          }
+          if (id.includes('node_modules/motion') || id.includes('node_modules/framer-motion')) {
+            return 'vendor-motion';
+          }
+          if (id.includes('node_modules/ascii.rest')) {
+            return 'vendor-ascii';
+          }
+          if (id.includes('node_modules/lucide-react') || id.includes('node_modules/@number-flow')) {
+            return 'vendor-ui';
+          }
+        },
+      },
+    },
   },
   resolve: {
     alias: {

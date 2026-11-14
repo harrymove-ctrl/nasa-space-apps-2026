@@ -1,12 +1,11 @@
 import { Activity, Flame, Orbit } from 'lucide-react';
-import { useEffect, useRef } from 'react';
 import {
   computeIeee738Physics,
   type CorridorPreset,
   type NasaTelemetryBundle,
 } from '../data/nasaLiveClient';
 import { WireframeGlobe } from './aicanvas/WireframeGlobe';
-import { CornerCard, CornerMarkers } from './CornerFrame';
+import { CornerMarkers } from './CornerFrame';
 import { DiscoverButton } from './obsidian/discover-button';
 
 interface HeroSectionProps {
@@ -22,36 +21,9 @@ export function HeroSection({
   onOpenKnowledgeMap,
   onOpenMissionGame,
 }: HeroSectionProps) {
-  const stageRef = useRef<HTMLDivElement>(null);
-  const floatLeftRef = useRef<HTMLDivElement>(null);
-  const floatRightRef = useRef<HTMLDivElement>(null);
-
   const weather = bundle.powerByCorridor[activeCorridor.id];
   const physics = computeIeee738Physics(activeCorridor, weather);
   const topEvent = bundle.eonetEvents[0];
-
-  useEffect(() => {
-    const stageEl = stageRef.current;
-    if (!stageEl) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    const updateFloat = () => {
-      const rect = stageEl.getBoundingClientRect();
-      const viewportH = window.innerHeight || 900;
-      const progress = Math.min(1, Math.max(0, (viewportH - rect.top) / (viewportH + rect.height)));
-      const y = (progress - 0.5) * 20;
-      if (floatLeftRef.current) floatLeftRef.current.style.translate = `0 ${y.toFixed(1)}px`;
-      if (floatRightRef.current) floatRightRef.current.style.translate = `0 ${(-y * 0.7).toFixed(1)}px`;
-    };
-
-    updateFloat();
-    window.addEventListener('scroll', updateFloat, { passive: true });
-    window.addEventListener('resize', updateFloat, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', updateFloat);
-      window.removeEventListener('resize', updateFloat);
-    };
-  }, []);
 
   return (
     <section className="lp-hero" id="top">
@@ -91,7 +63,7 @@ export function HeroSection({
           </div>
         </div>
 
-        <div ref={stageRef} className="lp-hero-stage">
+        <div className="lp-hero-stage">
           <div className="lp-hero-grid">
             <div className="lp-hero-panel overflow-hidden border border-[var(--at-border-subtle)] bg-[var(--at-surface-card)]/92 p-5">
               <CornerMarkers size={16} offset={-4} />
@@ -99,10 +71,7 @@ export function HeroSection({
                 <WireframeGlobe />
               </div>
 
-              <div
-                ref={floatLeftRef}
-                className="relative z-10 flex h-full flex-col justify-between gap-3"
-              >
+              <div className="relative z-10 flex h-full flex-col justify-between gap-3">
                 <div className="flex items-center justify-between gap-2">
                   <span className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.08em] text-[var(--at-signal-cyan)]">
                     <Orbit className="size-3.5" />
@@ -158,16 +127,20 @@ export function HeroSection({
 
             <div className="lp-hero-panel lp-hero-panel--picture overflow-hidden">
               <CornerMarkers size={16} offset={-4} />
-              <CornerCard className="h-full w-full overflow-hidden rounded-none border-0">
-                <img
-                  src="/nasa-gallery/earthrise-orbital-pass.jpg"
-                  alt="Terra and Suomi NPP satellite thermal contour scan plate"
-                  className="h-full w-full scale-[1.12] object-cover object-center"
-                />
-              </CornerCard>
+              <img
+                src="/nasa-gallery/earthrise-orbital-pass.webp"
+                srcSet="/nasa-gallery/earthrise-orbital-pass-380.webp 380w, /nasa-gallery/earthrise-orbital-pass.webp 760w"
+                sizes="(max-width: 719px) 360px, 680px"
+                alt="Terra and Suomi NPP satellite thermal contour scan plate"
+                width={760}
+                height={568}
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+                className="h-full w-full object-cover object-center"
+              />
 
               <div
-                ref={floatRightRef}
                 className="lp-hero-float-surface absolute bottom-4 right-4 z-10 flex max-w-[290px] items-center gap-3 rounded-xl border border-[var(--at-border-bright)] bg-[var(--at-surface-base)]/94 px-3.5 py-2.5 backdrop-blur-md"
               >
                 <Activity className="size-4 shrink-0 text-[var(--at-signal-cyan)]" />

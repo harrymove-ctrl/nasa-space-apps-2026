@@ -30,31 +30,31 @@ export interface ParallaxSliderProps {
 export const defaultParallaxSlides: ParallaxSlide[] = [
   {
     title: 'Terra + Suomi NPP Pass',
-    image: '/nasa-gallery/earthrise-orbital-pass.jpg',
+    image: '/nasa-gallery/earthrise-orbital-pass.webp',
     alt: 'Earth observation satellite scanning curved thermal contours',
-    focus: '48% 54%',
+    focus: '50% 45%',
   },
   {
     title: 'NISAR Phase Corridor',
-    image: '/nasa-gallery/sar-interferometry-corridor.jpg',
+    image: '/nasa-gallery/sar-interferometry-corridor.webp',
     alt: 'High-voltage transmission corridor intersected by radar swath contours',
-    focus: '52% 50%',
+    focus: '52% 48%',
   },
   {
     title: 'GOES-18 Flare Bowshock',
-    image: '/nasa-gallery/solar-storm-magnetosphere.jpg',
+    image: '/nasa-gallery/solar-storm-magnetosphere.webp',
     alt: 'Solar mass ejection compressing geomagnetic dipole lines',
-    focus: '50% 50%',
-  },
-  {
-    title: 'Shackleton Solar Tower',
-    image: '/nasa-gallery/shackleton-lunar-station.jpg',
-    alt: 'Cutaway Artemis lunar south pole station and vertical solar array',
     focus: '48% 50%',
   },
   {
+    title: 'Shackleton Solar Tower',
+    image: '/nasa-gallery/shackleton-lunar-station.webp',
+    alt: 'Cutaway Artemis lunar south pole station and vertical solar array',
+    focus: '45% 50%',
+  },
+  {
     title: 'Deep Field Lensing Grid',
-    image: '/nasa-gallery/galaxy-deep-field.jpg',
+    image: '/nasa-gallery/galaxy-deep-field.webp',
     alt: 'Astronomical halftone survey plate of spiral galaxies',
     focus: '50% 50%',
   },
@@ -387,6 +387,13 @@ export function ParallaxSlider({
             {Array.from({ length: copies }, (_, copy) =>
               slides.map((slide, index) => {
                 const readable = copy === LEAD_COPIES;
+                const localWebp =
+                  slide.image.startsWith('/nasa-gallery/') &&
+                  slide.image.endsWith('.webp') &&
+                  !slide.image.endsWith('-380.webp');
+                const srcSet = localWebp
+                  ? `${slide.image.replace(/\.webp$/, '-380.webp')} 380w, ${slide.image} 760w`
+                  : undefined;
                 const content = (
                   <>
                     <span className="obsidian-parallax-slider__frame">
@@ -395,9 +402,13 @@ export function ParallaxSlider({
                         data-focus={slide.focus}
                         className="obsidian-parallax-slider__image"
                         src={slide.image}
+                        srcSet={srcSet}
+                        sizes={srcSet ? '(max-width: 719px) 360px, 680px' : undefined}
                         alt={readable ? slide.alt ?? slide.title : ''}
+                        width={760}
+                        height={568}
                         draggable={false}
-                        loading="eager"
+                        loading="lazy"
                         decoding="async"
                         style={{ objectPosition: slide.focus }}
                       />

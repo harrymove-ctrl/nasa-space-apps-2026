@@ -233,28 +233,20 @@ export const VERIFIED_OSDR_FALLBACK: OsdrSearchHit[] = [
   },
 ];
 
-function buildDailyHistory(baseSeed: number, currentStatus: 'up' | 'degraded' | 'down', incidentTitle: string): FeedDayStatus[] {
-  const today = new Date('2026-11-14T00:00:00Z').getTime();
+function buildBaselineDays(daysCount: number, statusToday: 'up' | 'degraded' | 'down', todayNote: string): FeedDayStatus[] {
+  const todayMs = Date.UTC(2026, 10, 14);
   const dayMs = 86_400_000;
   const rows: FeedDayStatus[] = [];
-  for (let offset = 59; offset >= 0; offset -= 1) {
-    const iso = new Date(today - offset * dayMs).toISOString().slice(0, 10);
-    const mod = (offset * 17 + baseSeed) % 31;
-    if (offset === 0) {
+  for (let offset = daysCount - 1; offset >= 0; offset -= 1) {
+    const iso = new Date(todayMs - offset * dayMs).toISOString().slice(0, 10);
+    if (offset === 0 && statusToday !== 'up') {
       rows.push({
         date: iso,
-        status: currentStatus,
-        uptime: currentStatus === 'up' ? 100 : 98.4,
-        degraded: currentStatus === 'degraded' ? 18 : undefined,
-        incidents: currentStatus === 'degraded' ? [{ title: incidentTitle, minutes: 18, status: 'degraded' }] : undefined,
-      });
-    } else if (mod === 0) {
-      rows.push({
-        date: iso,
-        status: 'degraded',
-        uptime: 99.1,
-        degraded: 12,
-        incidents: [{ title: incidentTitle, minutes: 12, status: 'degraded' }],
+        status: statusToday,
+        uptime: statusToday === 'down' ? 92.0 : 98.4,
+        degraded: statusToday === 'degraded' ? 18 : undefined,
+        downtime: statusToday === 'down' ? 45 : undefined,
+        incidents: [{ title: todayNote, minutes: statusToday === 'down' ? 45 : 18, status: statusToday }],
       });
     } else {
       rows.push({
@@ -265,6 +257,110 @@ function buildDailyHistory(baseSeed: number, currentStatus: 'up' | 'degraded' | 
     }
   }
   return rows;
+}
+
+function powerDaysFromSeries(
+  t2m: Record<string, number> | undefined,
+  ws10m: Record<string, number> | undefined,
+  live: boolean
+): FeedDayStatus[] {
+  if (!t2m) return buildBaselineDays(45, live ? 'up' : 'degraded', 'NASA POWER grid fallback active');
+  const keys = Object.keys(t2m).sort().slice(-45);
+  if (!keys.length) return buildBaselineDays(45, live ? 'up' : 'degraded', 'NASA POWER empty window');
+
+  return keys.map((k) => {
+    const iso = `${k.slice(0, 4)}-${k.slice(4, 6)}-${k.slice(6, 8)}`;
+    const tVal = t2m[k];
+    const wVal = ws10m?.[k];
+    if (typeof tVal !== 'number' || tVal <= -900) {
+      return {
+        date: iso,
+        status: 'degraded',
+        uptime: 98.5,
+        degraded: 22,
+        incidents: [{ title: 'NASA POWER fill-value day (-999)', minutes: 22, status: 'degraded' }],
+      };
+    }
+    const windStr = typeof wVal === 'number' && wVal > -900 ? `${wVal.toFixed(1)} m/s` : 'valid';
+    if (tVal >= 34 || (typeof wVal === 'number' && wVal >= 10)) {
+      return {
+        date: iso,
+        status: 'degraded',
+        uptime: 99.1,
+        degraded: 14,
+        incidents: [
+          {
+            title: `High thermal/wind stress: ${tVal.toFixed(1)} C · ${windStr}`,
+            minutes: 14,
+            status: 'degraded',
+          },
+        ],
+      };
+    }
+    return {
+      date: iso,
+      status: 'up',
+      uptime: 100,
+    };
+  });
+}
+
+function eonetDaysFromEvents(events: EonetEventItem[], eonetUp: 'up' | 'degraded'): FeedDayStatus[] {
+  const days = buildBaselineDays(45, eonetUp, 'NASA EONET live request fell back to verified cache');
+  const byDate = new Map<string, string[]>();
+  for (const ev of events) {
+    const d = ev.date.slice(0, 10);
+    const list = byDate.get(d) ?? [];
+    list.push(ev.title);
+    byDate.set(d, list);
+  }
+  return days.map((row) => {
+    const hits = byDate.get(row.date);
+    if (!hits?.length) return row;
+    return {
+      ...row,
+      incidents: [
+        ...(row.incidents ?? []),
+        { title: `Open event logged: ${hits[0]}`, minutes: 5, status: 'degraded' },
+      ],
+    };
+  });
+}
+
+function swpcDaysFromKp(rows: unknown[] | undefined, swpcUp: 'up' | 'degraded'): FeedDayStatus[] {
+  const days = buildBaselineDays(45, swpcUp, 'NOAA SWPC live request fell back to cached GOES-18');
+  if (!Array.isArray(rows) || rows.length < 2) return days;
+  const kpByDate = new Map<string, number>();
+  for (const item of rows) {
+    let dayIso: string | null = null;
+    let kpVal = 0;
+    if (Array.isArray(item) && typeof item[0] === 'string') {
+      dayIso = item[0].slice(0, 10);
+      kpVal = Number(item[1] ?? 0);
+    } else if (item && typeof item === 'object') {
+      const rec = item as { time_tag?: string; Kp?: number };
+      if (typeof rec.time_tag === 'string') {
+        dayIso = rec.time_tag.slice(0, 10);
+        kpVal = Number(rec.Kp ?? 0);
+      }
+    }
+    if (dayIso && Number.isFinite(kpVal)) {
+      kpByDate.set(dayIso, Math.max(kpByDate.get(dayIso) ?? 0, kpVal));
+    }
+  }
+  return days.map((row) => {
+    const maxKp = kpByDate.get(row.date);
+    if (typeof maxKp === 'number' && maxKp >= 5) {
+      return {
+        ...row,
+        status: 'degraded',
+        uptime: 98.2,
+        degraded: 25,
+        incidents: [{ title: `Geomagnetic G1+ storm observed (Kp ${maxKp.toFixed(1)})`, minutes: 25, status: 'degraded' }],
+      };
+    }
+    return row;
+  });
 }
 
 export function computeIeee738Physics(preset: CorridorPreset, weather: PowerWeatherReading) {
@@ -301,7 +397,7 @@ export function getInitialTelemetryBundle(): NasaTelemetryBundle {
         current: 'up',
         latencyMs: 310,
         recordsCount: VERIFIED_EONET_FALLBACK.length,
-        days: buildDailyHistory(3, 'up', 'EONET tile ingest delay'),
+        days: eonetDaysFromEvents(VERIFIED_EONET_FALLBACK, 'up'),
       },
       {
         id: 'power',
@@ -310,7 +406,7 @@ export function getInitialTelemetryBundle(): NasaTelemetryBundle {
         current: 'up',
         latencyMs: 420,
         recordsCount: CORRIDOR_PRESETS.length,
-        days: buildDailyHistory(7, 'up', 'POWER daily grid latency spike'),
+        days: buildBaselineDays(45, 'up', 'Awaiting live 45-day NASA POWER point response'),
       },
       {
         id: 'swpc',
@@ -319,7 +415,7 @@ export function getInitialTelemetryBundle(): NasaTelemetryBundle {
         current: 'up',
         latencyMs: 195,
         recordsCount: 3,
-        days: buildDailyHistory(11, 'up', 'GOES-18 primary telemetry switch'),
+        days: buildBaselineDays(45, 'up', 'Awaiting live NOAA SWPC planetary K-index stream'),
       },
       {
         id: 'osdr',
@@ -328,7 +424,7 @@ export function getInitialTelemetryBundle(): NasaTelemetryBundle {
         current: 'up',
         latencyMs: 280,
         recordsCount: 1064,
-        days: buildDailyHistory(19, 'up', 'OSDR search index refresh'),
+        days: buildBaselineDays(45, 'up', 'Awaiting live NASA OSDR search index'),
       },
     ],
     liveSourceCount: 0,
@@ -344,9 +440,12 @@ async function fetchJsonWithTimeout<T>(url: string, ms = 6500): Promise<{ data: 
   try {
     const response = await fetch(url, { signal: controller.signal });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const contentType = response.headers.get('content-type') ?? '';
-    if (!contentType.includes('json')) throw new Error(`Non-JSON response: ${contentType}`);
-    const data = (await response.json()) as T;
+    // EONET v3 Apache sets Content-Type: application/rss+xml on JSON payloads; verify body prefix directly
+    const raw = (await response.text()).trim();
+    if (!raw.startsWith('{') && !raw.startsWith('[')) {
+      throw new Error(`Non-JSON payload (${response.headers.get('content-type') ?? 'unknown'})`);
+    }
+    const data = JSON.parse(raw) as T;
     return { data, latencyMs: Math.round(performance.now() - started) };
   } finally {
     window.clearTimeout(timer);
@@ -355,13 +454,16 @@ async function fetchJsonWithTimeout<T>(url: string, ms = 6500): Promise<{ data: 
 
 function canUseLocalOsdrProxy(): boolean {
   if (typeof window === 'undefined') return false;
-  return ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname);
+  return (
+    ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname) &&
+    ['5179', '4179', '5173', '4173'].includes(window.location.port)
+  );
 }
 
 function powerDateWindow(): { start: string; end: string } {
   const now = new Date();
-  const endD = new Date(now.getTime() - 2 * 86_400_000);
-  const startD = new Date(now.getTime() - 8 * 86_400_000);
+  const endD = new Date(now.getTime() - 3 * 86_400_000);
+  const startD = new Date(now.getTime() - 47 * 86_400_000);
   const fmt = (d: Date) => d.toISOString().slice(0, 10).replaceAll('-', '');
   return { start: fmt(startD), end: fmt(endD) };
 }
@@ -378,9 +480,13 @@ function latestValidPowerValue(map: Record<string, number> | undefined, fallback
   return { val: fallback, date: '2026-11-12' };
 }
 
-export async function fetchCorridorPower(preset: CorridorPreset): Promise<{ reading: PowerWeatherReading; latencyMs: number }> {
+export async function fetchCorridorPower(preset: CorridorPreset): Promise<{
+  reading: PowerWeatherReading;
+  latencyMs: number;
+  days: FeedDayStatus[];
+}> {
   const { start, end } = powerDateWindow();
-  const url = `https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M,WS10M,RH2M&community=RE&longitude=${preset.lon}&latitude=${preset.lat}&start=${start}&end=${end}&format=JSON`;
+  const url = `https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M,WS10M,RH2M,PRECTOTCORR&community=RE&longitude=${preset.lon}&latitude=${preset.lat}&start=${start}&end=${end}&format=JSON`;
   const fb = VERIFIED_POWER_FALLBACK[preset.id] ?? VERIFIED_POWER_FALLBACK['butte-230'];
   const { data, latencyMs } = await fetchJsonWithTimeout<{
     properties?: { parameter?: Record<string, Record<string, number>> };
@@ -391,6 +497,7 @@ export async function fetchCorridorPower(preset: CorridorPreset): Promise<{ read
   const rh = latestValidPowerValue(params?.RH2M, fb.rhPct);
   return {
     latencyMs,
+    days: powerDaysFromSeries(params?.T2M, params?.WS10M, true),
     reading: {
       lat: preset.lat,
       lon: preset.lon,
@@ -533,7 +640,7 @@ export async function fetchLiveNasaBundle(): Promise<NasaTelemetryBundle> {
       current: eonetUp,
       latencyMs: eonetLatency,
       recordsCount: base.eonetEvents.length,
-      days: buildDailyHistory(3, eonetUp, 'EONET live event endpoint timeout'),
+      days: eonetDaysFromEvents(base.eonetEvents, eonetUp),
     },
     {
       id: 'power',
@@ -541,8 +648,11 @@ export async function fetchLiveNasaBundle(): Promise<NasaTelemetryBundle> {
       endpoint: 'power.larc.nasa.gov/api/temporal/daily',
       current: powerUp,
       latencyMs: powerLatency,
-      recordsCount: CORRIDOR_PRESETS.length,
-      days: buildDailyHistory(7, powerUp, 'POWER daily grid latency fallback'),
+      recordsCount: powerRes.status === 'fulfilled' ? powerRes.value.days.length : CORRIDOR_PRESETS.length,
+      days:
+        powerRes.status === 'fulfilled'
+          ? powerRes.value.days
+          : buildBaselineDays(45, 'degraded', 'NASA POWER 45-day daily request fell back to verified reading'),
     },
     {
       id: 'swpc',
@@ -550,8 +660,8 @@ export async function fetchLiveNasaBundle(): Promise<NasaTelemetryBundle> {
       endpoint: 'services.swpc.noaa.gov/json/goes/primary',
       current: swpcUp,
       latencyMs: swpcLatency,
-      recordsCount: 3,
-      days: buildDailyHistory(11, swpcUp, 'NOAA SWPC primary feed fallback'),
+      recordsCount: kpRes.status === 'fulfilled' && Array.isArray(kpRes.value.data) ? kpRes.value.data.length : 3,
+      days: swpcDaysFromKp(kpRes.status === 'fulfilled' ? kpRes.value.data : undefined, swpcUp),
     },
     {
       id: 'osdr',
@@ -560,7 +670,7 @@ export async function fetchLiveNasaBundle(): Promise<NasaTelemetryBundle> {
       current: osdrUp,
       latencyMs: osdrLatency,
       recordsCount: base.osdrTotalHits,
-      days: buildDailyHistory(19, osdrUp, 'NASA OSDR search index fallback'),
+      days: buildBaselineDays(45, osdrUp, 'NASA OSDR same-origin proxy unavailable on static host (verified fallback)'),
     },
   ];
 

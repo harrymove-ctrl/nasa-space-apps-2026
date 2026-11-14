@@ -67,7 +67,14 @@ async function measureVisibleImages(page) {
     () => {
       const imgs = Array.from(document.querySelectorAll('img')).filter((img) => {
         const style = getComputedStyle(img);
-        return style.display !== 'none' && style.visibility !== 'hidden';
+        if (style.display === 'none' || style.visibility === 'hidden') return false;
+        const rect = img.getBoundingClientRect();
+        const clipHost = img.closest('.obsidian-parallax-slider__viewport');
+        const clipRect = clipHost ? clipHost.getBoundingClientRect() : { left: 0, right: window.innerWidth };
+        const inVert = rect.top < window.innerHeight + 600 && rect.bottom > -400;
+        const inHoriz = rect.right > clipRect.left + 8 && rect.left < clipRect.right - 8;
+        const inRange = inVert && inHoriz;
+        return img.loading !== 'lazy' || inRange;
       });
       return imgs.length > 0 && imgs.every((img) => img.complete && img.naturalWidth > 0);
     },
@@ -80,10 +87,20 @@ async function measureVisibleImages(page) {
     const loadedGallery = new Set(
       imgs
         .map((img) => img.getAttribute('src') ?? '')
-        .filter((s) => s.startsWith('/nasa-gallery/') && s.endsWith('.jpg')),
+        .filter((s) => s.startsWith('/nasa-gallery/') && s.endsWith('.webp')),
     );
     const broken = imgs
-      .filter((img) => getComputedStyle(img).display !== 'none' && (!img.complete || img.naturalWidth === 0))
+      .filter((img) => {
+        const style = getComputedStyle(img);
+        if (style.display === 'none' || style.visibility === 'hidden') return false;
+        const rect = img.getBoundingClientRect();
+        const clipHost = img.closest('.obsidian-parallax-slider__viewport');
+        const clipRect = clipHost ? clipHost.getBoundingClientRect() : { left: 0, right: window.innerWidth };
+        const inVert = rect.top < window.innerHeight + 600 && rect.bottom > -400;
+        const inHoriz = rect.right > clipRect.left + 8 && rect.left < clipRect.right - 8;
+        const nearView = inVert && inHoriz;
+        return (img.loading !== 'lazy' || nearView) && (!img.complete || img.naturalWidth === 0);
+      })
       .map((img) => img.getAttribute('src') ?? '');
     return {
       totalImgs: imgs.length,
@@ -287,7 +304,6 @@ async function run() {
     await page.waitForTimeout(2200);
 
     const earthriseDark = await measureEarthrise(page);
-    const imgsDark = await measureVisibleImages(page);
     const foldDark = await auditContrastAndFold(page);
 
     const layoutDark = await page.evaluate(() => {
@@ -305,7 +321,8 @@ async function run() {
 
     await page.screenshot({ path: path.join(SHOTS_DIR, '02-landing-desktop-dark.png') });
     await page.locator('#gallery').scrollIntoViewIfNeeded();
-    await page.waitForTimeout(250);
+    await page.waitForTimeout(350);
+    const imgsDark = await measureVisibleImages(page);
     await page.screenshot({ path: path.join(SHOTS_DIR, '02b-gallery-dark.png') });
 
     // Test ParallaxSlider orientation toggle, inspector drawer, Props Table tab, and ArrowRight nav
@@ -324,10 +341,15 @@ async function run() {
     await page.getByTestId('parallax-toggle-inspector').click();
     await page.getByTestId('parallax-spec-drawer').waitFor({ state: 'visible', timeout: 2000 });
     await page.getByRole('button', { name: 'Props Table' }).click();
-    const hasPropsTable = await page.locator('[data-testid="parallax-spec-drawer"] table').isVisible();
+    const propsRowCount = await page.locator('[data-testid="parallax-spec-drawer"] tbody tr').count();
+    const hasPropsTable = propsRowCount >= 10;
     await page.getByTestId('parallax-toggle-inspector').click();
 
-    // Test GlassDock corridor switch
+    await page.getByTestId('parallax-heading-toggle').click();
+    const hasSliderHeading = await page.locator('.obsidian-parallax-slider h2').isVisible();
+    await page.getByTestId('parallax-heading-toggle').click();
+
+    // Test GlassDock corridor switch + Burning Calendar 2012 spike calibration toggle
     await page.locator('#telemetry').scrollIntoViewIfNeeded();
     await page.waitForTimeout(200);
     await page.screenshot({ path: path.join(SHOTS_DIR, '02c-telemetry-dark.png') });
@@ -336,9 +358,22 @@ async function run() {
     await page.waitForTimeout(200);
     const afterSummary = await page.getByTestId('corridor-physics-summary').textContent();
 
-    // Test KnowledgeMapBox node selection + SourceRail query & keyboard stepping
+    await page.getByTestId('calendar-year-2012').click();
+    await page.getByTestId('calendar-mode-merged_naive').click();
+    const calendarDetail = await page.getByTestId('calendar-year-detail').textContent();
+    await page.getByTestId('calendar-mode-harmonized').click();
+
+    // Test Ask the Grid Copilot + KnowledgeMapBox + SourceRail
     await page.locator('#corridors').scrollIntoViewIfNeeded();
     await page.waitForTimeout(200);
+    await page.getByTestId('copilot-chip-h3').click();
+    await page.waitForTimeout(300);
+    await page.getByTestId('reasoning-trace-toggle').click();
+    await page.getByTestId('tool-ledger-act-ieee').click();
+    await page.waitForTimeout(200);
+    await page.screenshot({ path: path.join(SHOTS_DIR, '02d-copilot-dark.png') });
+    const copilotText = await page.getByTestId('ask-grid-copilot').textContent();
+
     await page.getByTestId('knowledge-node-swpc').click();
     const swpcActive = await page.getByTestId('knowledge-node-swpc').getAttribute('data-active');
     await page.getByTestId('source-question-space').click();
@@ -382,6 +417,10 @@ async function run() {
       parallaxMoved: beforeTrack !== afterTrack,
       orientationAfter,
       hasPropsTable,
+      propsRowCount,
+      hasSliderHeading,
+      calendarShows2012: Boolean(calendarDetail?.includes('2012')),
+      copilotWorks: Boolean(copilotText?.includes('H3') && copilotText?.includes('deratedAmps=')),
       dockSwitched: !beforeSummary?.includes('Maui West 69 kV') && Boolean(afterSummary?.includes('Maui West 69 kV')),
       swpcActive,
       sourceStepped: Boolean(spaceQText?.includes('Quoted Passage · [2]')) && Boolean(steppedBackText?.includes('Quoted Passage · [1]')),
@@ -399,6 +438,7 @@ async function run() {
       !layoutDark.hasWireframeGlobe ||
       !layoutDark.hasParallaxSlider ||
       stressOverflowPx > 0 ||
+      foldDark.heroHeight > 760 ||
       foldDark.heroCtaCount > 2 ||
       !foldDark.h1FitsFold ||
       !foldDark.ctasFitFold ||
@@ -412,6 +452,9 @@ async function run() {
       beforeTrack === afterTrack ||
       orientationAfter !== 'landscape' ||
       !hasPropsTable ||
+      !hasSliderHeading ||
+      !calendarDetail?.includes('2012') ||
+      !copilotText?.includes('deratedAmps=') ||
       !afterSummary?.includes('Maui West 69 kV') ||
       swpcActive !== 'true' ||
       !spaceQText?.includes('Quoted Passage · [2]') ||
@@ -428,21 +471,29 @@ async function run() {
     await page.goto(`${baseUrl}/?skipPreloader=1&theme=light`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(900);
     const foldLight = await auditContrastAndFold(page);
-    const imgsLight = await measureVisibleImages(page);
     const lightCheck = await page.evaluate(() => ({
       isDark: document.documentElement.classList.contains('dark'),
       isWide: document.querySelector('header.andromeda-navbar')?.classList.contains('is-wide') ?? false,
       overflowPx: Math.max(0, document.documentElement.scrollWidth - window.innerWidth),
     }));
     await page.screenshot({ path: path.join(SHOTS_DIR, '03-landing-desktop-light.png') });
-    await page.locator('#gallery').scrollIntoViewIfNeeded();
-    await page.waitForTimeout(200);
+    // Click #gallery link in navbar so hash scroll padding is verified live instead of element scrollIntoViewIfNeeded
+    await page.locator('header a[href="#gallery"]').click();
+    await page.waitForTimeout(350);
+    const imgsLight = await measureVisibleImages(page);
+    const galleryHeadingClear = await page.evaluate(() => {
+      const nav = document.querySelector('header.andromeda-navbar')?.getBoundingClientRect();
+      const h2 = document.querySelector('#gallery h2')?.getBoundingClientRect();
+      return Boolean(nav && h2 && h2.top >= nav.bottom);
+    });
     await page.screenshot({ path: path.join(SHOTS_DIR, '03b-gallery-light.png') });
-    results.push({ check: 'Pass C: Landing Desktop Light (1280x800)', lightCheck, foldLight, imgsLight });
+    results.push({ check: 'Pass C: Landing Desktop Light (1280x800)', lightCheck, foldLight, imgsLight, galleryHeadingClear });
     if (
       lightCheck.isDark ||
       !lightCheck.isWide ||
       lightCheck.overflowPx > 0 ||
+      foldLight.heroHeight > 760 ||
+      !galleryHeadingClear ||
       foldLight.h1Contrast < 4.5 ||
       foldLight.subContrast < 4.5 ||
       imgsLight.brokenCount > 0

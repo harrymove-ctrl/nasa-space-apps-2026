@@ -1,4 +1,13 @@
 import { ArrowUpRight, Radio, ShieldAlert, Wind } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import {
+  fetchLiveAsfSar,
+  fetchLiveFirmsHotspots,
+  getInitialFirmsSnapshot,
+  getInitialSarSnapshot,
+  type AsfSarBundle,
+  type FirmsBundle,
+} from '../data/nasaExtendedClient';
 import {
   computeIeee738Physics,
   CORRIDOR_PRESETS,
@@ -6,10 +15,12 @@ import {
   type NasaTelemetryBundle,
 } from '../data/nasaLiveClient';
 import { CRADLEFLOW_URL, NASA_OPEN_PARTNERS } from '../data/terraspanData';
+import { AskTheGridCopilot } from './aicanvas/AskTheGridCopilot';
 import { GlassDock } from './aicanvas/GlassDock';
 import { SourceRail } from './aicanvas/SourceRail';
 import { KnowledgeMapBox } from './KnowledgeMapBox';
 import { MissionGameBox } from './MissionGameBox';
+import { BurningCalendarPanel } from './obsidian/BurningCalendarPanel';
 import { FeatureDocsPreview } from './obsidian/feature-docs-preview';
 import { FlipText } from './obsidian/flip-text';
 import { InteractiveHoverButton } from './obsidian/interactive-hover-button';
@@ -37,6 +48,23 @@ export function MinimalLandingSections({
 }: MinimalLandingSectionsProps) {
   const weather = bundle.powerByCorridor[activeCorridor.id];
   const physics = computeIeee738Physics(activeCorridor, weather);
+  const [firms, setFirms] = useState<FirmsBundle>(() => getInitialFirmsSnapshot(activeCorridor));
+  const [sar, setSar] = useState<AsfSarBundle>(() => getInitialSarSnapshot(activeCorridor));
+
+  useEffect(() => {
+    let active = true;
+    setFirms(getInitialFirmsSnapshot(activeCorridor));
+    setSar(getInitialSarSnapshot(activeCorridor));
+    void fetchLiveFirmsHotspots(activeCorridor).then((next) => {
+      if (active) setFirms(next);
+    });
+    void fetchLiveAsfSar(activeCorridor).then((next) => {
+      if (active) setSar(next);
+    });
+    return () => {
+      active = false;
+    };
+  }, [activeCorridor]);
 
   return (
     <>
@@ -46,7 +74,8 @@ export function MinimalLandingSections({
             <div>
               <FlipText
                 className="font-mono text-xs uppercase tracking-[0.16em] text-[var(--at-signal-cyan)]"
-                duration={3.4}
+                duration={2.2}
+                loop={false}
               >
                 ORBITAL SURVEY PLATES
               </FlipText>
@@ -142,6 +171,8 @@ export function MinimalLandingSections({
             </div>
           </div>
 
+          <BurningCalendarPanel preset={activeCorridor} firms={firms} sar={sar} />
+
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             {bundle.feedHealth.map((feed) => (
               <div
@@ -186,6 +217,7 @@ export function MinimalLandingSections({
             </button>
           </div>
 
+          <AskTheGridCopilot preset={activeCorridor} bundle={bundle} firms={firms} sar={sar} />
           <KnowledgeMapBox bundle={bundle} stressLongValues={stressLongValues} />
           <SourceRail bundle={bundle} preset={activeCorridor} />
         </div>
