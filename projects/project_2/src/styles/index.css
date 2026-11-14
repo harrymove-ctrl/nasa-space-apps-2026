@@ -1,0 +1,362 @@
+@import "tailwindcss";
+@import "./engine.css";
+
+:root {
+  --brand-orange: #ff4700;
+  --brand-orange-dim: #732000;
+  --brand-orange-glow: rgba(255, 71, 0, 0.28);
+  --cream-white: #fafae5;
+  --cream-muted: rgba(250, 250, 229, 0.72);
+  --bg-primary: #070403;
+  --bg-surface: rgba(14, 9, 7, 0.94);
+  --bg-elevated: rgba(22, 13, 10, 0.96);
+  --border-hud: rgba(255, 71, 0, 0.3);
+  --border-muted: rgba(250, 250, 229, 0.14);
+  --hud-good: #5dff9a;
+  --hud-warn: #fbbf24;
+  --hud-crit: #ff3b30;
+  --ccp-secondary: #8d8b7a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-primary);
+  color: var(--cream-white);
+  font-family: "Space Grotesk", system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mono {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer components {
+  .hud-panel {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-hud);
+    border-radius: 0;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
+  }
+
+  .hud-panel-title {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--brand-orange);
+  }
+
+  .hud-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 6px 10px;
+    border-radius: 0;
+    border: 1px solid rgba(250, 250, 229, 0.22);
+    background: rgba(250, 250, 229, 0.04);
+    color: var(--cream-white);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .hud-btn:hover:not(:disabled) {
+    border-color: var(--brand-orange);
+    background: rgba(255, 71, 0, 0.14);
+  }
+
+  .hud-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .hud-btn--primary {
+    background: var(--brand-orange);
+    border-color: var(--brand-orange);
+    color: #0b0604;
+  }
+
+  .hud-btn--primary:hover:not(:disabled) {
+    background: #ff6224;
+    border-color: #ff6224;
+    color: #0b0604;
+  }
+
+  .hud-btn--good {
+    border-color: rgba(93, 255, 154, 0.55);
+    background: rgba(93, 255, 154, 0.12);
+    color: var(--hud-good);
+  }
+}
+
+/* Frontier Flow ReactFlow Canvas Integration */
+.ff-canvas {
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 30% 25%, rgba(255, 71, 0, 0.07), transparent 55%),
+    #080403;
+}
+
+.ff-node {
+  min-width: 204px;
+  max-width: 238px;
+  background: rgba(16, 10, 8, 0.96);
+  border: 1.5px solid rgba(250, 250, 229, 0.28);
+  border-radius: 0;
+  color: var(--cream-white);
+  font-family: "IBM Plex Mono", monospace;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.65);
+  position: relative;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.ff-node--selected {
+  border-color: var(--brand-orange);
+  box-shadow: 0 0 0 1px var(--brand-orange), 0 10px 24px rgba(255, 71, 0, 0.28);
+}
+
+.ff-node--active {
+  border-color: var(--hud-good);
+  box-shadow: 0 0 16px rgba(93, 255, 154, 0.24);
+}
+
+.ff-node__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(250, 250, 229, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.ff-node__header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.ff-node__title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ff-node__actions {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.ff-node__icon-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid rgba(250, 250, 229, 0.18);
+  background: transparent;
+  color: var(--cream-muted);
+  cursor: pointer;
+}
+
+.ff-node__icon-btn:hover {
+  border-color: var(--brand-orange);
+  color: var(--cream-white);
+}
+
+.ff-node__body {
+  padding: 7px 9px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ff-node__sockets {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 10px;
+}
+
+.ff-node__socket-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ff-node__socket-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 18px;
+  position: relative;
+}
+
+.ff-node__socket-row--right {
+  justify-content: flex-end;
+}
+
+.ff-node__socket-label {
+  font-size: 9.5px;
+  color: var(--cream-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ff-node__field-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding-top: 4px;
+  border-top: 1px dashed rgba(250, 250, 229, 0.12);
+}
+
+.ff-node__field-pill {
+  font-size: 9.5px;
+  padding: 1px 5px;
+  background: rgba(255, 71, 0, 0.12);
+  border: 1px solid rgba(255, 71, 0, 0.35);
+  color: var(--cream-white);
+}
+
+.ff-node__runtime {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 6px;
+  border: 1px solid rgba(250, 250, 229, 0.16);
+  background: rgba(0, 0, 0, 0.45);
+  color: var(--ccp-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ff-node__runtime--active {
+  border-color: rgba(93, 255, 154, 0.5);
+  color: var(--hud-good);
+  background: rgba(93, 255, 154, 0.09);
+}
+
+/* Diamond Logic Gate Node (adapted from Frontier Flow) */
+.ff-node--diamond {
+  width: 120px;
+  height: 120px;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.ff-node--diamond-shape {
+  width: 80px;
+  height: 80px;
+  transform: rotate(45deg);
+  background: rgba(16, 10, 8, 0.96);
+  border: 1.5px solid rgba(241, 196, 15, 0.65);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.ff-node--diamond.ff-node--active .ff-node--diamond-shape {
+  border-color: var(--hud-good);
+  box-shadow: 0 0 18px rgba(93, 255, 154, 0.35);
+}
+
+.ff-node--diamond.ff-node--selected .ff-node--diamond-shape {
+  border-color: var(--brand-orange);
+  box-shadow: 0 0 16px rgba(255, 71, 0, 0.42);
+}
+
+.ff-node--diamond-inner {
+  transform: rotate(-45deg);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.ff-node__handle {
+  width: 11px !important;
+  height: 11px !important;
+  border-radius: 0 !important;
+  border: 1.5px solid #090504 !important;
+}
+
+@media (pointer: coarse) {
+  .ff-node__handle::after {
+    content: "";
+    position: absolute;
+    inset: -5px -14px;
+  }
+
+  .ff-node__icon-btn::after {
+    content: "";
+    position: absolute;
+    inset: -6px;
+  }
+}
+
+@media (max-height: 500px) {
+  .short-vp-hide {
+    display: none !important;
+  }
+}
+
+.react-flow__controls {
+  border-radius: 0 !important;
+  border: 1px solid var(--border-hud) !important;
+  background: rgba(12, 7, 5, 0.92) !important;
+}
+
+.react-flow__controls-button {
+  background: rgba(18, 10, 7, 0.95) !important;
+  border-bottom: 1px solid var(--border-hud) !important;
+  fill: var(--cream-white) !important;
+  color: var(--cream-white) !important;
+}
+
+.react-flow__controls-button:hover {
+  background: rgba(255, 71, 0, 0.2) !important;
+}
+
+.react-flow__attribution {
+  background: rgba(9, 5, 4, 0.55) !important;
+  color: rgba(250, 250, 229, 0.35) !important;
+  font-size: 9px !important;
+  padding: 1px 5px !important;
+}
+
+.react-flow__attribution a {
+  color: rgba(250, 250, 229, 0.4) !important;
+}

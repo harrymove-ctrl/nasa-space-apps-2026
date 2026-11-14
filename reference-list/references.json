@@ -1,0 +1,96 @@
+{
+  "updatedAt": "2026-11-13T12:59:00.000Z",
+  "references": [
+    {
+      "id": "ask-the-grid",
+      "name": "Ask the Grid (Interactive Power Grid Map & Conversational Energy Intelligence)",
+      "url": "https://askthegrid.com/",
+      "role": "Primary UI/UX reference for geospatial transmission/pipeline corridor mapping and plain-English operator queries",
+      "status": "saved_for_nov_14_start",
+      "addedDate": "2026-11-11"
+    },
+    {
+      "id": "openinframap",
+      "name": "OpenInfraMap (Global Power Grid, Pipeline & Telecom Symbology)",
+      "url": "https://openinframap.org/",
+      "role": "Visual styling reference for voltage-tiered transmission lines, substations, and energy pipeline overlays",
+      "status": "saved_for_nov_14_start",
+      "addedDate": "2026-11-13"
+    },
+    {
+      "id": "nasa-firms-keyless",
+      "name": "NASA FIRMS 24h Global CSV Feeds (MODIS C6.1, VIIRS NOAA-20 J1, VIIRS NOAA-21 J2)",
+      "url": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/noaa-20-viirs-c2/csv/J1_VIIRS_C2_Global_24h.csv",
+      "endpoints": [
+        "https://firms.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/csv/MODIS_C6_1_Global_24h.csv",
+        "https://firms.modaps.eosdis.nasa.gov/data/active_fire/noaa-20-viirs-c2/csv/J1_VIIRS_C2_Global_24h.csv",
+        "https://firms.modaps.eosdis.nasa.gov/data/active_fire/noaa-21-viirs-c2/csv/J2_VIIRS_C2_Global_24h.csv"
+      ],
+      "role": "Verified HTTP 200 keyless active thermal anomaly feeds for MODIS + VIIRS spatiotemporal harmonization",
+      "status": "verified_http_200_nov_13",
+      "addedDate": "2026-11-13"
+    },
+    {
+      "id": "nasa-gibs-wmts",
+      "name": "NASA GIBS WMTS / XYZ Slippy-Map Raster & Vector Tiles",
+      "url": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_NOAA20_Thermal_Anomalies_375m_All/default/{Time}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.png",
+      "role": "Keyless satellite imagery and thermal anomaly tile overlays for MapLibre GL frontend",
+      "status": "verified_keyless_nov_13",
+      "addedDate": "2026-11-13"
+    },
+    {
+      "id": "nasa-eonet-v3",
+      "name": "NASA EONET v3 Natural Hazard Events API",
+      "url": "https://eonet.gsfc.nasa.gov/api/v3/events?limit=50&status=open",
+      "role": "Live keyless GeoJSON/JSON feed for active wildfires, severe storms, floods, volcanoes, and landslides",
+      "status": "verified_http_200_nov_13",
+      "addedDate": "2026-11-13"
+    },
+    {
+      "id": "nasa-power-api",
+      "name": "NASA POWER Meteorology & Solar API",
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M,WS10M,WD10M,PRECTOTCORR,RH2M,ALLSKY_SFC_SW_DWN&community=RE&longitude=-121.5&latitude=39.8&start=20250101&end=20250102&format=JSON",
+      "role": "Keyless point meteorology (temperature, 10m wind vector, precipitation, RH, irradiance) for IEEE 738 dynamic line rating and TTCE",
+      "status": "verified_http_200_nov_13",
+      "addedDate": "2026-11-13"
+    },
+    {
+      "id": "nasa-asf-sar",
+      "name": "NASA Alaska Satellite Facility (ASF) DAAC SAR Search API",
+      "url": "https://api.daac.asf.alaska.edu/services/search/param?dataset=SENTINEL-1&maxResults=10&output=geojson",
+      "role": "Keyless GeoJSON search for Sentinel-1, OPERA-S1, and NISAR InSAR ground deformation granules",
+      "status": "verified_http_200_nov_13",
+      "addedDate": "2026-11-13"
+    },
+    {
+      "id": "nasa-cmr-nasadem",
+      "name": "NASA Earthdata CMR NASADEM 30m Elevation Granule Search",
+      "url": "https://cmr.earthdata.nasa.gov/search/granules.json?short_name=NASADEM_HGT&page_size=10",
+      "role": "Keyless terrain elevation metadata lookup for slope factor and line clearance modeling",
+      "status": "verified_http_200_nov_13",
+      "addedDate": "2026-11-13"
+    },
+    {
+      "id": "space-apps-winners-playbook",
+      "name": "NASA Space Apps 2024 & 2025 Global Winners + Reddit/Judging Playbook",
+      "url": "https://www.spaceappschallenge.org/2025/awards/global-winners/",
+      "benchmarks": [
+        "Waterwise (2024 Best Use of Data): multi-layer NASA data converted into field-level actionable metrics",
+        "SkySense (2025 Best Use of Technology): robust multi-feed pipeline producing intuitive risk probabilities",
+        "42 QuakeHeroes (2024 Best Use of Technology): physics/ML signal detection with transparent reasoning",
+        "Global Judging 30-Second Video Rule: strict <= 0:30 showcase video or 7-slide deck on Project Tab"
+      ],
+      "role": "Judging alignment, 30-second video beat structure, and 7-slide companion deck rubric",
+      "status": "saved_for_nov_14_start",
+      "addedDate": "2026-11-13"
+    },
+    {
+      "id": "infra-twin-stack",
+      "name": "Physical Infrastructure Satellite + Weather + Terrain + Drone/Sensor Digital Twin Architecture",
+      "docPath": "/Volumes/Dev/nasa-space-apps-2026/docs/IDEA_INFRASTRUCTURE_TWIN.md",
+      "stack": "Rust (jobs, simulators, digital twin) + TypeScript/Bun/Hono (BFF) + TanStack/Bun/React (Frontend) + PostgreSQL/PostGIS + NATS + Redis + Kubernetes (k8s)",
+      "status": "saved_for_nov_14_start",
+      "addedDate": "2026-11-11"
+    }
+  ]
+}
