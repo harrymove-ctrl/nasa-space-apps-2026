@@ -8,6 +8,7 @@ import {
 } from "@xyflow/react";
 import {
   Activity,
+  ArrowLeft,
   Award,
   Compass,
   Dna,
@@ -65,7 +66,42 @@ import type {
 type ActiveTab = "trainer" | "donki" | "osdr";
 type MobileTrainerPane = "canvas" | "palette" | "hud";
 
+interface TerraSpanHandoff {
+  readonly embedded: boolean;
+  readonly corridor: string | null;
+  readonly flux: string | null;
+  readonly kp: string | null;
+  readonly waves: string | null;
+  readonly returnUrl: string;
+}
+
+function parseTerraSpanHandoff(): TerraSpanHandoff {
+  if (typeof window === "undefined") {
+    return {
+      embedded: false,
+      corridor: null,
+      flux: null,
+      kp: null,
+      waves: null,
+      returnUrl: "https://terraspan-production.up.railway.app",
+    };
+  }
+  const params = new URLSearchParams(window.location.search);
+  const defaultReturn = window.location.pathname.startsWith("/cradleflow")
+    ? "/?skipPreloader=1"
+    : "https://terraspan-production.up.railway.app";
+  return {
+    embedded: params.get("embedded") === "1",
+    corridor: params.get("corridor"),
+    flux: params.get("flux"),
+    kp: params.get("kp"),
+    waves: params.get("waves"),
+    returnUrl: params.get("returnUrl") || defaultReturn,
+  };
+}
+
 export function App() {
+  const handoff = useMemo(parseTerraSpanHandoff, []);
   const defaultPreset = FLOW_PRESETS[0];
   const [activeTab, setActiveTab] = useState<ActiveTab>("trainer");
   const [mobilePane, setMobilePane] = useState<MobileTrainerPane>("canvas");
@@ -502,6 +538,16 @@ export function App() {
                   <Compass size={13} className="shrink-0" />
                   <span className="truncate">Tour</span>
                 </button>
+                {!handoff.embedded ? (
+                  <a
+                    href={handoff.returnUrl}
+                    data-testid="back-to-terraspan"
+                    className="hud-btn justify-center px-2 py-0.5 text-[10px] text-[#38bdf8] sm:justify-start sm:py-1 sm:text-[10.5px] lg:px-2.5 lg:py-1.5 lg:text-[11px]"
+                  >
+                    <ArrowLeft size={13} className="shrink-0" />
+                    <span className="truncate">Earth Twin</span>
+                  </a>
+                ) : null}
               </nav>
             </div>
 
@@ -611,6 +657,28 @@ export function App() {
               </div>
             </div>
           </header>
+
+          {handoff.corridor ? (
+            <div
+              data-testid="terraspan-handoff-banner"
+              className="mono flex flex-wrap items-center justify-between gap-2 border-b border-[rgba(56,189,248,0.3)] bg-[#080d14] px-2.5 py-1 text-[10.5px] text-[#e2f2ff]"
+            >
+              <span className="truncate">
+                <strong className="text-[#38bdf8]">SYNCED FROM TERRASPAN //</strong>{" "}
+                <span className="text-[#fafae5]">{handoff.corridor}</span>
+                {" · "}
+                <span className="text-[#ff8a5c]">
+                  GOES-18 {handoff.flux ?? provenance.goesProton10Mev} pfu
+                </span>
+                {" · "}
+                <span>Kp {handoff.kp ?? provenance.swpcKp}</span>
+                {" · "}
+                <span className="text-[#5dff9a]">
+                  Phase 01 Triage {handoff.waves ?? "Verified"}
+                </span>
+              </span>
+            </div>
+          ) : null}
 
           <CadetTourBar
             open={tourOpen}

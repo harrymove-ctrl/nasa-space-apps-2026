@@ -62,12 +62,12 @@ export function HowItWorksSection({
       onAction: onOpenKnowledgeMap,
     },
     {
-      step: '04 / Train',
-      title: '3-Wave Triage & CradleFlow Twin',
+      step: '04 / Automate',
+      title: 'Phase 01 Triage -> Phase 02 CradleFlow',
       metric: `${bundle.osdrTotalHits || bundle.osdrStudies.length} OSDR bio records`,
       summary:
-        'Connects wildfire corridor triage drills with the standalone CradleFlow lunar and Mars astronaut shelter simulator.',
-      actionLabel: 'Run 3-Wave Drill',
+        'Phase 01 3-wave corridor and solar triage escalates live GOES-18, DONKI, and OSDR telemetry directly into Phase 02 CradleFlow shelter automation inside this same workspace.',
+      actionLabel: 'Open Unified Trainer',
       icon: Compass,
       accent: 'var(--at-signal-fire)',
       onAction: onOpenMissionGame,
@@ -87,7 +87,7 @@ export function HowItWorksSection({
               SYSTEM PIPELINE
             </span>
             <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[var(--at-text-primary)] sm:text-4xl">
-              How TerraSpan Turns Orbital Feeds into Grid Decisions
+              How One Orbital Pipeline Protects Earth Grids and Space Habitats
             </h2>
           </div>
 

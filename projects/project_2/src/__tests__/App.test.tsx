@@ -174,4 +174,26 @@ describe("CradleFlow App Integration UI", () => {
       globalThis.fetch = originalFetch;
     }
   });
+
+  it("renders TerraSpan telemetry handoff banner when launched with corridor query context", async () => {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = vi.fn(() => Promise.reject(new Error("Offline unit render"))) as unknown as typeof fetch;
+    window.history.replaceState({}, "", "/?corridor=Butte%20230%20kV&flux=1.8&kp=4&waves=3/3");
+
+    try {
+      render(<App />);
+      await waitFor(() => {
+        expect(screen.getByTestId("terraspan-handoff-banner")).toBeInTheDocument();
+      });
+      const bannerText = screen.getByTestId("terraspan-handoff-banner").textContent ?? "";
+      expect(bannerText).toContain("SYNCED FROM TERRASPAN");
+      expect(bannerText).toContain("Butte 230 kV");
+      expect(bannerText).toContain("GOES-18 1.8 pfu");
+      expect(bannerText).toContain("3/3");
+      expect(screen.getByTestId("back-to-terraspan")).toBeInTheDocument();
+    } finally {
+      window.history.replaceState({}, "", "/");
+      globalThis.fetch = originalFetch;
+    }
+  });
 });

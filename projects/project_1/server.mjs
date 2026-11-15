@@ -28,6 +28,7 @@ const PROXY_ROUTES = [
   ['/proxy/firms', 'https://firms.modaps.eosdis.nasa.gov'],
   ['/proxy/asf', 'https://api.daac.asf.alaska.edu'],
   ['/proxy/cmr', 'https://cmr.earthdata.nasa.gov'],
+  ['/proxy/donki', 'https://ccmc.gsfc.nasa.gov'],
 ];
 
 async function handleProxy(req, res, urlPath, search) {
@@ -74,6 +75,12 @@ function serveStatic(res, urlPath) {
   }
 
   let target = resolved;
+  if (fs.existsSync(target) && fs.statSync(target).isDirectory()) {
+    const dirIndex = path.join(target, 'index.html');
+    if (fs.existsSync(dirIndex)) {
+      target = dirIndex;
+    }
+  }
   if (!fs.existsSync(target) || fs.statSync(target).isDirectory()) {
     const hasExtension = Boolean(path.extname(safeRelative));
     if (hasExtension) {

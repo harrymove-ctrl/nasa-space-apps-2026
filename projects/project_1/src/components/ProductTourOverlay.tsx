@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, Compass, ExternalLink, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Compass, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 type TourView = 'landing' | 'map' | 'game';
@@ -47,7 +47,7 @@ const TOUR_STEPS: readonly TourStep[] = [
     title: 'Step 5 of 5: 3-Wave Operator Triage & CradleFlow',
     target: '?view=game',
     detail:
-      'Clear all three emergency triage waves using harmonized NASA telemetry, then launch the standalone CradleFlow outpost trainer below.',
+      'Clear Phase 01 corridor and GOES-18 triage, then escalate live orbital telemetry directly into Phase 02 CradleFlow shelter automation in-app.',
     view: 'game',
   },
 ];
@@ -57,7 +57,7 @@ interface ProductTourOverlayProps {
   onClose: () => void;
   onSwitchView: (nextView: TourView) => void;
   onNavigateSection: (hash: string) => void;
-  cradleflowUrl: string;
+  onOpenCradleFlow: () => void;
 }
 
 export function ProductTourOverlay({
@@ -65,7 +65,7 @@ export function ProductTourOverlay({
   onClose,
   onSwitchView,
   onNavigateSection,
-  cradleflowUrl,
+  onOpenCradleFlow,
 }: ProductTourOverlayProps) {
   const [stepIndex, setStepIndex] = useState(0);
 
@@ -213,15 +213,17 @@ export function ProductTourOverlay({
         </div>
 
         {isLast ? (
-          <a
-            href={cradleflowUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1 font-mono text-[11px] font-medium text-[var(--at-signal-cyan)] hover:underline"
+          <button
+            type="button"
+            data-testid="tour-launch-cradleflow"
+            onClick={() => {
+              onClose();
+              onOpenCradleFlow();
+            }}
+            className="inline-flex cursor-pointer items-center gap-1 font-mono text-[11px] font-medium text-[var(--at-signal-cyan)] hover:underline"
           >
-            Open CradleFlow
-            <ExternalLink className="size-3" aria-hidden="true" />
-          </a>
+            Open Phase 02: CradleFlow
+          </button>
         ) : (
           <span className="font-mono text-[10px] text-[var(--at-text-dim)]">
             Arrows step · Esc closes

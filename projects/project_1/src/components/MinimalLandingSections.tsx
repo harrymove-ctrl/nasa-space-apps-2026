@@ -14,7 +14,7 @@ import {
   type CorridorPreset,
   type NasaTelemetryBundle,
 } from '../data/nasaLiveClient';
-import { CRADLEFLOW_URL, NASA_OPEN_PARTNERS } from '../data/terraspanData';
+import { NASA_OPEN_PARTNERS } from '../data/terraspanData';
 import { AskTheGridCopilot } from './aicanvas/AskTheGridCopilot';
 import { GlassDock } from './aicanvas/GlassDock';
 import { SourceRail } from './aicanvas/SourceRail';
@@ -35,6 +35,7 @@ interface MinimalLandingSectionsProps {
   onSelectCorridor: (id: string) => void;
   onOpenKnowledgeMap: () => void;
   onOpenMissionGame: () => void;
+  onOpenCradleFlow: () => void;
   onStartTour: () => void;
   stressLongValues?: boolean;
 }
@@ -46,6 +47,7 @@ export function MinimalLandingSections({
   onSelectCorridor,
   onOpenKnowledgeMap,
   onOpenMissionGame,
+  onOpenCradleFlow,
   onStartTour,
   stressLongValues = false,
 }: MinimalLandingSectionsProps) {
@@ -239,15 +241,15 @@ export function MinimalLandingSections({
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
             <div>
               <span className="font-mono text-xs uppercase tracking-[0.14em] text-[var(--at-signal-fire)]">
-                DUAL WORKSPACE MISSIONS
+                UNIFIED EARTH TO ORBIT WORKSPACE
               </span>
               <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[var(--at-text-primary)] sm:text-4xl">
-                TerraSpan Earth Twin Paired with CradleFlow
+                From Corridor Fire Triage to Habitat Storm Automation
               </h2>
             </div>
 
-            <InteractiveHoverButton href={CRADLEFLOW_URL} target="_blank" rel="noreferrer">
-              Open CradleFlow Trainer
+            <InteractiveHoverButton onClick={onOpenCradleFlow}>
+              Open Phase 02: CradleFlow Canvas
             </InteractiveHoverButton>
           </div>
 
@@ -258,7 +260,7 @@ export function MinimalLandingSections({
                 title: (
                   <div className="space-y-1">
                     <div className="font-mono text-xs uppercase tracking-[0.12em] text-[var(--at-signal-fire)]">
-                      Earth Grid Twin
+                      Phase 01 · Earth Grid Triage
                     </div>
                     <div className="text-2xl font-semibold text-[var(--at-text-primary)]">
                       TerraSpan
@@ -267,16 +269,16 @@ export function MinimalLandingSections({
                 ),
                 description:
                   '26-year MODIS C6.1 and VIIRS 375 m hotspot harmonization paired with NASA POWER IEEE 738 ampacity derating.',
-                tag: 'Open Full Drill',
+                tag: 'Open Phase 01 Drill',
                 onClick: onOpenMissionGame,
-                ariaLabel: 'Launch 3-Wave TerraSpan Drill',
+                ariaLabel: 'Launch Phase 01 TerraSpan Drill',
               },
               {
                 id: 'cradleflow-card',
                 title: (
                   <div className="space-y-1">
                     <div className="font-mono text-xs uppercase tracking-[0.12em] text-[var(--at-signal-cyan)]">
-                      Astronaut Trainer
+                      Phase 02 · Habitat Automation
                     </div>
                     <div className="text-2xl font-semibold text-[var(--at-text-primary)]">
                       CradleFlow
@@ -284,18 +286,17 @@ export function MinimalLandingSections({
                   </div>
                 ),
                 description:
-                  'Live React Flow station builder powered by NASA DONKI CMEs, GOES-18 protons, and 1,064 NASA OSDR radiation bio-studies.',
-                tag: 'Launch CradleFlow',
-                href: CRADLEFLOW_URL,
-                target: '_blank',
-                rel: 'noreferrer',
-                ariaLabel: 'Open CradleFlow Astronaut Mission Trainer',
+                  'Live React Flow station builder synced with corridor GOES-18 flux, NASA DONKI CMEs, and 1,064+ NASA OSDR bio-assays.',
+                tag: 'Open Phase 02 Canvas',
+                onClick: onOpenCradleFlow,
+                ariaLabel: 'Open Phase 02 CradleFlow Habitat Automation Canvas',
               },
             ]}
           />
 
           <MissionGameBox
             bundle={bundle}
+            activeCorridor={activeCorridor}
             embedded
             stressLongValues={stressLongValues}
             onOpenKnowledgeMap={onOpenKnowledgeMap}
@@ -307,22 +308,21 @@ export function MinimalLandingSections({
         <div className="lp-container flex flex-col justify-between gap-6 md:flex-row md:items-center">
           <div className="space-y-1.5">
             <div className="text-sm font-semibold text-[var(--at-text-primary)]">
-              TerraSpan and CradleFlow for NASA Space Apps Challenge 2026
+              TerraSpan and CradleFlow Unified Platform for NASA Space Apps Challenge 2026
             </div>
             <p className="font-mono text-xs text-[var(--at-text-dim)]">
               Open public data attribution: {NASA_OPEN_PARTNERS.join(' | ')}
             </p>
           </div>
 
-          <a
-            href={CRADLEFLOW_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1.5 font-mono text-xs font-medium text-[var(--at-signal-cyan)] hover:underline"
+          <button
+            type="button"
+            onClick={onOpenCradleFlow}
+            className="inline-flex cursor-pointer items-center gap-1.5 font-mono text-xs font-medium text-[var(--at-signal-cyan)] hover:underline"
           >
-            Launch CradleFlow Mission Simulator
+            Open Phase 02: CradleFlow Simulator
             <ArrowUpRight className="size-3.5" aria-hidden="true" />
-          </a>
+          </button>
         </div>
       </footer>
     </>

@@ -30,6 +30,7 @@ const nasaProxies = {
   ...makeNasaProxy('/proxy/firms', 'https://firms.modaps.eosdis.nasa.gov'),
   ...makeNasaProxy('/proxy/asf', 'https://api.daac.asf.alaska.edu'),
   ...makeNasaProxy('/proxy/cmr', 'https://cmr.earthdata.nasa.gov'),
+  ...makeNasaProxy('/proxy/donki', 'https://ccmc.gsfc.nasa.gov'),
 };
 
 export default defineConfig({

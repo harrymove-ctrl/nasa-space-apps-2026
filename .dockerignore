@@ -1,0 +1,10 @@
+.git
+.cache
+.railway
+**/node_modules
+**/dist
+projects/project_1/public/cradleflow
+projects/project_1/docs/qa-shots
+reference-project
+docs
+.agents

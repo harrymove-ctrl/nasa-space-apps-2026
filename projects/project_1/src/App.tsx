@@ -7,10 +7,10 @@ import { MissionGameBox } from './components/MissionGameBox';
 import { Navbar } from './components/Navbar';
 import { PreloaderOverlay } from './components/PreloaderOverlay';
 import { ProductTourOverlay } from './components/ProductTourOverlay';
-import { CRADLEFLOW_URL } from './data/terraspanData';
 import { useNasaTelemetry } from './data/useNasaTelemetry';
 
 type ViewMode = 'landing' | 'map' | 'game';
+type MissionStage = 'triage' | 'cradleflow';
 
 function parseUrlFlags() {
   if (typeof window === 'undefined') {
@@ -18,6 +18,7 @@ function parseUrlFlags() {
       skipPreloader: false,
       holdMode: false,
       initialView: 'landing' as ViewMode,
+      initialStage: 'triage' as MissionStage,
       initialTour: false,
       debug: false,
       theme: null as 'light' | 'dark' | null,
@@ -27,6 +28,8 @@ function parseUrlFlags() {
   const viewParam = params.get('view');
   const initialView: ViewMode =
     viewParam === 'map' ? 'map' : viewParam === 'game' ? 'game' : 'landing';
+  const initialStage: MissionStage =
+    params.get('stage') === 'cradleflow' ? 'cradleflow' : 'triage';
   const themeParam = params.get('theme');
   const theme: 'light' | 'dark' | null =
     themeParam === 'light' ? 'light' : themeParam === 'dark' ? 'dark' : null;
@@ -36,6 +39,7 @@ function parseUrlFlags() {
     skipPreloader: params.get('skipPreloader') === '1' || initialView !== 'landing' || initialTour,
     holdMode: params.get('hold') === '1',
     initialView,
+    initialStage,
     initialTour,
     debug: params.get('debug') === '1',
     theme,
@@ -46,6 +50,7 @@ export function App() {
   const [flags] = useState(parseUrlFlags);
   const [showPreloader, setShowPreloader] = useState(!flags.skipPreloader);
   const [view, setView] = useState<ViewMode>(flags.initialView);
+  const [missionStage, setMissionStage] = useState<MissionStage>(flags.initialStage);
   const [tourOpen, setTourOpen] = useState(flags.initialTour);
   const [stressLongValues, setStressLongValues] = useState(false);
   const [isDark, setIsDark] = useState<boolean>(() => {
@@ -70,14 +75,23 @@ export function App() {
     else root.classList.remove('dark');
   }, [isDark]);
 
-  const switchView = (nextView: ViewMode) => {
+  const switchView = (nextView: ViewMode, stage: MissionStage = 'triage') => {
     setView(nextView);
+    if (nextView === 'game') {
+      setMissionStage(stage);
+    }
     if (typeof window !== 'undefined') {
       const url = new URL(window.location.href);
       if (nextView === 'landing') {
         url.searchParams.delete('view');
+        url.searchParams.delete('stage');
       } else {
         url.searchParams.set('view', nextView);
+        if (nextView === 'game' && stage === 'cradleflow') {
+          url.searchParams.set('stage', 'cradleflow');
+        } else {
+          url.searchParams.delete('stage');
+        }
         url.hash = '';
       }
       window.history.replaceState({}, '', url.toString());
@@ -92,6 +106,7 @@ export function App() {
       if (typeof window !== 'undefined') {
         const url = new URL(window.location.href);
         url.searchParams.delete('view');
+        url.searchParams.delete('stage');
         url.hash = nextHash;
         window.history.replaceState({}, '', url.toString());
       }
@@ -150,7 +165,8 @@ export function App() {
                 void selectCorridor(id);
               }}
               onOpenKnowledgeMap={() => switchView('map')}
-              onOpenMissionGame={() => switchView('game')}
+              onOpenMissionGame={() => switchView('game', 'triage')}
+              onOpenCradleFlow={() => switchView('game', 'cradleflow')}
               onStartTour={() => setTourOpen(true)}
               stressLongValues={stressLongValues}
             />
@@ -167,6 +183,9 @@ export function App() {
           <div className="lp-container py-10">
             <MissionGameBox
               bundle={bundle}
+              activeCorridor={activeCorridor}
+              stage={missionStage}
+              onStageChange={(nextStage) => switchView('game', nextStage)}
               onBack={() => switchView('landing')}
               onOpenKnowledgeMap={() => switchView('map')}
               stressLongValues={stressLongValues}
@@ -180,7 +199,7 @@ export function App() {
         onClose={() => setTourOpen(false)}
         onSwitchView={switchView}
         onNavigateSection={handleNavigateSection}
-        cradleflowUrl={CRADLEFLOW_URL}
+        onOpenCradleFlow={() => switchView('game', 'cradleflow')}
       />
 
       {flags.debug && (

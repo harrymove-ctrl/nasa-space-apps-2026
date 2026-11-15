@@ -558,6 +558,33 @@ async function run() {
       throw new Error(`Pass E2 Guided Tour failed: ${JSON.stringify(results.at(-1))}`);
     }
 
+    // Pass E3: Unified TerraSpan to CradleFlow Flow
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(`${baseUrl}/?skipPreloader=1&view=game&stage=cradleflow`, {
+      waitUntil: 'domcontentloaded',
+    });
+    await page.getByTestId('cradleflow-embed-frame').waitFor({ state: 'visible', timeout: 8000 });
+    const cradleFrame = page.frameLocator('[data-testid="cradleflow-embed-frame"]');
+    await cradleFrame.getByTestId('terraspan-handoff-banner').waitFor({ state: 'visible', timeout: 8000 });
+    const handoffText = await cradleFrame.getByTestId('terraspan-handoff-banner').textContent();
+    const frameTitleVisible = await cradleFrame
+      .getByText('CRADLEFLOW // JUNIOR ASTRONAUT TRAINER')
+      .isVisible();
+    const unifiedOverflowPx = await page.evaluate(() =>
+      Math.max(0, document.documentElement.scrollWidth - window.innerWidth),
+    );
+    await page.screenshot({ path: path.join(SHOTS_DIR, '05b-unified-cradleflow-phase2.png') });
+    const passE3 = {
+      check: 'Pass E3: Unified TerraSpan to CradleFlow Flow',
+      hasBanner: Boolean(handoffText?.includes('SYNCED FROM TERRASPAN') && handoffText?.includes('Butte 230 kV')),
+      frameTitleVisible,
+      overflowPx: unifiedOverflowPx,
+    };
+    results.push(passE3);
+    if (!passE3.hasBanner || !passE3.frameTitleVisible || passE3.overflowPx > 0) {
+      throw new Error(`Pass E3 Unified Flow failed: ${JSON.stringify(passE3)}`);
+    }
+
     // Pass F: Mobile Viewport (390x844) + Popover Nav + Zero Overflow
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`${baseUrl}/?skipPreloader=1`, { waitUntil: 'domcontentloaded' });
