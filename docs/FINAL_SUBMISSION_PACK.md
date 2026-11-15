@@ -78,16 +78,16 @@ TerraSpan (`https://terraspan-production.up.railway.app`) eliminates login barri
 
 | Order | Local PNG File (`projects/project_1/public/submission/images/`) | Size | Suggested Section Caption in Project Editor |
 | :--- | :--- | :--- | :--- |
-| 1 | `01-architecture-pipeline.png` | `0.70 MB` | Figure 1: Four stage NASA feed ingestion, harmonization physics, and CradleFlow escalation architecture. |
-| 2 | `02-overview-burning-calendar.png` | `1.02 MB` | Figure 2: TerraSpan live observatory displaying IEEE 738 conductor limits, TTCE lead time, and MODIS+VIIRS telemetry. |
-| 3 | `03-orbital-provenance-map.png` | `0.49 MB` | Figure 3: Five layer orbital data provenance map binding claims to MODIS+VIIRS, EONET, POWER, GOES 18, and OSDR. |
-| 4 | `04-earth-grid-triage-phase1.png` | `0.47 MB` | Figure 4: Phase 01 three wave interactive triage drill across grid corridors and space weather alerts. |
-| 5 | `05-cradleflow-habitat-phase2.png` | `0.58 MB` | Figure 5: Same origin Phase 02 CradleFlow React Flow shelter automation synced directly from TerraSpan. |
+| 1 | `01-architecture-pipeline.png` | `0.19 MB` | Figure 1: Four stage `mdxcn` architecture pipeline and eight NASA feed specification over `ascii.rest` Earthrise canvas. |
+| 2 | `02-overview-burning-calendar.png` | `0.64 MB` | Figure 2: TerraSpan live observatory framed in `mdxcn` over `ascii.rest` Earth canvas with IEEE 738 limits and TTCE lead time. |
+| 3 | `03-orbital-provenance-map.png` | `0.43 MB` | Figure 3: Five layer orbital data provenance map framed in `mdxcn` over `ascii.rest` Radar canvas binding claims to NASA endpoints. |
+| 4 | `04-earth-grid-triage-phase1.png` | `0.40 MB` | Figure 4: Phase 01 three wave interactive triage drill framed in `mdxcn` over `ascii.rest` Aurora canvas across grid corridors. |
+| 5 | `05-cradleflow-habitat-phase2.png` | `0.39 MB` | Figure 5: Same origin Phase 02 CradleFlow React Flow shelter automation framed in `mdxcn` over `ascii.rest` Solar System canvas. |
 
 ### Field 6: Use of Artificial Intelligence (AI) / Super Intelligence (SI)
 
 ```text
-AI coding and developer workflow tools (Antigravity coding assistants and Claude/Gemini code generation models) were used during the November 14 to November 15, 2026 hackathon build window to accelerate TypeScript React component implementation, automated Playwright viewport verification scripts, SVG diagram styling, and deterministic ffmpeg demo video assembly. No AI models ran on participant submitted private datasets prior to Nov 14, 2026, and all NASA, ESA, and NOAA open data integrations, MODIS + VIIRS footprint clustering math, IEEE 738 dynamic conductor equations, React Flow habitat automation rules, and live server proxy infrastructure are original engineering verified directly against live endpoints and test suites.
+AI coding and developer workflow tools (Antigravity coding assistants and Claude/Gemini code generation models) were used during the November 14 to November 15, 2026 hackathon build window to accelerate TypeScript React component implementation, automated Playwright viewport verification scripts, mdxcn and ascii.rest presentation figures, and deterministic ffmpeg demo video assembly. No AI models ran on participant submitted private datasets prior to Nov 14, 2026, and all NASA, ESA, and NOAA open data integrations, MODIS + VIIRS footprint clustering math, IEEE 738 dynamic conductor equations, React Flow habitat automation rules, and live server proxy infrastructure are original engineering verified directly against live endpoints and test suites.
 ```
 
 ### Field 7: NASA Data
@@ -122,9 +122,9 @@ AI coding and developer workflow tools (Antigravity coding assistants and Claude
 | `[x]` | `A2` | Verify server proxies (`/proxy/firms`, `/proxy/asf`, `/proxy/cmr`, `/proxy/osdr`, `/proxy/donki`) + HTTP `206` MP4 Range support | [server.mjs](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/server.mjs) |
 | `[x]` | `A3` | Pass CradleFlow `18/18` Vitest suite & `smear-type` `5/5` contract check | `bun run test` + `smear-type/scripts/check.mjs` |
 | `[x]` | `A4` | Pass all `9` Playwright multi-viewport QA checks (`0 px` overflow, Guided Tour, Phase 02 handoff, dark/light, mobile `390x844`) | [qa-landing.mjs](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/scripts/qa-landing.mjs) |
-| `[x]` | `A5` | Render & inspect `< 30s` Demo Film (`28.50s` exact, `855` frames, `0` black dropouts, `4.19 MiB`) | [terraspan-demo-28s.mp4](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/terraspan-demo-28s.mp4), [QA.md](file:///Volumes/Dev/nasa-space-apps-2026/docs/video/QA.md) |
-| `[x]` | `A6` | Export & inspect exact `7` slide PDF Deck (`7` pages verified, `4.45 MiB`) | [terraspan-deck-7slides.pdf](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/terraspan-deck-7slides.pdf) |
-| `[x]` | `A7` | Generate `5` curated `< 10 MB` (`0.47 to 1.02 MB`) `1920x1080` PNG plates & zero login `/submission/` hub | [index.html](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/index.html) |
+| `[x]` | `A5` | Render & inspect `< 30s` Demo Film (`28.50s` exact, `855` frames, `0` black dropouts, `2.52 MiB`) | [terraspan-demo-28s.mp4](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/terraspan-demo-28s.mp4), [QA.md](file:///Volumes/Dev/nasa-space-apps-2026/docs/video/QA.md) |
+| `[x]` | `A6` | Export & inspect exact `7` slide PDF Deck (`7` pages verified, `5.12 MiB`) | [terraspan-deck-7slides.pdf](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/terraspan-deck-7slides.pdf) |
+| `[x]` | `A7` | Generate `5` curated `< 10 MB` (`0.19 to 0.64 MB`) `1920x1080` `mdxcn` + `ascii.rest` PNG plates & live React `/submission/` hub | [SubmissionStudio.tsx](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/src/components/SubmissionStudio.tsx), [AsciiRestBackdrop.tsx](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/src/components/AsciiRestBackdrop.tsx) |
 | `[ ]` | `B1` | **Operator Action (~30s)**: Enter Name, Email, and complete Google reCAPTCHA on open FortiGuard browser tab (`https://terraspan-production.up.railway.app` pre-filled) | Browser tab `https://www.fortiguard.com/faq/wfratingsubmit` |
 | `[ ]` | `C1` | **Operator Action (Before `18:00 ICT`)**: Confirm participant status is `Confirmed` (not waitlisted) on `spaceappschallenge.org/2026/` | Team dashboard on `spaceappschallenge.org` |
 | `[ ]` | `C2` | **Operator Action (Before `18:00 ICT`)**: Paste Fields 1 to 8 from Part 1 above + upload the 5 inline PNGs from `projects/project_1/public/submission/images/` | `spaceappschallenge.org` Project Tab editor |

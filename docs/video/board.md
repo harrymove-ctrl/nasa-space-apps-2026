@@ -1,17 +1,16 @@
 # TerraSpan x CradleFlow Look, Motion & Sound Board
 
-1. **Generator Script**: [build-submission-media.mjs](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/scripts/build-submission-media.mjs) renders deterministic frame-by-frame captures via `window.__setFrame(frame)` and encodes H.264 `yuv420p` video plus normalized AAC audio with `ffmpeg`.
-2. **Palette Inheritance**: Obsidian background `#090c14`, elevated cards `#101622`, archival cream typography `#f5f2ea`, orbital telemetry cyan `#38bdf8`, thermal fire alert amber `#f97316`, and verified green `#34d399` directly matching [index.css](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/src/index.css).
+1. **Generator Script**: [build-submission-media.mjs](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/scripts/build-submission-media.mjs) drives [SubmissionStudio.tsx](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/src/components/SubmissionStudio.tsx) inside headless Playwright with `reducedMotion: 'reduce'`, renders deterministic frame captures via `window.__setVideoFrame(frame)` (synchronous React `flushSync`), and encodes H.264 `yuv420p` video plus normalized AAC audio with `ffmpeg`.
+2. **Palette & Component Inheritance**: Strictly built with vendored `mdxcn` (`src/registry/default/*`) `--graph-*` design tokens (`#090c14` obsidian ground, `#0b101b` `--graph-surface` backing, `#38bdf8` accent) matching [index.css](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/src/index.css), layered over animated [AsciiRestBackdrop.tsx](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/src/components/AsciiRestBackdrop.tsx) canvases and live product captures.
 
 ## Scene Architecture & Camera Rig
 
 | Component Layer | Geometry & Motion Spec | Zero Overlap & Hygiene Rules |
 | :--- | :--- | :--- |
-| `#stage` & `.dot-grid` | `1920x1080` obsidian canvas with subtle `28px` radial dot matrix. | Never uses blue focus pull blur stock backgrounds. |
-| `#hook-layer` & `#brand-lockup` | `66px` Manrope headline fading into `TERRASPAN` + `CRADLEFLOW` lockup chips. | Uses neutral viewer phrasing (`you`) with zero persona names or `"mock"` labels. |
-| `#browser-rig` (`1376x814`) | Placed at `top: 48px` (`bottom: 862px`), tilting smoothly from `rotateX(9deg) rotateY(-6deg)` to `0deg`. | Shows live served app captures from `bun server.mjs` (`/proxy/*` HTTP 200 active). |
-| `#callout-bar` (`bottom: 42px`, `height: 112px`) | Fixed bottom safe zone starting at `y = 926px`, preserving `>= 64px` vertical separation from the unrotated browser rig. | Bounded strictly to one chapter pill and two crisp lines (`Line 1` + `Line 2`). |
-| `#finale-layer` | Four metric cards (`486 MW`, `17 min`, `18.4%`, `8 Feeds`) over zero login Railway URL lockup. | Every value matches verified platform telemetry in [terraspanData.ts](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/src/data/terraspanData.ts). |
+| `AsciiRestBackdrop` (`1920x1080`) | Steps `ascii.rest` pieces (`earthrise`, `earth`, `radar`, `solar-system`, `galaxy`) cleanly across Beats `01` through `05` via `fps: 0` frozen time mapping (`timeSec = frame / 30`). | Replaces all ad hoc HTML/SVG backdrops with crisp generative ASCII telemetry canvases at `scrimOpacity: 0.54`. |
+| Top `GraphSpec` + `GraphStat` Row | Fixed `mdxcn` top telemetry bar (`TERRASPAN` chapter spec on left, `TIMECODE` seconds, `frame / 855`, and `8` NASA streams on right). | Every panel uses solid `--graph-surface` (`#0b101b`) backing so `mdxcn` `+` corners and `[ TITLE ]` cut the dashed frame cleanly. |
+| Center `Graph` Frame & Side Stack | Beat `01` renders `GraphFlow` (`ARCHITECTURE`), `Callout` (`MISSION`), and `GraphStat` (`SCALE`). Beats `02` to `05` pair a live served `Graph` UI frame (`16:9`, `max-h-[540px]`) beside beat specific `mdxcn` modules (`GraphKpi` + `Callout`, `Endpoint` + `GraphCheck`, `GraphFlow` + `GraphSpec`, `GraphCheck` + `GraphSpec`). | Uses neutral viewer prose with zero persona names, zero homemade cards, and zero ungrounded metrics. |
+| Bottom `GraphUptime` Strip | Full width `95` column `mdxcn` `GraphUptime` `[ TIMELINE ]` (`00.0s NASA INGEST` to `28.5s READY`) advancing frame by frame across `855` total frames. | Bounded inside the bottom flex slot with zero risk of vertical overlap against center UI captures. |
 
 ## Synthesized Audio Bed (`audio.wav`, 48 kHz Stereo PCM)
 

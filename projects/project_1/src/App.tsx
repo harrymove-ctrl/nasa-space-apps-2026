@@ -7,10 +7,35 @@ import { MissionGameBox } from './components/MissionGameBox';
 import { Navbar } from './components/Navbar';
 import { PreloaderOverlay } from './components/PreloaderOverlay';
 import { ProductTourOverlay } from './components/ProductTourOverlay';
+import { SubmissionStudio, type StudioMode } from './components/SubmissionStudio';
 import { useNasaTelemetry } from './data/useNasaTelemetry';
 
 type ViewMode = 'landing' | 'map' | 'game';
 type MissionStage = 'triage' | 'cradleflow';
+
+function parseStudioRoute(): { mode: StudioMode; plateIndex: number } | null {
+  if (typeof window === 'undefined') return null;
+  const { pathname, search } = window.location;
+  const params = new URLSearchParams(search);
+  const present = params.get('present');
+  if (present === 'plate' || present === 'deck' || present === 'video') {
+    const rawPlate = Number(params.get('plate') || '1');
+    const plateIndex = Number.isFinite(rawPlate) && rawPlate >= 1 && rawPlate <= 5 ? rawPlate : 1;
+    return { mode: present, plateIndex };
+  }
+  if (pathname.startsWith('/submission') || params.get('view') === 'showcase') {
+    return { mode: 'showcase', plateIndex: 1 };
+  }
+  return null;
+}
+
+function StudioShell({ mode, plateIndex }: { mode: StudioMode; plateIndex: number }) {
+  useEffect(() => {
+    document.documentElement.classList.add('dark');
+  }, []);
+
+  return <SubmissionStudio mode={mode} plateIndex={plateIndex} />;
+}
 
 function parseUrlFlags() {
   if (typeof window === 'undefined') {
@@ -46,7 +71,7 @@ function parseUrlFlags() {
   };
 }
 
-export function App() {
+function ObservatoryApp() {
   const [flags] = useState(parseUrlFlags);
   const [showPreloader, setShowPreloader] = useState(!flags.skipPreloader);
   const [view, setView] = useState<ViewMode>(flags.initialView);
@@ -256,6 +281,14 @@ export function App() {
       )}
     </div>
   );
+}
+
+export function App() {
+  const [studioRoute] = useState(parseStudioRoute);
+  if (studioRoute) {
+    return <StudioShell mode={studioRoute.mode} plateIndex={studioRoute.plateIndex} />;
+  }
+  return <ObservatoryApp />;
 }
 
 export default App;

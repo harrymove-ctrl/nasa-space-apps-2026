@@ -1,5 +1,42 @@
 @import "tailwindcss";
 
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-destructive: var(--destructive);
+  --color-graph-accent: var(--graph-accent);
+  --color-graph-accent-2: var(--graph-accent-2);
+  --color-graph-accent-3: var(--graph-accent-3);
+  --color-graph-frame: var(--graph-frame);
+  --color-graph-muted: var(--graph-muted);
+  --color-graph-faint: var(--graph-faint);
+  --color-contrast-14: var(--contrast-14);
+  --color-contrast-23: var(--contrast-23);
+  --color-contrast-45: var(--contrast-45);
+  --color-contrast-70: var(--contrast-70);
+}
+
+@utility graph-frame {
+  background-image:
+    repeating-linear-gradient(to right, var(--graph-frame) 0 2px, transparent 2px 7px),
+    repeating-linear-gradient(to bottom, var(--graph-frame) 0 2px, transparent 2px 7px),
+    repeating-linear-gradient(to right, var(--graph-frame) 0 2px, transparent 2px 7px),
+    repeating-linear-gradient(to bottom, var(--graph-frame) 0 2px, transparent 2px 7px);
+  background-repeat: repeat-x, repeat-y, repeat-x, repeat-y;
+  background-position: 0 0, 100% 0, 0 100%, 0 0;
+  background-size: 100% 1px, 1px 100%, 100% 1px, 1px 100%;
+}
+
+@utility graph-rule {
+  height: 1px;
+  background-image: repeating-linear-gradient(to right, var(--graph-frame) 0 2px, transparent 2px 7px);
+}
+
+@utility graph-rule-y {
+  width: 1px;
+  background-image: repeating-linear-gradient(to bottom, var(--graph-frame) 0 2px, transparent 2px 7px);
+}
+
 :root {
   --font-manrope: 'Manrope', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono-code: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -62,6 +99,18 @@
 
   /* Dithercn light tokens */
   --background: var(--at-surface-base);
+  --foreground: var(--at-text-primary);
+  --destructive: oklch(0.55 0.21 27);
+  --graph-accent: oklch(0.5 0.18 255);
+  --graph-accent-2: oklch(0.58 0.14 70);
+  --graph-accent-3: oklch(0.5 0.12 165);
+  --graph-frame: oklch(0.205 0 0 / 0.28);
+  --graph-muted: oklch(0.52 0 0);
+  --graph-faint: oklch(0.82 0 0);
+  --contrast-14: oklch(0.88 0 0);
+  --contrast-23: oklch(0.76 0 0);
+  --contrast-45: oklch(0.48 0 0);
+  --contrast-70: oklch(0.28 0 0);
   --primary: var(--at-action-primary);
   --dither-ink: var(--primary);
   --dither-paper: var(--background);
@@ -132,6 +181,18 @@ html.dark {
 
   /* Dithercn dark tokens */
   --background: var(--at-surface-base);
+  --foreground: var(--at-text-primary);
+  --destructive: oklch(0.68 0.2 25);
+  --graph-accent: oklch(0.7 0.12 255);
+  --graph-accent-2: oklch(0.78 0.12 70);
+  --graph-accent-3: oklch(0.78 0.1 165);
+  --graph-frame: oklch(0.56 0.02 220);
+  --graph-muted: oklch(0.68 0.01 230);
+  --graph-faint: oklch(0.28 0 0);
+  --contrast-14: oklch(0.22 0 0);
+  --contrast-23: oklch(0.34 0 0);
+  --contrast-45: oklch(0.62 0 0);
+  --contrast-70: oklch(0.84 0 0);
   --primary: var(--at-action-primary);
   --dither-ink: var(--primary);
   --dither-paper: var(--background);
@@ -1070,4 +1131,32 @@ html.dark .earthrise-bg-scrim {
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: 160ms;
+}
+
+@page {
+  size: 1920px 1080px;
+  margin: 0;
+}
+
+.deck-slide {
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  break-after: page;
+  page-break-after: always;
+}
+
+.deck-slide:last-child {
+  break-after: auto;
+  page-break-after: auto;
+}
+
+.studio-1080 figure[data-frame] {
+  font-size: 16px;
+}
+
+.studio-1080 figure[data-frame] table td,
+.studio-1080 figure[data-frame] table th {
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
