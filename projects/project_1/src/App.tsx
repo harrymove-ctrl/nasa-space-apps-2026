@@ -13,28 +13,38 @@ import { useNasaTelemetry } from './data/useNasaTelemetry';
 type ViewMode = 'landing' | 'map' | 'game';
 type MissionStage = 'triage' | 'cradleflow';
 
-function parseStudioRoute(): { mode: StudioMode; plateIndex: number } | null {
+function parseStudioRoute(): { mode: StudioMode; plateIndex: number; slideIndex: number } | null {
   if (typeof window === 'undefined') return null;
   const { pathname, search } = window.location;
   const params = new URLSearchParams(search);
+  const rawSlide = Number(params.get('slide') || '1');
+  const slideIndex = Number.isFinite(rawSlide) && rawSlide >= 1 && rawSlide <= 7 ? rawSlide : 1;
   const present = params.get('present');
-  if (present === 'plate' || present === 'deck' || present === 'video') {
+  if (present === 'plate' || present === 'deck' || present === 'video' || present === 'slides') {
     const rawPlate = Number(params.get('plate') || '1');
     const plateIndex = Number.isFinite(rawPlate) && rawPlate >= 1 && rawPlate <= 5 ? rawPlate : 1;
-    return { mode: present, plateIndex };
+    return { mode: present, plateIndex, slideIndex };
   }
   if (pathname.startsWith('/submission') || params.get('view') === 'showcase') {
-    return { mode: 'showcase', plateIndex: 1 };
+    return { mode: 'showcase', plateIndex: 1, slideIndex };
   }
   return null;
 }
 
-function StudioShell({ mode, plateIndex }: { mode: StudioMode; plateIndex: number }) {
+function StudioShell({
+  mode,
+  plateIndex,
+  slideIndex,
+}: {
+  mode: StudioMode;
+  plateIndex: number;
+  slideIndex: number;
+}) {
   useEffect(() => {
     document.documentElement.classList.add('dark');
   }, []);
 
-  return <SubmissionStudio mode={mode} plateIndex={plateIndex} />;
+  return <SubmissionStudio mode={mode} plateIndex={plateIndex} initialSlide={slideIndex} />;
 }
 
 function parseUrlFlags() {
@@ -286,7 +296,13 @@ function ObservatoryApp() {
 export function App() {
   const [studioRoute] = useState(parseStudioRoute);
   if (studioRoute) {
-    return <StudioShell mode={studioRoute.mode} plateIndex={studioRoute.plateIndex} />;
+    return (
+      <StudioShell
+        mode={studioRoute.mode}
+        plateIndex={studioRoute.plateIndex}
+        slideIndex={studioRoute.slideIndex}
+      />
+    );
   }
   return <ObservatoryApp />;
 }

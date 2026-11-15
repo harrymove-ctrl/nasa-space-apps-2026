@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { flushSync } from 'react-dom';
 import { MotionConfig } from 'motion/react';
 import { AsciiRestBackdrop, type AsciiPieceName } from './AsciiRestBackdrop';
@@ -20,7 +20,7 @@ declare global {
   }
 }
 
-export type StudioMode = 'showcase' | 'plate' | 'deck' | 'video';
+export type StudioMode = 'showcase' | 'plate' | 'deck' | 'video' | 'slides';
 
 const SURFACE_STYLE: CSSProperties = {
   backgroundColor: '#0b101b',
@@ -100,7 +100,7 @@ const SUBMISSION_IMAGES = [
   },
   {
     frameTitle: 'FIGURE 02',
-    name: '02. TerraSpan Observatory',
+    name: '02. DopaiMint Observatory',
     src: '/submission/images/02-overview-burning-calendar.png',
     caption: 'Live Butte 230 kV ampacity safety margin, TTCE closure minutes, and solar status.',
   },
@@ -120,7 +120,7 @@ const SUBMISSION_IMAGES = [
     frameTitle: 'FIGURE 05',
     name: '05. Phase 02 CradleFlow HUD',
     src: '/submission/images/05-cradleflow-habitat-phase2.png',
-    caption: 'Same origin habitat wiring console driven directly from TerraSpan handoff parameters.',
+    caption: 'Same origin habitat wiring console driven directly from DopaiMint handoff parameters.',
   },
 ];
 
@@ -137,17 +137,17 @@ function PlateStage({ plateIndex }: { plateIndex: number }) {
                 rows={[
                   {
                     label: 'system',
-                    value: 'TerraSpan x CradleFlow Unified Orbit to Outpost Observatory',
+                    value: 'DopaiMint x CradleFlow Unified Orbit to Outpost Observatory',
                     accent: true,
                   },
                   {
                     label: 'flagship url',
-                    value: 'https://terraspan-production.up.railway.app',
+                    value: 'https://dopaimint-production.up.railway.app',
                     note: 'Zero login public web deployment proxying 8 keyless endpoints.',
                   },
                   {
                     label: 'secondary hub',
-                    value: 'https://terraspan-production.up.railway.app/cradleflow/',
+                    value: 'https://dopaimint-production.up.railway.app/cradleflow/',
                   },
                 ]}
               />
@@ -182,11 +182,11 @@ function PlateStage({ plateIndex }: { plateIndex: number }) {
         <AsciiRestBackdrop piece="earth" timeSec={4.0} scrimOpacity={0.56} />
         <div className="relative z-10 grid h-full grid-cols-[1.85fr_1fr] items-center gap-6 p-10">
           <SurfacePanel>
-            <Graph title="TERRASPAN">
+            <Graph title="DOPAIMINT">
               <GraphBody className="p-4 sm:p-5">
                 <img
-                  src="/submission/raw/overview.png"
-                  alt="TerraSpan flagship observatory"
+                  src="/submission/screens/overview.jpg"
+                  alt="DopaiMint flagship observatory"
                   className="block w-full aspect-video object-cover"
                 />
               </GraphBody>
@@ -225,7 +225,7 @@ function PlateStage({ plateIndex }: { plateIndex: number }) {
             <Graph title="PROVENANCE">
               <GraphBody className="p-4 sm:p-5">
                 <img
-                  src="/submission/raw/map.png"
+                  src="/submission/screens/map.jpg"
                   alt="Five layer orbital provenance map"
                   className="block w-full aspect-video object-cover"
                 />
@@ -271,7 +271,7 @@ function PlateStage({ plateIndex }: { plateIndex: number }) {
             <Graph title="PHASE 01">
               <GraphBody className="p-4 sm:p-5">
                 <img
-                  src="/submission/raw/game.png"
+                  src="/submission/screens/game.jpg"
                   alt="Phase 01 three wave Earth grid triage"
                   className="block w-full aspect-video object-cover"
                 />
@@ -315,7 +315,7 @@ function PlateStage({ plateIndex }: { plateIndex: number }) {
           <Graph title="PHASE 02">
             <GraphBody className="p-4 sm:p-5">
               <img
-                src="/submission/raw/cradleflow.png"
+                src="/submission/screens/cradleflow.jpg"
                 alt="Phase 02 same origin CradleFlow habitat automation"
                 className="block w-full aspect-video object-cover"
               />
@@ -337,7 +337,7 @@ function PlateStage({ plateIndex }: { plateIndex: number }) {
             <GraphSpec
               title="HANDOFF"
               rows={[
-                { label: 'origin bridge', value: 'Synced from TerraSpan -> /cradleflow/', accent: true },
+                { label: 'origin bridge', value: 'Synced from DopaiMint -> /cradleflow/', accent: true },
                 { label: 'corridor', value: 'Butte 230 kV escalation' },
                 { label: 'storm trigger', value: 'DONKI SEP >= 45 pfu // Kp 7' },
                 { label: 'outpost state', value: '9 protocol chips armed' },
@@ -350,24 +350,45 @@ function PlateStage({ plateIndex }: { plateIndex: number }) {
   );
 }
 
-function DeckSlides() {
-  return (
-    <div className="bg-[#090c14]">
-      {/* Slide 1: Mission Overview */}
-      <section className="deck-slide relative bg-[#090c14]">
-        <AsciiRestBackdrop piece="earthrise" timeSec={3.0} scrimOpacity={0.54} />
+const SLIDE_META = [
+  { num: 1, title: 'Mission Overview' },
+  { num: 2, title: 'Hazard Gap & Burning Calendar' },
+  { num: 3, title: 'Keyless NASA Gateway' },
+  { num: 4, title: 'Observatory & Provenance Map' },
+  { num: 5, title: 'Phase 01 Earth Grid Triage' },
+  { num: 6, title: 'Phase 02 CradleFlow HUD' },
+  { num: 7, title: 'Live Verification & Launch Links' },
+] as const;
+
+function renderDeckSlide(slideNumber: number, liveMotion: boolean): ReactNode {
+  const tSec = (sec: number) => (liveMotion ? undefined : sec);
+
+  if (slideNumber === 1) {
+    return (
+      <section key={1} className="deck-slide relative bg-[#090c14]">
+        <AsciiRestBackdrop piece="earthrise" timeSec={tSec(3.0)} scrimOpacity={0.54} />
         <div className="relative z-10 flex h-full flex-col justify-between p-12">
           <div className="grid grid-cols-[1.5fr_1fr] gap-6 items-start">
             <SurfacePanel>
-              <GraphSpec
-                title="SLIDE 01"
-                rows={[
-                  { label: 'project', value: 'TerraSpan x CradleFlow', accent: true },
-                  { label: 'challenge', value: 'NASA Space Apps 2026 Universal Event' },
-                  { label: 'problem', value: 'Double counted thermal pixels and siloed space weather' },
-                  { label: 'deployment', value: 'https://terraspan-production.up.railway.app' },
-                ]}
-              />
+              <GraphSpec title="SLIDE 01">
+                <ul>
+                  <li>
+                    project: <strong>DopaiMint x CradleFlow</strong>
+                  </li>
+                  <li>challenge: NASA Space Apps 2026 Universal Event</li>
+                  <li>problem: Double counted thermal pixels and siloed space weather</li>
+                  <li>
+                    deployment:{' '}
+                    <a
+                      href="https://dopaimint-production.up.railway.app"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      https://dopaimint-production.up.railway.app
+                    </a>
+                  </li>
+                </ul>
+              </GraphSpec>
             </SurfacePanel>
             <SurfacePanel>
               <GraphStat
@@ -385,10 +406,13 @@ function DeckSlides() {
           </SurfacePanel>
         </div>
       </section>
+    );
+  }
 
-      {/* Slide 2: Earth & Space Hazard Gap */}
-      <section className="deck-slide relative bg-[#090c14]">
-        <AsciiRestBackdrop piece="earth" timeSec={4.8} scrimOpacity={0.56} />
+  if (slideNumber === 2) {
+    return (
+      <section key={2} className="deck-slide relative bg-[#090c14]">
+        <AsciiRestBackdrop piece="earth" timeSec={tSec(4.8)} scrimOpacity={0.56} />
         <div className="relative z-10 grid h-full grid-cols-[1fr_1.45fr] items-center gap-6 p-12">
           <div className="flex flex-col gap-5">
             <SurfacePanel>
@@ -415,7 +439,7 @@ function DeckSlides() {
             <Graph title="CALENDAR">
               <GraphBody className="p-4 sm:p-5">
                 <img
-                  src="/submission/raw/calendar.png"
+                  src="/submission/screens/calendar.jpg"
                   alt="26 year harmonized burning calendar"
                   className="block w-full aspect-video object-cover"
                 />
@@ -424,10 +448,13 @@ function DeckSlides() {
           </SurfacePanel>
         </div>
       </section>
+    );
+  }
 
-      {/* Slide 3: Keyless NASA Data Architecture */}
-      <section className="deck-slide relative bg-[#090c14]">
-        <AsciiRestBackdrop piece="galaxy" timeSec={6.2} scrimOpacity={0.56} />
+  if (slideNumber === 3) {
+    return (
+      <section key={3} className="deck-slide relative bg-[#090c14]">
+        <AsciiRestBackdrop piece="galaxy" timeSec={tSec(6.2)} scrimOpacity={0.56} />
         <div className="relative z-10 flex h-full flex-col justify-between p-12 gap-5">
           <div className="grid grid-cols-[1.2fr_1fr] gap-6 items-start">
             <SurfacePanel>
@@ -450,18 +477,21 @@ function DeckSlides() {
           </SurfacePanel>
         </div>
       </section>
+    );
+  }
 
-      {/* Slide 4: TerraSpan Observatory & Provenance */}
-      <section className="deck-slide relative bg-[#090c14]">
-        <AsciiRestBackdrop piece="radar" timeSec={8.0} scrimOpacity={0.56} />
+  if (slideNumber === 4) {
+    return (
+      <section key={4} className="deck-slide relative bg-[#090c14]">
+        <AsciiRestBackdrop piece="radar" timeSec={tSec(8.0)} scrimOpacity={0.56} />
         <div className="relative z-10 flex h-full flex-col justify-between p-12 gap-5">
           <div className="grid grid-cols-2 gap-6">
             <SurfacePanel>
               <Graph title="OBSERVATORY">
                 <GraphBody className="p-3 sm:p-4">
                   <img
-                    src="/submission/raw/overview.png"
-                    alt="TerraSpan observatory landing UI"
+                    src="/submission/screens/overview.jpg"
+                    alt="DopaiMint observatory landing UI"
                     className="block w-full aspect-video object-cover"
                   />
                 </GraphBody>
@@ -471,7 +501,7 @@ function DeckSlides() {
               <Graph title="PROVENANCE">
                 <GraphBody className="p-3 sm:p-4">
                   <img
-                    src="/submission/raw/map.png"
+                    src="/submission/screens/map.jpg"
                     alt="Five layer orbital provenance map UI"
                     className="block w-full aspect-video object-cover"
                   />
@@ -492,16 +522,19 @@ function DeckSlides() {
           </SurfacePanel>
         </div>
       </section>
+    );
+  }
 
-      {/* Slide 5: Phase 01 Earth Grid Triage */}
-      <section className="deck-slide relative bg-[#090c14]">
-        <AsciiRestBackdrop piece="aurora" timeSec={7.4} scrimOpacity={0.56} />
+  if (slideNumber === 5) {
+    return (
+      <section key={5} className="deck-slide relative bg-[#090c14]">
+        <AsciiRestBackdrop piece="aurora" timeSec={tSec(7.4)} scrimOpacity={0.56} />
         <div className="relative z-10 grid h-full grid-cols-[1.7fr_1fr] items-center gap-6 p-12">
           <SurfacePanel>
             <Graph title="PHASE 01">
               <GraphBody className="p-4 sm:p-5">
                 <img
-                  src="/submission/raw/game.png"
+                  src="/submission/screens/game.jpg"
                   alt="Phase 01 Earth grid triage game"
                   className="block w-full aspect-video object-cover"
                 />
@@ -534,16 +567,19 @@ function DeckSlides() {
           </div>
         </div>
       </section>
+    );
+  }
 
-      {/* Slide 6: Phase 02 Same-Origin CradleFlow HUD */}
-      <section className="deck-slide relative bg-[#090c14]">
-        <AsciiRestBackdrop piece="solar-system" timeSec={9.0} scrimOpacity={0.56} />
+  if (slideNumber === 6) {
+    return (
+      <section key={6} className="deck-slide relative bg-[#090c14]">
+        <AsciiRestBackdrop piece="solar-system" timeSec={tSec(9.0)} scrimOpacity={0.56} />
         <div className="relative z-10 grid h-full grid-cols-[1.7fr_1fr] items-center gap-6 p-12">
           <SurfacePanel>
             <Graph title="PHASE 02">
               <GraphBody className="p-4 sm:p-5">
                 <img
-                  src="/submission/raw/cradleflow.png"
+                  src="/submission/screens/cradleflow.jpg"
                   alt="Phase 02 CradleFlow habitat HUD"
                   className="block w-full aspect-video object-cover"
                 />
@@ -574,47 +610,257 @@ function DeckSlides() {
           </div>
         </div>
       </section>
+    );
+  }
 
-      {/* Slide 7: Live Verification & Judge Links */}
-      <section className="deck-slide relative bg-[#090c14]">
-        <AsciiRestBackdrop piece="starfield" timeSec={5.0} scrimOpacity={0.56} />
-        <div className="relative z-10 flex h-full flex-col justify-between p-12 gap-6">
-          <div className="grid grid-cols-2 gap-6 items-start">
-            <SurfacePanel>
-              <GraphCheck
-                title="VERIFIED"
-                items={[
-                  { label: 'zero login flagship url live on railway', done: true },
-                  { label: 'playwright 9 of 9 layout + image qa pass', done: true },
-                  { label: 'vitest 18 of 18 cradleflow storm tests pass', done: true },
-                  { label: '28.50 s demo video under 30 s cap', done: true },
-                  { label: 'exact 7 slide pdf deck exported', done: true },
-                ]}
-              />
-            </SurfacePanel>
-            <SurfacePanel>
-              <GraphUptime
-                title="READINESS"
-                from="Day 1 build"
-                to="Final freeze"
-                days="ok*28 degraded*1 ok*31"
-              />
-            </SurfacePanel>
-          </div>
+  return (
+    <section key={7} className="deck-slide relative bg-[#090c14]">
+      <AsciiRestBackdrop piece="starfield" timeSec={tSec(5.0)} scrimOpacity={0.56} />
+      <div className="relative z-10 flex h-full flex-col justify-between p-12 gap-6">
+        <div className="grid grid-cols-2 gap-6 items-start">
           <SurfacePanel>
-            <GraphSpec
-              title="LINKS"
-              rows={[
-                { label: 'flagship', value: 'https://terraspan-production.up.railway.app', accent: true },
-                { label: 'showcase hub', value: 'https://terraspan-production.up.railway.app/submission/' },
-                { label: 'guided tour', value: 'https://terraspan-production.up.railway.app/?tour=1' },
-                { label: 'source repo', value: 'https://github.com/harrymove-ctrl/nasa-space-apps-2026' },
+            <GraphCheck
+              title="VERIFIED"
+              items={[
+                { label: 'zero login flagship url live on railway', done: true },
+                { label: 'playwright 9 of 9 layout + image qa pass', done: true },
+                { label: 'vitest 18 of 18 cradleflow storm tests pass', done: true },
+                { label: '28.50 s demo video under 30 s cap', done: true },
+                { label: 'exact 7 slide pdf deck exported', done: true },
               ]}
             />
           </SurfacePanel>
+          <SurfacePanel>
+            <GraphUptime
+              title="READINESS"
+              from="Day 1 build"
+              to="Final freeze"
+              days="ok*28 degraded*1 ok*31"
+            />
+          </SurfacePanel>
         </div>
-      </section>
+        <SurfacePanel>
+          <GraphSpec title="LINKS">
+            <ul>
+              <li>
+                flagship:{' '}
+                <a
+                  href="https://dopaimint-production.up.railway.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  https://dopaimint-production.up.railway.app
+                </a>
+              </li>
+              <li>
+                showcase hub:{' '}
+                <a
+                  href="https://dopaimint-production.up.railway.app/submission/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  https://dopaimint-production.up.railway.app/submission/
+                </a>
+              </li>
+              <li>
+                interactive slides:{' '}
+                <a
+                  href="https://dopaimint-production.up.railway.app/?present=slides"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  https://dopaimint-production.up.railway.app/?present=slides
+                </a>
+              </li>
+              <li>
+                source repo:{' '}
+                <a
+                  href="https://github.com/harrymove-ctrl/nasa-space-apps-2026"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  https://github.com/harrymove-ctrl/nasa-space-apps-2026
+                </a>
+              </li>
+            </ul>
+          </GraphSpec>
+        </SurfacePanel>
+      </div>
+    </section>
+  );
+}
+
+function DeckSlides() {
+  return (
+    <div className="bg-[#090c14]">
+      {SLIDE_META.map((slide) => renderDeckSlide(slide.num, false))}
     </div>
+  );
+}
+
+function InteractiveSlideDeck({
+  initialSlide = 1,
+  fullscreen = false,
+}: {
+  initialSlide?: number;
+  fullscreen?: boolean;
+}) {
+  const [activeSlide, setActiveSlide] = useState<number>(() =>
+    initialSlide >= 1 && initialSlide <= 7 ? initialSlide : 1
+  );
+  const stageWrapRef = useRef<HTMLDivElement | null>(null);
+  const [scale, setScale] = useState<number>(0.5);
+
+  useEffect(() => {
+    const el = stageWrapRef.current;
+    if (!el) return;
+
+    const updateScale = () => {
+      const nextWidth = el.clientWidth;
+      if (nextWidth > 0) {
+        setScale(nextWidth / 1920);
+      }
+    };
+
+    updateScale();
+    const observer = new ResizeObserver(updateScale);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) {
+        return;
+      }
+      if (event.key === 'ArrowRight' || event.key === 'PageDown') {
+        event.preventDefault();
+        setActiveSlide((prev) => (prev === 7 ? 1 : prev + 1));
+      } else if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
+        event.preventDefault();
+        setActiveSlide((prev) => (prev === 1 ? 7 : prev - 1));
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('present') === 'slides') {
+      params.set('slide', String(activeSlide));
+      const nextUrl = `${window.location.pathname}?${params.toString()}${window.location.hash}`;
+      window.history.replaceState(null, '', nextUrl);
+    }
+  }, [activeSlide]);
+
+  const currentMeta = SLIDE_META[activeSlide - 1] ?? SLIDE_META[0];
+
+  return (
+    <SurfacePanel>
+      <Graph title={`SLIDE 0${activeSlide} / 07: ${currentMeta.title.toUpperCase()}`}>
+        <GraphBody className="flex flex-col gap-4 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 font-mono text-xs">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <button
+                type="button"
+                data-testid="deck-prev-btn"
+                onClick={() => setActiveSlide((prev) => (prev === 1 ? 7 : prev - 1))}
+                className="graph-frame cursor-pointer px-2.5 py-1 text-foreground hover:bg-white/5"
+              >
+                Prev
+              </button>
+              {SLIDE_META.map((slide) => (
+                <button
+                  key={slide.num}
+                  type="button"
+                  data-testid={`deck-slide-btn-${slide.num}`}
+                  aria-current={activeSlide === slide.num ? 'step' : undefined}
+                  onClick={() => setActiveSlide(slide.num)}
+                  className={`cursor-pointer px-2.5 py-1 ${
+                    activeSlide === slide.num
+                      ? 'graph-frame text-graph-accent'
+                      : 'text-graph-muted hover:text-foreground'
+                  }`}
+                >
+                  0{slide.num}
+                </button>
+              ))}
+              <button
+                type="button"
+                data-testid="deck-next-btn"
+                onClick={() => setActiveSlide((prev) => (prev === 7 ? 1 : prev + 1))}
+                className="graph-frame cursor-pointer px-2.5 py-1 text-foreground hover:bg-white/5"
+              >
+                Next
+              </button>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span data-testid="deck-slide-counter" className="text-graph-muted">
+                Click slide to advance · {activeSlide}/7
+              </span>
+              {fullscreen ? (
+                <>
+                  <a
+                    href="/submission/#slides"
+                    className="graph-frame px-2.5 py-1 text-foreground hover:bg-white/5"
+                  >
+                    Submission Hub
+                  </a>
+                  <a
+                    href="/"
+                    className="graph-frame px-2.5 py-1 text-graph-accent hover:bg-white/5"
+                  >
+                    Open Website
+                  </a>
+                </>
+              ) : (
+                <a
+                  href={`/?present=slides&slide=${activeSlide}`}
+                  className="graph-frame px-2.5 py-1 text-graph-accent hover:bg-white/5"
+                >
+                  Fullscreen Viewer
+                </a>
+              )}
+              <a
+                href="/submission/dopaimint-deck-7slides.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="graph-frame px-2.5 py-1 text-foreground hover:bg-white/5"
+              >
+                Open PDF
+              </a>
+            </div>
+          </div>
+
+          <div
+            ref={stageWrapRef}
+            data-testid="interactive-slide-stage"
+            role="region"
+            aria-label={`Interactive slide ${activeSlide} of 7: ${currentMeta.title}`}
+            onClick={(event) => {
+              if ((event.target as HTMLElement).closest('a, button')) return;
+              setActiveSlide((prev) => (prev === 7 ? 1 : prev + 1));
+            }}
+            className="relative aspect-video w-full cursor-pointer overflow-hidden border border-white/10 bg-[#090c14]"
+          >
+            <div
+              className="studio-1080 origin-top-left"
+              style={{
+                width: 1920,
+                height: 1080,
+                transform: `scale(${scale})`,
+              }}
+            >
+              {renderDeckSlide(activeSlide, true)}
+            </div>
+          </div>
+        </GraphBody>
+      </Graph>
+    </SurfacePanel>
   );
 }
 
@@ -642,19 +888,19 @@ function VideoStage() {
   if (t >= 4.5 && t < 11.0) {
     piece = 'earth';
     beatLabel = 'BEAT 02 // OBSERVATORY';
-    imgSrc = '/submission/raw/overview.png';
+    imgSrc = '/submission/screens/overview.jpg';
   } else if (t >= 11.0 && t < 17.0) {
     piece = 'radar';
     beatLabel = 'BEAT 03 // PROVENANCE';
-    imgSrc = '/submission/raw/map.png';
+    imgSrc = '/submission/screens/map.jpg';
   } else if (t >= 17.0 && t < 23.5) {
     piece = 'solar-system';
     beatLabel = 'BEAT 04 // TRIAGE TO HUD';
-    imgSrc = t < 20.2 ? '/submission/raw/game.png' : '/submission/raw/cradleflow.png';
+    imgSrc = t < 20.2 ? '/submission/screens/game.jpg' : '/submission/screens/cradleflow.jpg';
   } else if (t >= 23.5) {
     piece = 'galaxy';
     beatLabel = 'BEAT 05 // READY';
-    imgSrc = '/submission/raw/calendar.png';
+    imgSrc = '/submission/screens/calendar.jpg';
   }
 
   return (
@@ -665,7 +911,7 @@ function VideoStage() {
         <div className="grid grid-cols-[1.6fr_1fr] gap-4 items-start">
           <SurfacePanel>
             <GraphSpec
-              title="TERRASPAN"
+              title="DOPAIMINT"
               rows={[
                 { label: 'chapter', value: beatLabel, accent: true },
                 { label: 'telemetry', value: 'MODIS + VIIRS + POWER + DONKI + OSDR live pipeline' },
@@ -782,7 +1028,7 @@ function VideoStage() {
                     <GraphSpec
                       title="BRIDGE"
                       rows={[
-                        { label: 'state', value: 'Synced from TerraSpan -> /cradleflow/', accent: true },
+                        { label: 'state', value: 'Synced from DopaiMint -> /cradleflow/', accent: true },
                         { label: 'drill', value: 'Earth Grid Triage to Habitat HUD' },
                       ]}
                     />
@@ -804,7 +1050,7 @@ function VideoStage() {
                     <GraphSpec
                       title="URL"
                       rows={[
-                        { label: 'try live', value: 'terraspan-production.up.railway.app', accent: true },
+                        { label: 'try live', value: 'dopaimint-production.up.railway.app', accent: true },
                         { label: 'pack hub', value: '/submission/ & ?tour=1' },
                       ]}
                     />
@@ -835,9 +1081,11 @@ function VideoStage() {
 export function SubmissionStudio({
   mode,
   plateIndex = 1,
+  initialSlide = 1,
 }: {
   mode: StudioMode;
   plateIndex?: number;
+  initialSlide?: number;
 }) {
   const [piece, setPiece] = useState<AsciiPieceName>('earthrise');
 
@@ -858,6 +1106,19 @@ export function SubmissionStudio({
           <DeckSlides />
         </div>
       </MotionConfig>
+    );
+  }
+
+  if (mode === 'slides') {
+    return (
+      <div
+        data-testid="presentation-slides-view"
+        className="min-h-screen bg-[#090c14] px-4 py-6 text-foreground sm:px-8"
+      >
+        <div className="mx-auto w-full max-w-[1440px]">
+          <InteractiveSlideDeck initialSlide={initialSlide} fullscreen />
+        </div>
+      </div>
     );
   }
 
@@ -884,32 +1145,57 @@ export function SubmissionStudio({
 
       <main className="relative z-10 mx-auto flex w-full max-w-[1200px] flex-col gap-10 px-6 py-12">
         <SurfacePanel>
-          <GraphSpec
-            title="SUBMISSION"
-            rows={[
-              {
-                label: 'project',
-                value: 'TerraSpan x CradleFlow Unified NASA Space Apps 2026 Observatory',
-                accent: true,
-              },
-              {
-                label: 'zero login',
-                value: 'https://terraspan-production.up.railway.app',
-              },
-              {
-                label: 'deck pdf',
-                value: '/submission/terraspan-deck-7slides.pdf (exact 7 slides)',
-              },
-              {
-                label: 'demo mp4',
-                value: '/submission/terraspan-demo-28s.mp4 (28.50s HTTP 206)',
-              },
-            ]}
-          />
+          <GraphSpec title="SUBMISSION">
+            <ul>
+              <li>
+                project: <strong>DopaiMint x CradleFlow Unified NASA Space Apps 2026 Observatory</strong>
+              </li>
+              <li>
+                website:{' '}
+                <a
+                  href="https://dopaimint-production.up.railway.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  https://dopaimint-production.up.railway.app
+                </a>
+              </li>
+              <li>
+                interactive slides:{' '}
+                <a href="#slides">
+                  Click Through 7 Slides Below (#slides)
+                </a>{' '}
+                or{' '}
+                <a href="/?present=slides">
+                  Open Fullscreen Presentation
+                </a>
+              </li>
+              <li>
+                deck pdf:{' '}
+                <a
+                  href="/submission/dopaimint-deck-7slides.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  /submission/dopaimint-deck-7slides.pdf (exact 7 slides)
+                </a>
+              </li>
+              <li>
+                demo mp4:{' '}
+                <a
+                  href="/submission/dopaimint-demo-28s.mp4"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  /submission/dopaimint-demo-28s.mp4 (28.50s HTTP 206)
+                </a>
+              </li>
+            </ul>
+          </GraphSpec>
           <div className="mt-4 flex flex-wrap items-center justify-between gap-4 px-5 pb-3 font-mono text-xs">
             <div className="flex flex-wrap gap-3">
               <a
-                href="/"
+                href="/?skipPreloader=1"
                 className="graph-frame px-3 py-1.5 text-graph-accent hover:bg-white/5"
               >
                 Open Flagship
@@ -921,7 +1207,13 @@ export function SubmissionStudio({
                 Start Guided Tour
               </a>
               <a
-                href="/submission/terraspan-deck-7slides.pdf"
+                href="#slides"
+                className="graph-frame px-3 py-1.5 text-graph-accent hover:bg-white/5"
+              >
+                View Interactive Slides
+              </a>
+              <a
+                href="/submission/dopaimint-deck-7slides.pdf"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="graph-frame px-3 py-1.5 text-foreground hover:bg-white/5"
@@ -929,7 +1221,7 @@ export function SubmissionStudio({
                 Open 7 Slide Deck PDF
               </a>
               <a
-                href="/submission/terraspan-demo-28s.mp4"
+                href="/submission/dopaimint-demo-28s.mp4"
                 download
                 className="graph-frame px-3 py-1.5 text-foreground hover:bg-white/5"
               >
@@ -956,6 +1248,86 @@ export function SubmissionStudio({
           </div>
         </SurfacePanel>
 
+        <SurfacePanel>
+          <GraphTable
+            title="WEBSITE & LIVE FEATURES"
+            align={['left', 'left', 'right']}
+            headers={['feature', 'live nasa capability', 'open']}
+            rows={[
+              [
+                'DopaiMint Website Landing',
+                'Andromeda minimalist hero, 6 orbital plates gallery, corridor metrics',
+                <a
+                  key="f-home"
+                  href="/?skipPreloader=1"
+                  className="text-graph-accent underline decoration-dashed underline-offset-4"
+                >
+                  Open Website
+                </a>,
+              ],
+              [
+                '5-Step Guided Product Tour',
+                'Interactive walkthrough linking MODIS/VIIRS physics to CradleFlow',
+                <a
+                  key="f-tour"
+                  href="/?tour=1"
+                  className="text-graph-accent underline decoration-dashed underline-offset-4"
+                >
+                  /?tour=1
+                </a>,
+              ],
+              [
+                '26-Year Burning Calendar',
+                '2000 to 2026 MODIS C6.1 vs VIIRS 375 m H3 deduplication and Ask the Grid',
+                <a
+                  key="f-cal"
+                  href="/?skipPreloader=1#telemetry"
+                  className="text-graph-accent underline decoration-dashed underline-offset-4"
+                >
+                  /#telemetry
+                </a>,
+              ],
+              [
+                '5-Layer Orbital Map',
+                'Live FIRMS, EONET v3, NASA POWER, GOES-18 Kp, and OSDR provenance',
+                <a
+                  key="f-map"
+                  href="/?skipPreloader=1&view=map"
+                  className="text-graph-accent underline decoration-dashed underline-offset-4"
+                >
+                  /?view=map
+                </a>,
+              ],
+              [
+                'Phase 01: Earth Grid Triage',
+                '3-wave conductor derating drill and one-click NASA solar storm handoff',
+                <a
+                  key="f-game"
+                  href="/?skipPreloader=1&view=game"
+                  className="text-graph-accent underline decoration-dashed underline-offset-4"
+                >
+                  /?view=game
+                </a>,
+              ],
+              [
+                'Phase 02: CradleFlow HUD',
+                'React Flow proton-flux and OSD bio-countermeasure outpost automation',
+                <a
+                  key="f-cf"
+                  href="/?skipPreloader=1&view=game&stage=cradleflow"
+                  className="text-graph-accent underline decoration-dashed underline-offset-4"
+                >
+                  Open Habitat HUD
+                </a>,
+              ],
+            ]}
+          />
+        </SurfacePanel>
+
+        <div id="slides" className="scroll-mt-8">
+          <InteractiveSlideDeck initialSlide={initialSlide} />
+        </div>
+
         <div className="grid gap-6 lg:grid-cols-[1.55fr_1fr] items-start">
           <SurfacePanel>
             <Graph title="DEMO FILM">
@@ -965,7 +1337,7 @@ export function SubmissionStudio({
                   playsInline
                   preload="metadata"
                   poster="/submission/images/02-overview-burning-calendar.png"
-                  src="/submission/terraspan-demo-28s.mp4"
+                  src="/submission/dopaimint-demo-28s.mp4"
                   className="block aspect-video w-full bg-black"
                 />
               </GraphBody>
@@ -1007,11 +1379,18 @@ export function SubmissionStudio({
             <SurfacePanel key={fig.src}>
               <Graph title={fig.frameTitle}>
                 <GraphBody className="flex flex-col gap-3 p-4">
-                  <img
-                    src={fig.src}
-                    alt={fig.name}
-                    className="block aspect-video w-full object-cover"
-                  />
+                  <a
+                    href={fig.src}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block transition-opacity hover:opacity-90"
+                  >
+                    <img
+                      src={fig.src}
+                      alt={fig.name}
+                      className="block aspect-video w-full object-cover"
+                    />
+                  </a>
                   <div className="flex items-baseline justify-between gap-4 pt-1 font-mono text-xs">
                     <span className="text-foreground">{fig.name}</span>
                     <a
@@ -1039,9 +1418,15 @@ export function SubmissionStudio({
                 { label: 'slide 7', value: 'QA Proof + Zero Login Links' },
               ]}
             />
-            <div className="px-5 pb-3 font-mono text-xs">
+            <div className="flex flex-wrap gap-4 px-5 pb-3 font-mono text-xs">
               <a
-                href="/submission/terraspan-deck-7slides.pdf"
+                href="#slides"
+                className="text-graph-accent underline decoration-dashed underline-offset-4"
+              >
+                Launch Interactive Slide Viewer
+              </a>
+              <a
+                href="/submission/dopaimint-deck-7slides.pdf"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-graph-accent underline decoration-dashed underline-offset-4"

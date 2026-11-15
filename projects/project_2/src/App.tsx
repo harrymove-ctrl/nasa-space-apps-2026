@@ -66,7 +66,7 @@ import type {
 type ActiveTab = "trainer" | "donki" | "osdr";
 type MobileTrainerPane = "canvas" | "palette" | "hud";
 
-interface TerraSpanHandoff {
+interface DopaiMintHandoff {
   readonly embedded: boolean;
   readonly corridor: string | null;
   readonly flux: string | null;
@@ -75,7 +75,7 @@ interface TerraSpanHandoff {
   readonly returnUrl: string;
 }
 
-function parseTerraSpanHandoff(): TerraSpanHandoff {
+function parseDopaiMintHandoff(): DopaiMintHandoff {
   if (typeof window === "undefined") {
     return {
       embedded: false,
@@ -83,13 +83,13 @@ function parseTerraSpanHandoff(): TerraSpanHandoff {
       flux: null,
       kp: null,
       waves: null,
-      returnUrl: "https://terraspan-production.up.railway.app",
+      returnUrl: "https://dopaimint-production.up.railway.app",
     };
   }
   const params = new URLSearchParams(window.location.search);
   const defaultReturn = window.location.pathname.startsWith("/cradleflow")
     ? "/?skipPreloader=1"
-    : "https://terraspan-production.up.railway.app";
+    : "https://dopaimint-production.up.railway.app";
   return {
     embedded: params.get("embedded") === "1",
     corridor: params.get("corridor"),
@@ -101,7 +101,7 @@ function parseTerraSpanHandoff(): TerraSpanHandoff {
 }
 
 export function App() {
-  const handoff = useMemo(parseTerraSpanHandoff, []);
+  const handoff = useMemo(parseDopaiMintHandoff, []);
   const defaultPreset = FLOW_PRESETS[0];
   const [activeTab, setActiveTab] = useState<ActiveTab>("trainer");
   const [mobilePane, setMobilePane] = useState<MobileTrainerPane>("canvas");
@@ -541,7 +541,7 @@ export function App() {
                 {!handoff.embedded ? (
                   <a
                     href={handoff.returnUrl}
-                    data-testid="back-to-terraspan"
+                    data-testid="back-to-dopaimint"
                     className="hud-btn justify-center px-2 py-0.5 text-[10px] text-[#38bdf8] sm:justify-start sm:py-1 sm:text-[10.5px] lg:px-2.5 lg:py-1.5 lg:text-[11px]"
                   >
                     <ArrowLeft size={13} className="shrink-0" />
@@ -660,11 +660,11 @@ export function App() {
 
           {handoff.corridor ? (
             <div
-              data-testid="terraspan-handoff-banner"
+              data-testid="dopaimint-handoff-banner"
               className="mono flex flex-wrap items-center justify-between gap-2 border-b border-[rgba(56,189,248,0.3)] bg-[#080d14] px-2.5 py-1 text-[10.5px] text-[#e2f2ff]"
             >
               <span className="truncate">
-                <strong className="text-[#38bdf8]">SYNCED FROM TERRASPAN //</strong>{" "}
+                <strong className="text-[#38bdf8]">SYNCED FROM DOPAIMINT //</strong>{" "}
                 <span className="text-[#fafae5]">{handoff.corridor}</span>
                 {" · "}
                 <span className="text-[#ff8a5c]">

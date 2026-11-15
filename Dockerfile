@@ -7,7 +7,7 @@ RUN bun install --frozen-lockfile
 COPY projects/project_2/ .
 RUN VITE_BASE_PATH=/cradleflow/ bun run build
 
-FROM oven/bun:1-alpine AS terraspan-app
+FROM oven/bun:1-alpine AS dopaimint-app
 WORKDIR /app
 
 COPY projects/project_1/package.json projects/project_1/bun.lock ./

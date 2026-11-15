@@ -136,7 +136,7 @@ export function ProductTourOverlay({
     <aside
       data-testid="product-tour-card"
       role="dialog"
-      aria-label="TerraSpan Guided Product Tour"
+      aria-label="DopaiMint Guided Product Tour"
       className="fixed bottom-4 right-4 z-40 w-[min(420px,calc(100vw-2rem))] rounded-2xl border border-[var(--at-border-bright)] bg-[var(--at-surface-floating)] p-4 shadow-2xl backdrop-blur-md"
     >
       <div className="flex items-start justify-between gap-3">

@@ -48,7 +48,7 @@ async function handleProxy(req, res, urlPath, search) {
       method: req.method || 'GET',
       headers: {
         Accept: req.headers.accept || '*/*',
-        'User-Agent': 'TerraSpan-NASA-SpaceApps-2026/1.0',
+        'User-Agent': 'DopaiMint-NASA-SpaceApps-2026/1.0',
       },
       signal: AbortSignal.timeout(12000),
     });
@@ -67,8 +67,14 @@ async function handleProxy(req, res, urlPath, search) {
   return true;
 }
 
+const STATIC_ALIASES = {
+  '/submission/terraspan-deck-7slides.pdf': '/submission/dopaimint-deck-7slides.pdf',
+  '/submission/terraspan-demo-28s.mp4': '/submission/dopaimint-demo-28s.mp4',
+};
+
 function serveStatic(req, res, urlPath) {
-  const safeRelative = path.normalize(decodeURIComponent(urlPath)).replace(/^(\.\.[/\\])+/, '');
+  const aliasedPath = STATIC_ALIASES[urlPath] || urlPath;
+  const safeRelative = path.normalize(decodeURIComponent(aliasedPath)).replace(/^(\.\.[/\\])+/, '');
   const requested = path.join(DIST_DIR, safeRelative === '/' ? 'index.html' : safeRelative);
   const resolved = path.resolve(requested);
 
@@ -161,7 +167,7 @@ const server = http.createServer(async (req, res) => {
   const parsed = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
   if (parsed.pathname === '/healthz') {
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-    res.end(JSON.stringify({ ok: true, service: 'terraspan' }));
+    res.end(JSON.stringify({ ok: true, service: 'dopaimint' }));
     return;
   }
 
@@ -173,5 +179,5 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`TerraSpan production server listening on http://0.0.0.0:${PORT}`);
+  console.log(`DopaiMint production server listening on http://0.0.0.0:${PORT}`);
 });

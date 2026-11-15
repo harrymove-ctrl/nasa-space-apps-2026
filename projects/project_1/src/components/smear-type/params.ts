@@ -4,7 +4,7 @@ export const SCENE = 600;
 export const KEY_MS = 50;
 export const LOOP_KEYS = 48;
 
-export const DEFAULT_LINES = ['TERRASPAN', 'ORBIT TO GRID'] as const;
+export const DEFAULT_LINES = ['DOPAIMINT', 'ORBIT TO GRID'] as const;
 export const CAP = 45;
 export const LINE_TOP = [250, 300] as const;
 export const WIDE = 410;

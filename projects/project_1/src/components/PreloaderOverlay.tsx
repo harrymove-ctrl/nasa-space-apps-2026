@@ -9,7 +9,7 @@ interface PreloaderOverlayProps {
 }
 
 const PRELOADER_DURATION_MS = 2650;
-const PRELOADER_LINES = ['TERRASPAN', 'ORBIT TO GRID'] as const;
+const PRELOADER_LINES = ['DOPAIMINT', 'ORBIT TO GRID'] as const;
 
 export function PreloaderOverlay({ holdMode, onComplete }: PreloaderOverlayProps) {
   const backdropRef = useRef<HTMLDivElement>(null);
@@ -82,7 +82,7 @@ export function PreloaderOverlay({ holdMode, onComplete }: PreloaderOverlayProps
       data-closing={closing ? '' : undefined}
       role="dialog"
       aria-modal="true"
-      aria-label="TerraSpan mission preloader"
+      aria-label="DopaiMint mission preloader"
       className="preloader-backdrop fixed inset-0 z-50 flex flex-col items-center justify-center px-4 py-6"
       style={{ backgroundColor: '#0c1317', color: '#f4f5f7' }}
     >

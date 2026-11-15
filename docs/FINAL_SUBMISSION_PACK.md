@@ -7,7 +7,7 @@ Ready to paste submission pack for the official Project Tab on `https://www.spac
 ### Field 1: Project Name
 
 ```text
-TerraSpan: Harmonized MODIS + VIIRS Burning Calendar and Grid Digital Twin
+DopaiMint: Harmonized MODIS + VIIRS Burning Calendar and Grid Digital Twin
 ```
 
 ### Field 2: High-Level Project Summary (`153` Words, Valid `50 to 200` Word Target)
@@ -15,28 +15,28 @@ TerraSpan: Harmonized MODIS + VIIRS Burning Calendar and Grid Digital Twin
 ```text
 Utility operators and mission planners cannot track wildfire or radiation risk cleanly when 1 km MODIS and 375 m VIIRS thermal hotspots live in separate archives away from weather and space weather feeds. Counting both sensors naively inflates multiyear fire counts around transmission lines, while oblique scan geometry hides how fast an active flame front approaches bare overhead conductors.
 
-TerraSpan solves this inside one zero login digital twin built directly on keyless NASA, ESA, and NOAA open data. Across a four stage workflow, operators inspect a 2000 to 2026 harmonized Burning Activity Calendar, fuse live MODIS C6.1, VIIRS NOAA 20 and 21, NASA POWER meteorology, GIBS reflectance, and ASF Sentinel 1 SAR into IEEE 738 ampacity headroom and TTCE closure minutes, verify every claim in a five layer provenance map, rehearse three triage waves, and escalate GOES 18 solar proton spikes straight into CradleFlow for automated NASA DONKI and OSDR habitat radiation shielding.
+DopaiMint solves this inside one zero login digital twin built directly on keyless NASA, ESA, and NOAA open data. Across a four stage workflow, operators inspect a 2000 to 2026 harmonized Burning Activity Calendar, fuse live MODIS C6.1, VIIRS NOAA 20 and 21, NASA POWER meteorology, GIBS reflectance, and ASF Sentinel 1 SAR into IEEE 738 ampacity headroom and TTCE closure minutes, verify every claim in a five layer provenance map, rehearse three triage waves, and escalate GOES 18 solar proton spikes straight into CradleFlow for automated NASA DONKI and OSDR habitat radiation shielding.
 ```
 
 ### Field 3: Link to Project Demo
 
-Official guidance allows pasting either the direct public `28.50s` MP4 showcase URL or uploading [terraspan-demo-28s.mp4](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/terraspan-demo-28s.mp4) (`<= 0:29`) to YouTube / Google Drive (`Anyone with the link`) alongside the exact 7 slide PDF [terraspan-deck-7slides.pdf](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/terraspan-deck-7slides.pdf):
+Official guidance allows pasting either the direct public `28.50s` MP4 showcase URL or uploading [dopaimint-demo-28s.mp4](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/dopaimint-demo-28s.mp4) (`<= 0:29`) to YouTube / Google Drive (`Anyone with the link`) alongside the exact 7 slide PDF [dopaimint-deck-7slides.pdf](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/dopaimint-deck-7slides.pdf):
 
-1. **Primary Zero Login Demo Video URL (`28.50s`, `1920x1080` MP4)**: `https://terraspan-production.up.railway.app/submission/terraspan-demo-28s.mp4`
-2. **Zero Login Media Showcase Hub (Video + 7 Slide Deck + 5 PNGs)**: `https://terraspan-production.up.railway.app/submission/`
-3. **Zero Login 7 Slide Deck PDF (`7` Pages Exact)**: `https://terraspan-production.up.railway.app/submission/terraspan-deck-7slides.pdf`
+1. **Primary Zero Login Demo Video URL (`28.50s`, `1920x1080` MP4)**: `https://dopaimint-production.up.railway.app/submission/dopaimint-demo-28s.mp4`
+2. **Zero Login Media Showcase Hub & Interactive 7 Slide Viewer**: `https://dopaimint-production.up.railway.app/submission/` (direct slides anchor `#slides`, fullscreen click through viewer `https://dopaimint-production.up.railway.app/?present=slides`)
+3. **Zero Login 7 Slide Deck PDF (`7` Pages Exact)**: `https://dopaimint-production.up.railway.app/submission/dopaimint-deck-7slides.pdf`
 
 ### Field 4: Link to Final Project
 
 ```text
-https://terraspan-production.up.railway.app
+https://dopaimint-production.up.railway.app
 ```
 
 Secondary verification links to include at the top of Field 5 if only one URL input box is offered in Field 4:
 
-1. **Unified Flagship (TerraSpan + Same Origin Phase 02 CradleFlow)**: `https://terraspan-production.up.railway.app`
-2. **Instant 5 Step Guided Judge Tour**: `https://terraspan-production.up.railway.app/?tour=1`
-3. **Direct Phase 02 CradleFlow Space Weather HUD**: `https://terraspan-production.up.railway.app/?view=game&stage=cradleflow`
+1. **Unified Flagship (DopaiMint + Same Origin Phase 02 CradleFlow)**: `https://dopaimint-production.up.railway.app`
+2. **Instant 5 Step Guided Judge Tour**: `https://dopaimint-production.up.railway.app/?tour=1`
+3. **Direct Phase 02 CradleFlow Space Weather HUD**: `https://dopaimint-production.up.railway.app/?view=game&stage=cradleflow`
 4. **Standalone CradleFlow Mirror**: `https://cradleflow-production.up.railway.app`
 5. **Public GitHub Source Repository**: `https://github.com/harrymove-ctrl/nasa-space-apps-2026`
 
@@ -46,8 +46,8 @@ Secondary verification links to include at the top of Field 5 if only one URL in
 ## Problem Statement
 Earth observation archives contain 26 years of NASA Terra and Aqua MODIS Collection 6.1 detections (1 km nominal nadir resolution, 2000 to present) alongside Suomi NPP, NOAA 20, and NOAA 21 VIIRS detections (375 m I band resolution, 2012 to present). When utilities or analysts plot both streams side by side without footprint harmonization, overlapping overpasses double count individual fires and create artificial step jumps after 2012. Off nadir scan expansion also obscures perimeter distance to critical transmission lines, while concurrent solar particle events threaten both terrestrial infrastructure situational awareness and deep space crew safety.
 
-## How TerraSpan Works: Four Stage Unified Telemetry Workflow
-TerraSpan (`https://terraspan-production.up.railway.app`) eliminates login barriers and pairs live keyless NASA, ESA, and NOAA streams through same origin reverse proxies (`/proxy/firms`, `/proxy/asf`, `/proxy/cmr`, `/proxy/osdr`, `/proxy/donki`) into one connected experience:
+## How DopaiMint Works: Four Stage Unified Telemetry Workflow
+DopaiMint (`https://dopaimint-production.up.railway.app`) eliminates login barriers and pairs live keyless NASA, ESA, and NOAA streams through same origin reverse proxies (`/proxy/firms`, `/proxy/asf`, `/proxy/cmr`, `/proxy/osdr`, `/proxy/donki`) into one connected experience:
 
 1. Stage 01 Observatory & 26 Year Burning Activity Calendar (`#telemetry`):
    In the landing observatory, operators switch instantaneously across four real monitored corridors (`Butte 230 kV`, `Maui West 69 kV`, `Okanogan 115 kV`, and `Siskiyou 500 kV`) or step through six orbital plate surveys (`ParallaxSlider`). Each thermal detection models oriented elliptical scan and track area (`area_km2 = pi * (scan / 2) * (track / 2)`), clusters coincident detections within 750 meters and 180 minutes, and reports Fire Radiative Power Density (`FRPD`, MW/km2) and Normalized Thermal Anomaly Score (`NTAS`, 0 to 100). The interactive Burning Activity Calendar (2000 to 2026) lets judges toggle between `H3 Harmonized`, `Raw MODIS+VIIRS`, and `MODIS 1 km` baselines to inspect historical fire spikes without sensor step artifacts, paired with live GIBS Terra TrueColor tiles and 45 day NASA POWER meteorology feeding IEEE 738 conductor ampacity safety margins (`425 A safe`) and Time to Corridor Encroachment (`TTCE` in minutes).
@@ -59,7 +59,7 @@ TerraSpan (`https://terraspan-production.up.railway.app`) eliminates login barri
    An interactive three wave response simulation trains operators to deduplicate MODIS and VIIRS hotspots, reroute loads before IEEE 738 conductor sag exceeds clearance bounds, and respond to concurrent NOAA GOES 18 solar proton flux alerts.
 
 4. Stage 04 Phase 02 CradleFlow Space Weather Automation (`?view=game&stage=cradleflow`):
-   Once grid triage escalates an orbital flare alert, live state transfers over same origin query parameters directly into the embedded CradleFlow habitat trainer (`/cradleflow/`), displaying a live `SYNCED FROM TERRASPAN` telemetry strip. Crew operators wire live `DONKI Proton Flux`, `Kp Geomagnetic`, `Solar & Battery`, and `NASA OSDR Bio Monitor` (`OSD-73` through `OSD-714`) nodes into automated actuators (`Seal Storm Shelter`, `Water Wall Shield`, and `Shed Hydroponics Load`) across Lunar `Shackleton Ridge Hab 01` and Martian `Jezero Hab 04 Outpost`.
+   Once grid triage escalates an orbital flare alert, live state transfers over same origin query parameters directly into the embedded CradleFlow habitat trainer (`/cradleflow/`), displaying a live `SYNCED FROM DOPAIMINT` telemetry strip. Crew operators wire live `DONKI Proton Flux`, `Kp Geomagnetic`, `Solar & Battery`, and `NASA OSDR Bio Monitor` (`OSD-73` through `OSD-714`) nodes into automated actuators (`Seal Storm Shelter`, `Water Wall Shield`, and `Shed Hydroponics Load`) across Lunar `Shackleton Ridge Hab 01` and Martian `Jezero Hab 04 Outpost`.
 
 ## Validation & Engineering Quality
 1. Production server (`bun server.mjs`) exposes live zero key proxy endpoints (`/proxy/firms`, `/proxy/asf`, `/proxy/cmr`, `/proxy/osdr`, `/proxy/donki`), byte range MP4 streaming (`HTTP 206`), and resilient verified snapshot fallbacks when upstream NASA endpoints rate limit.
@@ -67,9 +67,9 @@ TerraSpan (`https://terraspan-production.up.railway.app`) eliminates login barri
 3. Headless Playwright QA passes all `9` verification scenarios across desktop light, desktop dark, tablet (`1024x768`, `768x1024`), guided tour (`?tour=1`), unified Phase 01 to Phase 02 same origin handoff, and mobile (`390x844`) with `0 px` horizontal overflow and zero runtime console errors.
 
 ## Live Links & Open Source Repository
-1. Unified Flagship Web App: https://terraspan-production.up.railway.app
-2. Guided Tour Entry: https://terraspan-production.up.railway.app/?tour=1
-3. Official Demo Media Hub: https://terraspan-production.up.railway.app/submission/
+1. Unified Flagship Web App: https://dopaimint-production.up.railway.app
+2. Guided Tour Entry: https://dopaimint-production.up.railway.app/?tour=1
+3. Official Demo Media Hub: https://dopaimint-production.up.railway.app/submission/
 4. Standalone CradleFlow Mirror: https://cradleflow-production.up.railway.app
 5. Source Code (MIT / Open Repository): https://github.com/harrymove-ctrl/nasa-space-apps-2026
 ```
@@ -79,10 +79,10 @@ TerraSpan (`https://terraspan-production.up.railway.app`) eliminates login barri
 | Order | Local PNG File (`projects/project_1/public/submission/images/`) | Size | Suggested Section Caption in Project Editor |
 | :--- | :--- | :--- | :--- |
 | 1 | `01-architecture-pipeline.png` | `0.19 MB` | Figure 1: Four stage `mdxcn` architecture pipeline and eight NASA feed specification over `ascii.rest` Earthrise canvas. |
-| 2 | `02-overview-burning-calendar.png` | `0.64 MB` | Figure 2: TerraSpan live observatory framed in `mdxcn` over `ascii.rest` Earth canvas with IEEE 738 limits and TTCE lead time. |
-| 3 | `03-orbital-provenance-map.png` | `0.43 MB` | Figure 3: Five layer orbital data provenance map framed in `mdxcn` over `ascii.rest` Radar canvas binding claims to NASA endpoints. |
-| 4 | `04-earth-grid-triage-phase1.png` | `0.40 MB` | Figure 4: Phase 01 three wave interactive triage drill framed in `mdxcn` over `ascii.rest` Aurora canvas across grid corridors. |
-| 5 | `05-cradleflow-habitat-phase2.png` | `0.39 MB` | Figure 5: Same origin Phase 02 CradleFlow React Flow shelter automation framed in `mdxcn` over `ascii.rest` Solar System canvas. |
+| 2 | `02-overview-burning-calendar.png` | `0.72 MB` | Figure 2: DopaiMint live observatory framed in `mdxcn` over `ascii.rest` Earth canvas with IEEE 738 limits and TTCE lead time. |
+| 3 | `03-orbital-provenance-map.png` | `0.50 MB` | Figure 3: Five layer orbital data provenance map framed in `mdxcn` over `ascii.rest` Radar canvas binding claims to NASA endpoints. |
+| 4 | `04-earth-grid-triage-phase1.png` | `0.47 MB` | Figure 4: Phase 01 three wave interactive triage drill framed in `mdxcn` over `ascii.rest` Aurora canvas across grid corridors. |
+| 5 | `05-cradleflow-habitat-phase2.png` | `0.52 MB` | Figure 5: Same origin Phase 02 CradleFlow React Flow shelter automation framed in `mdxcn` over `ascii.rest` Solar System canvas. |
 
 ### Field 6: Use of Artificial Intelligence (AI) / Super Intelligence (SI)
 
@@ -118,17 +118,17 @@ AI coding and developer workflow tools (Antigravity coding assistants and Claude
 
 | Status | Task ID | Verification Gate / Owner Action | Evidence / Command / URL |
 | :--- | :--- | :--- | :--- |
-| `[x]` | `A1` | Unify TerraSpan (`project_1`) and same origin CradleFlow (`/cradleflow/`) into single Railway app | [App.tsx](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/src/App.tsx), [Dockerfile](file:///Volumes/Dev/nasa-space-apps-2026/Dockerfile) |
+| `[x]` | `A1` | Unify DopaiMint (`project_1`) and same origin CradleFlow (`/cradleflow/`) into single Railway app | [App.tsx](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/src/App.tsx), [Dockerfile](file:///Volumes/Dev/nasa-space-apps-2026/Dockerfile) |
 | `[x]` | `A2` | Verify server proxies (`/proxy/firms`, `/proxy/asf`, `/proxy/cmr`, `/proxy/osdr`, `/proxy/donki`) + HTTP `206` MP4 Range support | [server.mjs](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/server.mjs) |
 | `[x]` | `A3` | Pass CradleFlow `18/18` Vitest suite & `smear-type` `5/5` contract check | `bun run test` + `smear-type/scripts/check.mjs` |
 | `[x]` | `A4` | Pass all `9` Playwright multi-viewport QA checks (`0 px` overflow, Guided Tour, Phase 02 handoff, dark/light, mobile `390x844`) | [qa-landing.mjs](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/scripts/qa-landing.mjs) |
-| `[x]` | `A5` | Render & inspect `< 30s` Demo Film (`28.50s` exact, `855` frames, `0` black dropouts, `2.52 MiB`) | [terraspan-demo-28s.mp4](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/terraspan-demo-28s.mp4), [QA.md](file:///Volumes/Dev/nasa-space-apps-2026/docs/video/QA.md) |
-| `[x]` | `A6` | Export & inspect exact `7` slide PDF Deck (`7` pages verified, `5.12 MiB`) | [terraspan-deck-7slides.pdf](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/terraspan-deck-7slides.pdf) |
-| `[x]` | `A7` | Generate `5` curated `< 10 MB` (`0.19 to 0.64 MB`) `1920x1080` `mdxcn` + `ascii.rest` PNG plates & live React `/submission/` hub | [SubmissionStudio.tsx](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/src/components/SubmissionStudio.tsx), [AsciiRestBackdrop.tsx](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/src/components/AsciiRestBackdrop.tsx) |
-| `[ ]` | `B1` | **Operator Action (~30s)**: Enter Name, Email, and complete Google reCAPTCHA on open FortiGuard browser tab (`https://terraspan-production.up.railway.app` pre-filled) | Browser tab `https://www.fortiguard.com/faq/wfratingsubmit` |
+| `[x]` | `A5` | Render & inspect `< 30s` Demo Film (`28.50s` exact, `855` frames, `0` black dropouts, `2.51 MiB`) | [dopaimint-demo-28s.mp4](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/dopaimint-demo-28s.mp4), [QA.md](file:///Volumes/Dev/nasa-space-apps-2026/docs/video/QA.md) |
+| `[x]` | `A6` | Export & inspect exact `7` slide PDF Deck (`7` pages verified, `4.17 MiB`) + clickable viewer | [dopaimint-deck-7slides.pdf](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/dopaimint-deck-7slides.pdf) |
+| `[x]` | `A7` | Generate `5` curated `< 10 MB` (`0.19 to 0.72 MB`) `1920x1080` `mdxcn` + `ascii.rest` PNG plates & live React `/submission/` hub | [SubmissionStudio.tsx](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/src/components/SubmissionStudio.tsx), [AsciiRestBackdrop.tsx](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/src/components/AsciiRestBackdrop.tsx) |
+| `[ ]` | `B1` | **Operator Action (~30s)**: Enter Name, Email, and complete Google reCAPTCHA on open FortiGuard browser tab (`https://dopaimint-production.up.railway.app` pre-filled) | Browser tab `https://www.fortiguard.com/faq/wfratingsubmit` |
 | `[ ]` | `C1` | **Operator Action (Before `18:00 ICT`)**: Confirm participant status is `Confirmed` (not waitlisted) on `spaceappschallenge.org/2026/` | Team dashboard on `spaceappschallenge.org` |
 | `[ ]` | `C2` | **Operator Action (Before `18:00 ICT`)**: Paste Fields 1 to 8 from Part 1 above + upload the 5 inline PNGs from `projects/project_1/public/submission/images/` | `spaceappschallenge.org` Project Tab editor |
-| `[ ]` | `C3` | **Operator Action (Before `18:00 ICT`)**: Optional mirror of [terraspan-demo-28s.mp4](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/terraspan-demo-28s.mp4) to Unlisted/Public YouTube or Drive if desired, otherwise paste `https://terraspan-production.up.railway.app/submission/terraspan-demo-28s.mp4` | `Field #3: Link to Project Demo` |
+| `[ ]` | `C3` | **Operator Action (Before `18:00 ICT`)**: Optional mirror of [dopaimint-demo-28s.mp4](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/dopaimint-demo-28s.mp4) to Unlisted/Public YouTube or Drive if desired, otherwise paste `https://dopaimint-production.up.railway.app/submission/dopaimint-demo-28s.mp4` | `Field #3: Link to Project Demo` |
 | `[ ]` | `C4` | **Operator Action (Before `18:00 ICT`)**: Test every external URL in a fresh Incognito window (confirm zero logins requested) | Incognito browser check |
 | `[ ]` | `C5` | **Operator Action (Before `18:00 ICT`)**: Tick `Terms and Conditions` + `Confirm All Work is Original`, click **`Submit for Judging`**, and confirm the top confirmation banner | `spaceappschallenge.org` Submit banner |
 | `[ ]` | `D1` | **Operator Action (Before `23:59 ICT`)**: Review formatting, resave/resubmit any final polish, verify Profile Full Name spelling, and download the Letter-size (`8.5x11in`) Participant Certificate PDF | `spaceappschallenge.org` Certificate Download |

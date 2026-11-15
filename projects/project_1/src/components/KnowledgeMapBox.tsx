@@ -121,7 +121,7 @@ export function KnowledgeMapBox({
           </span>
           <h3 className="mt-1 text-xl font-semibold text-[var(--at-text-primary)]">
             {stressLongValues
-              ? 'Five NASA and NOAA Telemetry Channels Wired into TerraSpan and CradleFlow'
+              ? 'Five NASA and NOAA Telemetry Channels Wired into DopaiMint and CradleFlow'
               : 'Five NASA and NOAA telemetry layers fused into live operator briefs'}
           </h3>
         </div>

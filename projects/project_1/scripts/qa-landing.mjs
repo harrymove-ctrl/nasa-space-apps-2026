@@ -558,15 +558,15 @@ async function run() {
       throw new Error(`Pass E2 Guided Tour failed: ${JSON.stringify(results.at(-1))}`);
     }
 
-    // Pass E3: Unified TerraSpan to CradleFlow Flow
+    // Pass E3: Unified DopaiMint to CradleFlow Flow
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto(`${baseUrl}/?skipPreloader=1&view=game&stage=cradleflow`, {
       waitUntil: 'domcontentloaded',
     });
     await page.getByTestId('cradleflow-embed-frame').waitFor({ state: 'visible', timeout: 8000 });
     const cradleFrame = page.frameLocator('[data-testid="cradleflow-embed-frame"]');
-    await cradleFrame.getByTestId('terraspan-handoff-banner').waitFor({ state: 'visible', timeout: 8000 });
-    const handoffText = await cradleFrame.getByTestId('terraspan-handoff-banner').textContent();
+    await cradleFrame.getByTestId('dopaimint-handoff-banner').waitFor({ state: 'visible', timeout: 8000 });
+    const handoffText = await cradleFrame.getByTestId('dopaimint-handoff-banner').textContent();
     const frameTitleVisible = await cradleFrame
       .getByText('CRADLEFLOW // JUNIOR ASTRONAUT TRAINER')
       .isVisible();
@@ -575,8 +575,8 @@ async function run() {
     );
     await page.screenshot({ path: path.join(SHOTS_DIR, '05b-unified-cradleflow-phase2.png') });
     const passE3 = {
-      check: 'Pass E3: Unified TerraSpan to CradleFlow Flow',
-      hasBanner: Boolean(handoffText?.includes('SYNCED FROM TERRASPAN') && handoffText?.includes('Butte 230 kV')),
+      check: 'Pass E3: Unified DopaiMint to CradleFlow Flow',
+      hasBanner: Boolean(handoffText?.includes('SYNCED FROM DOPAIMINT') && handoffText?.includes('Butte 230 kV')),
       frameTitleVisible,
       overflowPx: unifiedOverflowPx,
     };
@@ -589,10 +589,10 @@ async function run() {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`${baseUrl}/?skipPreloader=1`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(600);
-    await page.locator('button[popovertarget="terraspan-nav-menu"]').click();
+    await page.locator('button[popovertarget="dopaimint-nav-menu"]').click();
     await page.waitForTimeout(200);
     const popoverOpen = await page.evaluate(() =>
-      Boolean(document.getElementById('terraspan-nav-menu')?.matches(':popover-open')),
+      Boolean(document.getElementById('dopaimint-nav-menu')?.matches(':popover-open')),
     );
     await page.screenshot({ path: path.join(SHOTS_DIR, '06b-mobile-popover-dark.png') });
     await page.keyboard.press('Escape');
@@ -605,6 +605,86 @@ async function run() {
     results.push({ check: 'Pass F: Mobile (390x844)', popoverOpen, ...mobileStats });
     if (!popoverOpen || mobileStats.isWide || mobileStats.overflowPx > 0) {
       throw new Error(`Pass F Mobile failed: ${JSON.stringify(results.at(-1))}`);
+    }
+
+    // Pass G: Submission Showcase (/submission/) + Interactive 7-Slide Deck + Fullscreen Slide Viewer
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(`${baseUrl}/submission/`, { waitUntil: 'load' });
+    await page.getByTestId('submission-showcase').waitFor({ state: 'visible', timeout: 8000 });
+    await page.waitForTimeout(800);
+
+    const showcaseChecks = await page.evaluate(() => {
+      const links = Array.from(document.querySelectorAll('a')).map((a) => a.getAttribute('href') || '');
+      const imgs = Array.from(document.querySelectorAll('img'));
+      const brokenImgs = imgs
+        .filter((img) => !img.complete || img.naturalWidth === 0)
+        .map((img) => img.getAttribute('src'));
+      return {
+        overflowPx: Math.max(0, document.documentElement.scrollWidth - window.innerWidth),
+        hasPdfLink: links.some((href) => href.includes('/submission/dopaimint-deck-7slides.pdf')),
+        hasMp4Link: links.some((href) => href.includes('/submission/dopaimint-demo-28s.mp4')),
+        hasSlidesLink: links.some((href) => href.includes('#slides') || href.includes('present=slides')),
+        hasFeatureLinks:
+          links.some((href) => href.includes('view=map')) &&
+          links.some((href) => href.includes('view=game')) &&
+          links.some((href) => href.includes('#telemetry')),
+        imgCount: imgs.length,
+        brokenImgs,
+        initialCounter: document.querySelector('[data-testid="deck-slide-counter"]')?.textContent?.trim() || '',
+      };
+    });
+
+    await page.getByTestId('deck-slide-btn-3').click();
+    await page.waitForTimeout(200);
+    const afterBtn3 = await page.getByTestId('deck-slide-counter').textContent();
+
+    await page.getByTestId('interactive-slide-stage').click({ position: { x: 40, y: 40 } });
+    await page.waitForFunction(() => {
+      const stageImgs = Array.from(document.querySelectorAll('[data-testid="interactive-slide-stage"] img'));
+      return stageImgs.length === 2 && stageImgs.every((img) => img.complete && img.naturalWidth > 0);
+    });
+    const afterStageClick = await page.getByTestId('deck-slide-counter').textContent();
+
+    await page.goto(`${baseUrl}/?present=slides&slide=2`, { waitUntil: 'load' });
+    await page.getByTestId('presentation-slides-view').waitFor({ state: 'visible', timeout: 8000 });
+    await page.waitForFunction(() => {
+      const stageImgs = Array.from(document.querySelectorAll('[data-testid="interactive-slide-stage"] img'));
+      return stageImgs.length >= 1 && stageImgs.every((img) => img.complete && img.naturalWidth > 0);
+    });
+    const fullscreenCounter = await page.getByTestId('deck-slide-counter').textContent();
+    const fullscreenOverflow = await page.evaluate(() =>
+      Math.max(0, document.documentElement.scrollWidth - window.innerWidth),
+    );
+    await page.getByTestId('interactive-slide-stage').click({ position: { x: 40, y: 40 } });
+    await page.waitForTimeout(200);
+    const fullscreenAfterClick = await page.getByTestId('deck-slide-counter').textContent();
+
+    const passG = {
+      check: 'Pass G: Submission Hub + Interactive Slides',
+      showcaseChecks,
+      afterBtn3: afterBtn3?.trim(),
+      afterStageClick: afterStageClick?.trim(),
+      fullscreenCounter: fullscreenCounter?.trim(),
+      fullscreenAfterClick: fullscreenAfterClick?.trim(),
+      fullscreenOverflow,
+    };
+    results.push(passG);
+
+    if (
+      showcaseChecks.overflowPx > 0 ||
+      !showcaseChecks.hasPdfLink ||
+      !showcaseChecks.hasMp4Link ||
+      !showcaseChecks.hasSlidesLink ||
+      !showcaseChecks.hasFeatureLinks ||
+      showcaseChecks.brokenImgs.length > 0 ||
+      !showcaseChecks.initialCounter.includes('1/7') ||
+      !afterBtn3?.includes('3/7') ||
+      !afterStageClick?.includes('4/7') ||
+      !fullscreenCounter?.includes('2/7') ||
+      !fullscreenAfterClick?.includes('3/7') ||
+      fullscreenOverflow > 0
+    ) {
+      throw new Error(`Pass G Submission Hub / Slides failed: ${JSON.stringify(passG, null, 2)}`);
     }
 
     if (errors.length > 0 || failedResponses.length > 0) {

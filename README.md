@@ -4,8 +4,8 @@ Workspace at `/Volumes/Dev/nasa-space-apps-2026` (`https://www.spaceappschalleng
 
 ## Projects
 
-1. [Unified Flagship: TerraSpan + CradleFlow (`projects/project_1` + `/cradleflow/`)](projects/project_1/PROJECT.md): Unified orbital-to-outpost telemetry platform hosted at `https://terraspan-production.up.railway.app`. Combines TerraSpan (keyless 26-year MODIS C6.1 and VIIRS 375 m hotspot harmonization, NASA POWER IEEE 738 conductor derating, 5-layer Provenance Map, and Phase 01 Earth Grid Triage) directly with same-origin Phase 02 CradleFlow Habitat Automation (`/cradleflow/index.html`) inside a single workflow.
-2. [Standalone Mirror: CradleFlow Junior Astronaut Trainer (`projects/project_2`)](projects/project_2/README.md): Direct standalone deployment at `https://cradleflow-production.up.railway.app` with an `Earth Twin` navigation link back to TerraSpan and full NASA DONKI, NOAA SWPC GOES-18, and NASA OSDR radiobiology simulation.
+1. [Unified Flagship: DopaiMint + CradleFlow (`projects/project_1` + `/cradleflow/`)](projects/project_1/PROJECT.md): Unified orbital-to-outpost telemetry platform hosted at `https://dopaimint-production.up.railway.app`. Combines DopaiMint (keyless 26-year MODIS C6.1 and VIIRS 375 m hotspot harmonization, NASA POWER IEEE 738 conductor derating, 5-layer Provenance Map, and Phase 01 Earth Grid Triage) directly with same-origin Phase 02 CradleFlow Habitat Automation (`/cradleflow/index.html`) inside a single workflow.
+2. [Standalone Mirror: CradleFlow Junior Astronaut Trainer (`projects/project_2`)](projects/project_2/README.md): Direct standalone deployment at `https://cradleflow-production.up.railway.app` with an `Earth Twin` navigation link back to DopaiMint and full NASA DONKI, NOAA SWPC GOES-18, and NASA OSDR radiobiology simulation.
 
 ## Workspace Documentation
 
@@ -20,8 +20,8 @@ Workspace at `/Volumes/Dev/nasa-space-apps-2026` (`https://www.spaceappschalleng
 
 ## Quick Start & Public URLs
 
-1. Live Unified Flagship Public URL (`TerraSpan + Phase 02 CradleFlow`): `https://terraspan-production.up.railway.app` (Guided Tour: `https://terraspan-production.up.railway.app/?tour=1`; Direct Phase 02 Canvas: `https://terraspan-production.up.railway.app/?view=game&stage=cradleflow`; Same-origin Fullscreen CradleFlow: `https://terraspan-production.up.railway.app/cradleflow/`)
-2. Official Submission Media Hub (`28.5s` Video + `7` Slide PDF + `5` `< 10 MB` PNGs): `https://terraspan-production.up.railway.app/submission/` (`MP4`: `https://terraspan-production.up.railway.app/submission/terraspan-demo-28s.mp4`, `PDF`: `https://terraspan-production.up.railway.app/submission/terraspan-deck-7slides.pdf`)
+1. Live Unified Flagship Public Website (`DopaiMint + Phase 02 CradleFlow`): `https://dopaimint-production.up.railway.app` (Guided Tour: `https://dopaimint-production.up.railway.app/?tour=1`; 5-Layer Provenance Map: `https://dopaimint-production.up.railway.app/?view=map`; Phase 01 Triage Game: `https://dopaimint-production.up.railway.app/?view=game`; Direct Phase 02 Canvas: `https://dopaimint-production.up.railway.app/?view=game&stage=cradleflow`; Same-origin Fullscreen CradleFlow: `https://dopaimint-production.up.railway.app/cradleflow/`)
+2. Official Submission Media & Interactive 7-Slide Viewer Hub: `https://dopaimint-production.up.railway.app/submission/` (Interactive Slides `#slides`: `https://dopaimint-production.up.railway.app/?present=slides`, `MP4`: `https://dopaimint-production.up.railway.app/submission/dopaimint-demo-28s.mp4`, `PDF`: `https://dopaimint-production.up.railway.app/submission/dopaimint-deck-7slides.pdf`)
 3. Secondary Standalone CradleFlow Mirror (`projects/project_2`): `https://cradleflow-production.up.railway.app` (Guided Cadet Tour: `https://cradleflow-production.up.railway.app/?tour=1`)
 4. Local Unified Build & Preview (`projects/project_1` on `http://127.0.0.1:5179`): `cd projects/project_1 && bun install && bun run build && bun run dev`
 5. Local CradleFlow Standalone (`projects/project_2` on `http://127.0.0.1:5185`): `cd projects/project_2 && bun install && bun run test && bun run build && bun run dev`

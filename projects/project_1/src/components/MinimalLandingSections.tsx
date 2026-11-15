@@ -256,14 +256,14 @@ export function MinimalLandingSections({
           <SplitShowcase
             items={[
               {
-                id: 'terraspan-card',
+                id: 'dopaimint-card',
                 title: (
                   <div className="space-y-1">
                     <div className="font-mono text-xs uppercase tracking-[0.12em] text-[var(--at-signal-fire)]">
                       Phase 01 · Earth Grid Triage
                     </div>
                     <div className="text-2xl font-semibold text-[var(--at-text-primary)]">
-                      TerraSpan
+                      DopaiMint
                     </div>
                   </div>
                 ),
@@ -271,7 +271,7 @@ export function MinimalLandingSections({
                   '26-year MODIS C6.1 and VIIRS 375 m hotspot harmonization paired with NASA POWER IEEE 738 ampacity derating.',
                 tag: 'Open Phase 01 Drill',
                 onClick: onOpenMissionGame,
-                ariaLabel: 'Launch Phase 01 TerraSpan Drill',
+                ariaLabel: 'Launch Phase 01 DopaiMint Drill',
               },
               {
                 id: 'cradleflow-card',
@@ -308,21 +308,30 @@ export function MinimalLandingSections({
         <div className="lp-container flex flex-col justify-between gap-6 md:flex-row md:items-center">
           <div className="space-y-1.5">
             <div className="text-sm font-semibold text-[var(--at-text-primary)]">
-              TerraSpan and CradleFlow Unified Platform for NASA Space Apps Challenge 2026
+              DopaiMint and CradleFlow Unified Platform for NASA Space Apps Challenge 2026
             </div>
             <p className="font-mono text-xs text-[var(--at-text-dim)]">
               Open public data attribution: {NASA_OPEN_PARTNERS.join(' | ')}
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={onOpenCradleFlow}
-            className="inline-flex cursor-pointer items-center gap-1.5 font-mono text-xs font-medium text-[var(--at-signal-cyan)] hover:underline"
-          >
-            Open Phase 02: CradleFlow Simulator
-            <ArrowUpRight className="size-3.5" aria-hidden="true" />
-          </button>
+          <div className="flex flex-wrap items-center gap-5">
+            <a
+              href="/submission/"
+              className="inline-flex items-center gap-1.5 font-mono text-xs font-medium text-[var(--at-text-secondary)] hover:text-[var(--at-text-primary)] hover:underline"
+            >
+              Interactive 7-Slide Deck &amp; Pack
+              <ArrowUpRight className="size-3.5" aria-hidden="true" />
+            </a>
+            <button
+              type="button"
+              onClick={onOpenCradleFlow}
+              className="inline-flex cursor-pointer items-center gap-1.5 font-mono text-xs font-medium text-[var(--at-signal-cyan)] hover:underline"
+            >
+              Open Phase 02: CradleFlow Simulator
+              <ArrowUpRight className="size-3.5" aria-hidden="true" />
+            </button>
+          </div>
         </div>
       </footer>
     </>

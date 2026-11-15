@@ -9,7 +9,16 @@ const PROJECT_ROOT = path.resolve(__dirname, '..');
 const OUT_DIR = path.join(PROJECT_ROOT, 'public', 'submission');
 const IMG_DIR = path.join(OUT_DIR, 'images');
 const DIST_SUBMISSION_DIR = path.join(PROJECT_ROOT, 'dist', 'submission');
+const SCREENS_DIR = path.join(OUT_DIR, 'screens');
+const DIST_SCREENS_DIR = path.join(DIST_SUBMISSION_DIR, 'screens');
 const DIST_RAW_DIR = path.join(DIST_SUBMISSION_DIR, 'raw');
+
+async function saveScreen(page, name) {
+  const filename = `${name}.jpg`;
+  const publicPath = path.join(SCREENS_DIR, filename);
+  await page.screenshot({ path: publicPath, type: 'jpeg', quality: 92 });
+  fs.copyFileSync(publicPath, path.join(DIST_SCREENS_DIR, filename));
+}
 const SCRATCH_ROOT =
   '/Users/harryphan/.gemini/antigravity/brain/3ccece75-188a-4c72-af68-df1fd73b80b6/scratch';
 const FRAMES_DIR = path.join(SCRATCH_ROOT, 'video-frames');
@@ -176,7 +185,13 @@ async function run() {
 
   execFileSync('bun', ['run', 'build'], { cwd: PROJECT_ROOT, stdio: 'inherit' });
 
+  fs.mkdirSync(SCREENS_DIR, { recursive: true });
+  fs.mkdirSync(DIST_SCREENS_DIR, { recursive: true });
   fs.mkdirSync(DIST_RAW_DIR, { recursive: true });
+  for (const staleName of ['terraspan-deck-7slides.pdf', 'terraspan-demo-28s.mp4']) {
+    fs.rmSync(path.join(OUT_DIR, staleName), { force: true });
+    fs.rmSync(path.join(DIST_SUBMISSION_DIR, staleName), { force: true });
+  }
 
   const { chromium } = loadPlaywright();
   const port = 4189;
@@ -199,10 +214,10 @@ async function run() {
       });
       const page = await context.newPage();
 
-      // 1. Capture live product UI views into dist/submission/raw/ for mdxcn framing
+      // 1. Capture live product UI views into public/submission/screens/ and dist/submission/screens/ for mdxcn framing
       await page.goto(`${baseUrl}/?skipPreloader=1`, { waitUntil: 'load' });
       await page.waitForTimeout(2400);
-      await page.screenshot({ path: path.join(DIST_RAW_DIR, 'overview.png') });
+      await saveScreen(page, 'overview');
 
       await page.locator('#telemetry').scrollIntoViewIfNeeded();
       await page.evaluate(() => {
@@ -213,17 +228,17 @@ async function run() {
         }
       });
       await page.waitForTimeout(900);
-      await page.screenshot({ path: path.join(DIST_RAW_DIR, 'calendar.png') });
+      await saveScreen(page, 'calendar');
 
       await page.goto(`${baseUrl}/?skipPreloader=1&view=map`, { waitUntil: 'load' });
       await page.getByTestId('knowledge-map-box').waitFor({ state: 'visible', timeout: 8000 });
       await page.waitForTimeout(2200);
-      await page.screenshot({ path: path.join(DIST_RAW_DIR, 'map.png') });
+      await saveScreen(page, 'map');
 
       await page.goto(`${baseUrl}/?skipPreloader=1&view=game`, { waitUntil: 'load' });
       await page.getByTestId('mission-game-box').waitFor({ state: 'visible', timeout: 8000 });
       await page.waitForTimeout(1600);
-      await page.screenshot({ path: path.join(DIST_RAW_DIR, 'game.png') });
+      await saveScreen(page, 'game');
 
       await page.goto(`${baseUrl}/?skipPreloader=1&view=game&stage=cradleflow`, {
         waitUntil: 'load',
@@ -231,10 +246,10 @@ async function run() {
       await page.getByTestId('cradleflow-embed-frame').waitFor({ state: 'visible', timeout: 10000 });
       const cradleFrame = page.frameLocator('[data-testid="cradleflow-embed-frame"]');
       await cradleFrame
-        .getByTestId('terraspan-handoff-banner')
+        .getByTestId('dopaimint-handoff-banner')
         .waitFor({ state: 'visible', timeout: 10000 });
       await page.waitForTimeout(1800);
-      await page.screenshot({ path: path.join(DIST_RAW_DIR, 'cradleflow.png') });
+      await saveScreen(page, 'cradleflow');
       await context.close();
 
       // Studio context enforces prefers-reduced-motion: reduce so mdxcn motion rows stay at opacity 1
@@ -328,7 +343,7 @@ async function run() {
         await slideLocators.nth(i).screenshot({ path: path.join(FRAMES_DIR, `slide-${i + 1}.png`) });
       }
 
-      const pdfPath = path.join(OUT_DIR, 'terraspan-deck-7slides.pdf');
+      const pdfPath = path.join(OUT_DIR, 'dopaimint-deck-7slides.pdf');
       await studioPage.pdf({
         path: pdfPath,
         width: '1920px',
@@ -401,7 +416,7 @@ async function run() {
         await studioPage.screenshot({ path: frameFile, type: 'jpeg', quality: 94 });
       }
 
-      const mp4Path = path.join(OUT_DIR, 'terraspan-demo-28s.mp4');
+      const mp4Path = path.join(OUT_DIR, 'dopaimint-demo-28s.mp4');
       execFileSync(
         'ffmpeg',
         [

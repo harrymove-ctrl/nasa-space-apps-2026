@@ -99,7 +99,7 @@ export function SourceRail({
           {
             id: 2,
             title: 'IEEE 738 Steady-State Thermal Balance',
-            domain: 'terraspan.physics',
+            domain: 'dopaimint.physics',
             verdict: 'derived',
             quote: `Convective cooling at ${physics.windKmh} km/h and ${weather.tempC} C yields ${physics.deratedAmps} A rating from ${preset.nominalAmps} A baseline.`,
             highlightPhrase: `${physics.deratedAmps} A rating from ${preset.nominalAmps} A baseline`,
@@ -127,7 +127,7 @@ export function SourceRail({
             cites: [1],
           },
           {
-            text: `Each geometry vector feeds TerraSpan corridor watch queues alongside NASA POWER wind alignment checks.`,
+            text: `Each geometry vector feeds DopaiMint corridor watch queues alongside NASA POWER wind alignment checks.`,
             cites: [2],
           },
         ],

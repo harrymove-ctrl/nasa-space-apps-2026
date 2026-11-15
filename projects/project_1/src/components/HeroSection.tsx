@@ -40,7 +40,7 @@ export function HeroSection({
           </h1>
 
           <p className="lp-hero-sub">
-            TerraSpan pairs NASA MODIS C6.1 and VIIRS 375 m hotspots with IEEE 738 conductor derates and NOAA GOES-18 radiation alerts, open with zero login.
+            DopaiMint pairs NASA MODIS C6.1 and VIIRS 375 m hotspots with IEEE 738 conductor derates and NOAA GOES-18 radiation alerts, open with zero login.
           </p>
 
           <div className="lp-hero-buttons">

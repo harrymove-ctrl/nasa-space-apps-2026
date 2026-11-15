@@ -21,6 +21,7 @@ const NAV_LINKS = [
   { label: 'Telemetry', href: '#telemetry' },
   { label: 'Map', href: '#corridors' },
   { label: 'Trainer', href: '#trainer' },
+  { label: 'Slides', href: '/submission/' },
 ] as const;
 
 export function Navbar({
@@ -147,18 +148,22 @@ export function Navbar({
               <circle cx="12" cy="12" r="4" stroke="var(--at-signal-cyan)" strokeWidth="1.5" />
               <circle cx="16.5" cy="7.5" r="2" fill="var(--at-signal-fire)" />
             </svg>
-            <span>TERRASPAN</span>
+            <span>DOPAIMINT</span>
           </a>
 
-          <ul id="terraspan-nav-menu" ref={menuRef} className="site-nav mobile-nav-popover">
+          <ul id="dopaimint-nav-menu" ref={menuRef} className="site-nav mobile-nav-popover">
             {NAV_LINKS.map((item) => (
               <li key={item.href}>
                 <a
                   href={item.href}
                   onClick={(e) => {
-                    e.preventDefault();
+                    if (item.href.startsWith('#')) {
+                      e.preventDefault();
+                      closePopoverIfOpen();
+                      onNavigateSection(item.href);
+                      return;
+                    }
                     closePopoverIfOpen();
-                    onNavigateSection(item.href);
                   }}
                   className="nav-link inline-flex items-center px-3 py-1.5 text-[13px] font-medium transition-colors"
                 >
@@ -248,7 +253,7 @@ export function Navbar({
 
             <button
               type="button"
-              popoverTarget="terraspan-nav-menu"
+              popoverTarget="dopaimint-nav-menu"
               aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={menuOpen}
               className="nav-menu-trigger inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-[var(--at-border-subtle)]"
