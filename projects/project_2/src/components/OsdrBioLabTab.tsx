@@ -67,10 +67,20 @@ export const OsdrBioLabTab: React.FC<OsdrBioLabTabProps> = ({
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
+    const cleaned = searchQuery.trim();
+    if (!cleaned) {
+      setSearchHits({ total: 0, titles: [], source: "cached" });
+      return;
+    }
     setSearching(true);
-    const result = await searchLiveOsdrStudies(searchQuery);
+    const result = await searchLiveOsdrStudies(cleaned);
     setSearchHits(result);
     setSearching(false);
+  };
+
+  const handleResetSearch = () => {
+    setSearchQuery("radiation");
+    setSearchHits(null);
   };
 
   const correctCount = QUIZ_QUESTIONS.filter(
@@ -108,27 +118,42 @@ export const OsdrBioLabTab: React.FC<OsdrBioLabTabProps> = ({
           >
             {searching ? "Querying..." : "Query OSDR API"}
           </button>
+          {searchHits || searchQuery.trim() !== "radiation" ? (
+            <button
+              type="button"
+              onClick={handleResetSearch}
+              className="hud-btn shrink-0"
+            >
+              Reset
+            </button>
+          ) : null}
         </form>
       </div>
 
       {searchHits ? (
-        <div className="hud-panel border-[#c084fc] p-3">
-          <div className="mono mb-2 text-[11px] font-bold text-[#c084fc]">
+        <div className="hud-panel border-[#38bdf8] p-3">
+          <div className="mono mb-2 text-[11px] font-bold text-[#38bdf8]">
             {searchHits.source === "live"
               ? `LIVE NASA OSDR API RESULTS (${searchHits.total} TOTAL MATCHED RECORDS)`
               : `CACHED VERIFIED OSDR ARCHIVE (${searchHits.total} MATCHED SNAPSHOT RECORDS)`}
           </div>
-          <div className="grid gap-1.5 md:grid-cols-2">
-            {searchHits.titles.map((t) => (
-              <div
-                key={t.accession + t.title}
-                className="mono break-words border border-[rgba(250,250,229,0.12)] bg-[rgba(0,0,0,0.4)] px-2.5 py-1.5 text-[11px] text-[#fafae5]"
-              >
-                <span className="font-bold text-[#ff4700]">{t.accession}</span>{" "}
-                // {t.title}
-              </div>
-            ))}
-          </div>
+          {searchHits.titles.length === 0 ? (
+            <div className="mono border border-[rgba(250,250,229,0.16)] bg-[rgba(0,0,0,0.45)] p-3 text-[11px] text-[#c7c5b2]">
+              No matching OSDR studies found for "{searchQuery.trim() || "empty query"}". Try terms such as radiation, cardiac, atrophy, or lunar, or click Reset.
+            </div>
+          ) : (
+            <div className="grid gap-1.5 md:grid-cols-2">
+              {searchHits.titles.map((t) => (
+                <div
+                  key={t.accession + t.title}
+                  className="mono break-words border border-[rgba(250,250,229,0.12)] bg-[rgba(0,0,0,0.4)] px-2.5 py-1.5 text-[11px] text-[#fafae5]"
+                >
+                  <span className="font-bold text-[#ff4700]">{t.accession}</span>{" "}
+                  // {t.title}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       ) : null}
 
@@ -139,12 +164,12 @@ export const OsdrBioLabTab: React.FC<OsdrBioLabTabProps> = ({
             <article
               key={study.osdId}
               className={`hud-panel flex flex-col justify-between p-4 ${
-                active ? "border-[#c084fc]" : ""
+                active ? "border-[#38bdf8]" : ""
               }`}
             >
               <div>
                 <div className="mb-2 flex flex-wrap items-center justify-between gap-1.5">
-                  <span className="mono border border-[#c084fc] bg-[rgba(192,132,252,0.14)] px-2 py-0.5 text-[10px] font-bold text-[#c084fc]">
+                  <span className="mono border border-[#38bdf8] bg-[rgba(56,189,248,0.14)] px-2 py-0.5 text-[10px] font-bold text-[#38bdf8]">
                     {study.osdId} // {study.radiationType}
                   </span>
                   <span className="mono text-[10px] text-[#9b9987]">

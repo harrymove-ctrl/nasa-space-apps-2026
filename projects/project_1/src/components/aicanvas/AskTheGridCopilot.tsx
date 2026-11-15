@@ -100,6 +100,14 @@ export function AskTheGridCopilot({
 
   const maxActionMs = Math.max(1, ...result.actions.map((a) => a.durationMs));
 
+  const statusLabel = busy
+    ? 'Streaming'
+    : !input.trim()
+      ? 'Ready for Query'
+      : bundle.liveSourceCount > 0
+        ? 'Live NASA + NOAA'
+        : 'Offline Snapshot';
+
   return (
     <div
       data-testid="ask-grid-copilot"
@@ -111,8 +119,11 @@ export function AskTheGridCopilot({
           <h3 className="text-base font-semibold text-[var(--at-text-primary)]">
             Ask the Grid
           </h3>
-          <span className="rounded bg-[var(--at-surface-elevated)] px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--at-text-muted)]">
-            AgentComposer + Trace + Ledger
+          <span
+            data-testid="copilot-status-pill"
+            className="rounded bg-[var(--at-surface-elevated)] px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--at-signal-cyan)]"
+          >
+            {statusLabel}
           </span>
         </div>
 
@@ -169,15 +180,21 @@ export function AskTheGridCopilot({
             <button
               type="button"
               data-testid="copilot-send-btn"
+              disabled={!input.trim()}
               onClick={() => runPrompt(input)}
               aria-label="Run Ask the Grid query"
-              className="inline-flex size-8 cursor-pointer items-center justify-center rounded-lg bg-[var(--at-text-primary)] text-[var(--at-surface-base)] transition-opacity hover:opacity-90"
+              className="inline-flex size-8 cursor-pointer items-center justify-center rounded-lg bg-[var(--at-text-primary)] text-[var(--at-surface-base)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Send className="size-3.5" />
             </button>
           )}
         </div>
       </div>
+      {!input.trim() ? (
+        <p className="font-mono text-[11px] text-[var(--at-text-dim)]">
+          Enter a corridor query or choose a preset prompt above to run live IEEE 738 and NASA trace resolution.
+        </p>
+      ) : null}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
         <div className="space-y-3 rounded-xl border border-[var(--at-border-subtle)] bg-[var(--at-surface-base)] p-4">

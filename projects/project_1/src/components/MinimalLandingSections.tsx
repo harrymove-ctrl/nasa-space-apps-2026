@@ -84,7 +84,7 @@ export function MinimalLandingSections({
               </h2>
             </div>
             <p className="max-w-md text-sm leading-relaxed text-[var(--at-text-muted)]">
-              Drag the strip, use Left and Right keys, switch 9:16 portrait or 16:9 landscape aspect framing, or open the component props table.
+              Drag horizontally or focus a plate and use Left and Right keys to step across calibrated NASA Earth observation, lunar habitat, and radiation biology captures.
             </p>
           </div>
 
@@ -236,7 +236,7 @@ export function MinimalLandingSections({
             </div>
 
             <InteractiveHoverButton href={CRADLEFLOW_URL} target="_blank" rel="noreferrer">
-              Open CradleFlow :5185
+              Open CradleFlow Trainer
             </InteractiveHoverButton>
           </div>
 
@@ -274,7 +274,7 @@ export function MinimalLandingSections({
                 ),
                 description:
                   'Live React Flow station builder powered by NASA DONKI CMEs, GOES-18 protons, and 1,064 NASA OSDR radiation bio-studies.',
-                tag: 'Open Live App :5185',
+                tag: 'Launch CradleFlow',
                 href: CRADLEFLOW_URL,
                 target: '_blank',
                 rel: 'noreferrer',
@@ -296,13 +296,11 @@ export function MinimalLandingSections({
         <div className="lp-container flex flex-col justify-between gap-6 md:flex-row md:items-center">
           <div className="space-y-1.5">
             <div className="text-sm font-semibold text-[var(--at-text-primary)]">
-              TerraSpan x CradleFlow · NASA Space Apps Challenge 2026
+              TerraSpan and CradleFlow for NASA Space Apps Challenge 2026
             </div>
-            <div className="flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs text-[var(--at-text-dim)]">
-              {NASA_OPEN_PARTNERS.map((partner) => (
-                <span key={partner}>{partner}</span>
-              ))}
-            </div>
+            <p className="font-mono text-xs text-[var(--at-text-dim)]">
+              Open public data attribution: {NASA_OPEN_PARTNERS.join(' | ')}
+            </p>
           </div>
 
           <a
@@ -311,8 +309,8 @@ export function MinimalLandingSections({
             rel="noreferrer"
             className="inline-flex items-center gap-1.5 font-mono text-xs font-medium text-[var(--at-signal-cyan)] hover:underline"
           >
-            CradleFlow Simulator ({CRADLEFLOW_URL})
-            <ArrowUpRight className="size-3.5" />
+            Launch CradleFlow Mission Simulator
+            <ArrowUpRight className="size-3.5" aria-hidden="true" />
           </a>
         </div>
       </footer>

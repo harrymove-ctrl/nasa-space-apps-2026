@@ -325,29 +325,24 @@ async function run() {
     const imgsDark = await measureVisibleImages(page);
     await page.screenshot({ path: path.join(SHOTS_DIR, '02b-gallery-dark.png') });
 
-    // Test ParallaxSlider orientation toggle, inspector drawer, Props Table tab, and ArrowRight nav
+    // Verify calibrated landscape ParallaxSlider (zero mode-picker/inspector toggles, zero captions under frames) and slide telemetry update
+    const modeToggleCount = await page
+      .locator('[data-testid^="parallax-mode-"], [data-testid="parallax-toggle-inspector"], [data-testid="parallax-heading-toggle"]')
+      .count();
+    const captionCount = await page.locator('.obsidian-parallax-slider__caption').count();
+    const sliderOrientation = await page.locator('.obsidian-parallax-slider').getAttribute('data-orientation');
+
     const beforeTrack = await page.locator('.obsidian-parallax-slider__track').getAttribute('style');
     await page.locator('.obsidian-parallax-slider__viewport').focus();
     await page.keyboard.press('ArrowRight');
     await page.waitForTimeout(550);
     const afterTrack = await page.locator('.obsidian-parallax-slider__track').getAttribute('style');
 
-    await page.getByTestId('parallax-mode-landscape').click();
+    const beforePlate = await page.getByTestId('active-plate-telemetry').textContent();
+    await page.locator('.obsidian-parallax-slider__slide[role="group"] a, .obsidian-parallax-slider__slide[role="group"] button').nth(1).focus();
     await page.waitForTimeout(200);
-    const orientationAfter = await page.locator('.obsidian-parallax-slider').getAttribute('data-orientation');
-    await page.getByTestId('parallax-mode-portrait').click();
-    await page.waitForTimeout(150);
-
-    await page.getByTestId('parallax-toggle-inspector').click();
-    await page.getByTestId('parallax-spec-drawer').waitFor({ state: 'visible', timeout: 2000 });
-    await page.getByRole('button', { name: 'Props Table' }).click();
-    const propsRowCount = await page.locator('[data-testid="parallax-spec-drawer"] tbody tr').count();
-    const hasPropsTable = propsRowCount >= 10;
-    await page.getByTestId('parallax-toggle-inspector').click();
-
-    await page.getByTestId('parallax-heading-toggle').click();
-    const hasSliderHeading = await page.locator('.obsidian-parallax-slider h2').isVisible();
-    await page.getByTestId('parallax-heading-toggle').click();
+    const afterPlate = await page.getByTestId('active-plate-telemetry').textContent();
+    const plateUpdated = Boolean(beforePlate && afterPlate && beforePlate !== afterPlate && afterPlate.includes('NISAR'));
 
     // Test GlassDock corridor switch + Burning Calendar 2012 spike calibration toggle
     await page.locator('#telemetry').scrollIntoViewIfNeeded();
@@ -415,10 +410,10 @@ async function run() {
       earthriseDark,
       imgsDark,
       parallaxMoved: beforeTrack !== afterTrack,
-      orientationAfter,
-      hasPropsTable,
-      propsRowCount,
-      hasSliderHeading,
+      modeToggleCount,
+      captionCount,
+      sliderOrientation,
+      plateUpdated,
       calendarShows2012: Boolean(calendarDetail?.includes('2012')),
       copilotWorks: Boolean(copilotText?.includes('H3') && copilotText?.includes('deratedAmps=')),
       dockSwitched: !beforeSummary?.includes('Maui West 69 kV') && Boolean(afterSummary?.includes('Maui West 69 kV')),
@@ -450,9 +445,10 @@ async function run() {
       imgsDark.brokenCount > 0 ||
       imgsDark.galleryPlateCount < 5 ||
       beforeTrack === afterTrack ||
-      orientationAfter !== 'landscape' ||
-      !hasPropsTable ||
-      !hasSliderHeading ||
+      modeToggleCount > 0 ||
+      captionCount > 0 ||
+      sliderOrientation !== 'landscape' ||
+      !plateUpdated ||
       !calendarDetail?.includes('2012') ||
       !copilotText?.includes('deratedAmps=') ||
       !afterSummary?.includes('Maui West 69 kV') ||

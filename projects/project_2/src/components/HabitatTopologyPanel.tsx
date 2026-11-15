@@ -222,8 +222,8 @@ export const HabitatTopologyPanel: React.FC<HabitatTopologyPanelProps> = ({
           label={`OSDR Bio-Stress (${osdrStudy.osdId})`}
           valueText={`${state.bioStressIndex.toFixed(1)}%`}
           pct={state.bioStressIndex}
-          color={state.bioStressIndex > 65 ? "#ff3b30" : "#c084fc"}
-          icon={<Dna size={13} className="text-[#c084fc]" />}
+          color={state.bioStressIndex > 65 ? "#ff3b30" : "#38bdf8"}
+          icon={<Dna size={13} className="text-[#38bdf8]" />}
           badge={state.bioCountermeasureActive ? "BIO-RX ON" : undefined}
         />
 

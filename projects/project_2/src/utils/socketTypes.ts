@@ -12,7 +12,7 @@ const SOCKET_COLORS: Record<SocketType, string> = {
   signal: "#fafae5",
   metric: "#1abc9c",
   storm: "#ff4700",
-  bio: "#c084fc",
+  bio: "#38bdf8",
   module: "#54a0ff",
   any: "#6b6b5e",
 };

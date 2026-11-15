@@ -272,7 +272,7 @@ export const FlowCanvasWorkspace: React.FC<FlowCanvasWorkspaceProps> = ({
             METRIC
           </span>
           <span className="flex items-center gap-1">
-            <span className="inline-block h-2 w-2 bg-[#c084fc]" />
+            <span className="inline-block h-2 w-2 bg-[#38bdf8]" />
             OSDR BIO
           </span>
           <span className="flex items-center gap-1">

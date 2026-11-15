@@ -98,7 +98,7 @@ export const DebriefBanner: React.FC<DebriefBannerProps> = ({
           </div>
           <div className="border border-[rgba(250,250,229,0.14)] bg-[rgba(0,0,0,0.45)] p-2.5">
             <div className="mono text-[10px] text-[#8d8b7a]">OSDR BIO-STRESS</div>
-            <div className="mono text-lg font-bold text-[#c084fc]">
+            <div className="mono text-lg font-bold text-[#38bdf8]">
               {state.bioStressIndex.toFixed(1)}%
             </div>
           </div>

@@ -93,6 +93,10 @@
   mask-image: linear-gradient(90deg, transparent, #000 var(--obsidian-parallax-edge), #000 calc(100% - var(--obsidian-parallax-edge)), transparent);
 }
 
+.obsidian-parallax-slider[data-captions="false"] .obsidian-parallax-slider__viewport {
+  height: var(--obsidian-parallax-height);
+}
+
 .obsidian-parallax-slider[data-dragging="true"] .obsidian-parallax-slider__viewport {
   cursor: grabbing;
 }

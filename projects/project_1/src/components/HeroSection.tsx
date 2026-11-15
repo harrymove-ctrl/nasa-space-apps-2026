@@ -30,11 +30,9 @@ export function HeroSection({
       <div className="lp-container">
         <div className="lp-hero-copy">
           <div className="lp-hero-badges" data-testid="hero-fact-pill">
-            <span>26 Years MODIS + VIIRS</span>
-            <span aria-hidden="true">·</span>
-            <span>{activeCorridor.nominalAmps} A Line Rating</span>
-            <span aria-hidden="true">·</span>
-            <span>GOES-18 {bundle.spaceWeather.protonFluxPfu} pfu</span>
+            <span className="whitespace-nowrap">26 Years MODIS + VIIRS</span>
+            <span className="whitespace-nowrap">{activeCorridor.nominalAmps} A Line Rating</span>
+            <span className="whitespace-nowrap">GOES-18 {bundle.spaceWeather.protonFluxPfu} pfu</span>
           </div>
 
           <h1 className="lp-hero-title">

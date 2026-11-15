@@ -418,14 +418,14 @@ html.dark {
   align-items: center;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px;
+  gap: 6px 14px;
   max-width: 100%;
   margin: 0;
-  padding: 5px 14px;
+  padding: 6px 14px;
   list-style: none;
   background: var(--at-surface-raised);
   border: 1px solid var(--at-border-subtle);
-  border-radius: 9999px;
+  border-radius: 16px;
   color: var(--at-text-secondary);
   font-size: 12px;
   line-height: 18px;

@@ -19,5 +19,5 @@ Workspace at `/Volumes/Dev/nasa-space-apps-2026` (`https://www.spaceappschalleng
 
 ## Quick Start
 
-1. Run TerraSpan (`projects/project_1` on `http://localhost:5179`): `cd projects/project_1 && bun install && bun run build && bun run dev`
-2. Run CradleFlow (`projects/project_2` on `http://localhost:5185`): `cd projects/project_2 && bun install && bun run test && bun run build && bun run dev`
+1. Run TerraSpan (`projects/project_1` on `http://127.0.0.1:5179`): `cd projects/project_1 && bun install && bun run build && bun run dev`
+2. Run CradleFlow (`projects/project_2` on `http://127.0.0.1:5185`): `cd projects/project_2 && bun install && bun run test && bun run build && bun run dev`

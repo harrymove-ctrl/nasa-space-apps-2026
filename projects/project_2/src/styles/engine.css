@@ -251,3 +251,12 @@
     box-shadow: 0 0 24px rgba(251, 191, 36, 0.45), inset 0 0 14px var(--core-glow);
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .engine-node-glow,
+  .engine-core-circle,
+  .engine-wire-active {
+    animation: none !important;
+    transition: none !important;
+  }
+}

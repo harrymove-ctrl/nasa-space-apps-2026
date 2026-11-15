@@ -1,7 +1,7 @@
 import type { ParallaxSlide } from '../components/obsidian/parallax-slider';
 
 export const CRADLEFLOW_URL =
-  import.meta.env.VITE_CRADLEFLOW_URL ?? 'http://localhost:5185';
+  import.meta.env.VITE_CRADLEFLOW_URL ?? 'http://127.0.0.1:5185';
 
 export const NASA_OPEN_PARTNERS = [
   'NASA EONET v3',
@@ -288,66 +288,3 @@ export const MISSION_WAVES: readonly MissionWave[] = [
     ],
   },
 ];
-
-export const PARALLAX_SLIDER_PROPS_SPEC = [
-  {
-    prop: 'slides',
-    type: 'ParallaxSlide[]',
-    defaultValue: 'Five demo images',
-    description: 'Slides in order. Each needs a title and image; alt, href, and focus are optional.',
-  },
-  {
-    prop: 'orientation',
-    type: "'portrait' | 'landscape'",
-    defaultValue: "'portrait'",
-    description: 'Tall 9:16 frames, or wide 16:9 frames that show most of the image.',
-  },
-  {
-    prop: 'eyebrow',
-    type: 'ReactNode',
-    defaultValue: '-',
-    description: 'Small label above the title.',
-  },
-  {
-    prop: 'title',
-    type: 'ReactNode',
-    defaultValue: '-',
-    description: 'Heading shown above the strip.',
-  },
-  {
-    prop: 'description',
-    type: 'ReactNode',
-    defaultValue: '-',
-    description: 'Short note beside the heading.',
-  },
-  {
-    prop: 'parallax',
-    type: 'number',
-    defaultValue: '0.2',
-    description: 'How far images drift against the motion. Use 0 to turn the drift off.',
-  },
-  {
-    prop: 'zoom',
-    type: 'number',
-    defaultValue: '1 portrait, 1.3 landscape',
-    description: 'Extra scale on top of filling the frame. The drift stops at the image edge, so higher values drift further but crop more.',
-  },
-  {
-    prop: 'scrollOnWheel',
-    type: 'boolean',
-    defaultValue: 'true',
-    description: 'Lets the mouse wheel and trackpad move the slider.',
-  },
-  {
-    prop: 'label',
-    type: 'string',
-    defaultValue: 'Gallery',
-    description: 'Accessible name for the slider.',
-  },
-  {
-    prop: 'className',
-    type: 'string',
-    defaultValue: '-',
-    description: 'Additional classes for the root element.',
-  },
-] as const;

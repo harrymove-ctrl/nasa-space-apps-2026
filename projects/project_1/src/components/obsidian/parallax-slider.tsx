@@ -22,6 +22,7 @@ export interface ParallaxSliderProps {
   parallax?: number;
   zoom?: number;
   scrollOnWheel?: boolean;
+  showCaptions?: boolean;
   label?: string;
   className?: string;
   onSelectSlide?: (slide: ParallaxSlide) => void;
@@ -89,6 +90,7 @@ export function ParallaxSlider({
   parallax = 0.2,
   zoom,
   scrollOnWheel = true,
+  showCaptions = false,
   label = 'Orbital Plates Gallery',
   className,
   onSelectSlide,
@@ -363,6 +365,7 @@ export function ParallaxSlider({
       className={cn('obsidian-parallax-slider', className)}
       aria-label={hasHeader ? undefined : label}
       data-orientation={orientation}
+      data-captions={showCaptions ? 'true' : 'false'}
       data-moving="false"
     >
       <div className="obsidian-parallax-slider__inner">
@@ -413,10 +416,12 @@ export function ParallaxSlider({
                         style={{ objectPosition: slide.focus }}
                       />
                     </span>
-                    <span className="obsidian-parallax-slider__caption">
-                      <span className="truncate">{slide.title}</span>
-                      <ArrowUpRight aria-hidden="true" />
-                    </span>
+                    {showCaptions ? (
+                      <span className="obsidian-parallax-slider__caption">
+                        <span className="truncate">{slide.title}</span>
+                        <ArrowUpRight aria-hidden="true" />
+                      </span>
+                    ) : null}
                   </>
                 );
                 return (
@@ -435,6 +440,7 @@ export function ParallaxSlider({
                         href={slide.href}
                         draggable={false}
                         tabIndex={readable ? undefined : -1}
+                        onFocus={() => onSelectSlide?.(slide)}
                         onClick={() => onSelectSlide?.(slide)}
                       >
                         {content}
@@ -445,6 +451,7 @@ export function ParallaxSlider({
                         className="obsidian-parallax-slider__link text-left cursor-pointer"
                         draggable={false}
                         tabIndex={readable ? undefined : -1}
+                        onFocus={() => onSelectSlide?.(slide)}
                         onClick={() => onSelectSlide?.(slide)}
                       >
                         {content}

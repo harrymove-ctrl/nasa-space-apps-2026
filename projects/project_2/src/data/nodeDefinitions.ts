@@ -172,7 +172,7 @@ export const NODE_DEFINITIONS: readonly NodeDefinition[] = [
     label: "NASA OSDR Bio Monitor",
     description:
       "Evaluates biological tissue stress using verified NASA OSDR radiobiology studies (OSD-73 through OSD-714).",
-    color: "#c084fc",
+    color: "#38bdf8",
     icon: "dna",
     category: "threshold-bio",
     chipLabel: "OSDR-BIO",
@@ -397,7 +397,7 @@ export const NODE_DEFINITIONS: readonly NodeDefinition[] = [
     label: "OSDR Bio-Countermeasure",
     description:
       "Administers NASA OSDR antioxidant/DNA-repair countermeasure & centrifuge schedule (-55% biological stress accumulation).",
-    color: "#c084fc",
+    color: "#38bdf8",
     icon: "heart-pulse",
     category: "habitat-action",
     chipLabel: "BIO-RX",
