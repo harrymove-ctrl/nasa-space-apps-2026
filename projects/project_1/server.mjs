@@ -21,6 +21,10 @@ const MIME_TYPES = {
   '.ico': 'image/x-icon',
   '.woff2': 'font/woff2',
   '.txt': 'text/plain; charset=utf-8',
+  '.mp4': 'video/mp4',
+  '.webm': 'video/webm',
+  '.pdf': 'application/pdf',
+  '.wav': 'audio/wav',
 };
 
 const PROXY_ROUTES = [
@@ -63,7 +67,7 @@ async function handleProxy(req, res, urlPath, search) {
   return true;
 }
 
-function serveStatic(res, urlPath) {
+function serveStatic(req, res, urlPath) {
   const safeRelative = path.normalize(decodeURIComponent(urlPath)).replace(/^(\.\.[/\\])+/, '');
   const requested = path.join(DIST_DIR, safeRelative === '/' ? 'index.html' : safeRelative);
   const resolved = path.resolve(requested);
@@ -91,13 +95,66 @@ function serveStatic(res, urlPath) {
     target = path.join(DIST_DIR, 'index.html');
   }
 
+  const stat = fs.statSync(target);
+  const total = stat.size;
   const ext = path.extname(target).toLowerCase();
   const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+  const cacheControl = ext === '.html' ? 'no-cache' : 'public, max-age=3600';
+  const isHead = req.method === 'HEAD';
+  const range = req.headers.range;
+
+  if (typeof range === 'string') {
+    const match = /^bytes=(\d*)-(\d*)$/.exec(range.trim());
+    if (match) {
+      const [, startRaw, endRaw] = match;
+      let start;
+      let end;
+
+      if (startRaw === '' && endRaw !== '') {
+        const suffix = Number(endRaw);
+        start = Math.max(0, total - suffix);
+        end = total - 1;
+      } else if (startRaw !== '') {
+        start = Number(startRaw);
+        end = endRaw !== '' ? Math.min(Number(endRaw), total - 1) : total - 1;
+      } else {
+        start = total;
+        end = 0;
+      }
+
+      if (Number.isNaN(start) || Number.isNaN(end) || start < 0 || start >= total || start > end) {
+        res.writeHead(416, { 'Content-Range': `bytes */${total}` });
+        res.end();
+        return;
+      }
+
+      res.writeHead(206, {
+        'Content-Type': contentType,
+        'Accept-Ranges': 'bytes',
+        'Content-Range': `bytes ${start}-${end}/${total}`,
+        'Content-Length': end - start + 1,
+        'Cache-Control': cacheControl,
+      });
+      if (isHead) {
+        res.end();
+      } else {
+        fs.createReadStream(target, { start, end }).pipe(res);
+      }
+      return;
+    }
+  }
+
   res.writeHead(200, {
     'Content-Type': contentType,
-    'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=3600',
+    'Accept-Ranges': 'bytes',
+    'Content-Length': total,
+    'Cache-Control': cacheControl,
   });
-  fs.createReadStream(target).pipe(res);
+  if (isHead) {
+    res.end();
+  } else {
+    fs.createReadStream(target).pipe(res);
+  }
 }
 
 const server = http.createServer(async (req, res) => {
@@ -112,7 +169,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  serveStatic(res, parsed.pathname);
+  serveStatic(req, res, parsed.pathname);
 });
 
 server.listen(PORT, '0.0.0.0', () => {

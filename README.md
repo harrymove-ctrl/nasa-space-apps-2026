@@ -15,11 +15,13 @@ Workspace at `/Volumes/Dev/nasa-space-apps-2026` (`https://www.spaceappschalleng
 4. [Saved Pre-Event References](reference-list/README.md)
 5. [Multi-Phase Roadmap and Schedule](docs/PLAN.md)
 6. [Submission Checklist](docs/SUBMISSION.md)
-7. [Twice-Daily Update Log](docs/DAILY_LOG.md)
+7. [Final Copy-Paste Portal Pack & Master Checklist](docs/FINAL_SUBMISSION_PACK.md)
+8. [Twice-Daily Update Log](docs/DAILY_LOG.md)
 
 ## Quick Start & Public URLs
 
 1. Live Unified Flagship Public URL (`TerraSpan + Phase 02 CradleFlow`): `https://terraspan-production.up.railway.app` (Guided Tour: `https://terraspan-production.up.railway.app/?tour=1`; Direct Phase 02 Canvas: `https://terraspan-production.up.railway.app/?view=game&stage=cradleflow`; Same-origin Fullscreen CradleFlow: `https://terraspan-production.up.railway.app/cradleflow/`)
-2. Secondary Standalone CradleFlow Mirror (`projects/project_2`): `https://cradleflow-production.up.railway.app` (Guided Cadet Tour: `https://cradleflow-production.up.railway.app/?tour=1`)
-3. Local Unified Build & Preview (`projects/project_1` on `http://127.0.0.1:5179`): `cd projects/project_1 && bun install && bun run build && bun run dev`
-4. Local CradleFlow Standalone (`projects/project_2` on `http://127.0.0.1:5185`): `cd projects/project_2 && bun install && bun run test && bun run build && bun run dev`
+2. Official Submission Media Hub (`28.5s` Video + `7` Slide PDF + `5` `< 10 MB` PNGs): `https://terraspan-production.up.railway.app/submission/` (`MP4`: `https://terraspan-production.up.railway.app/submission/terraspan-demo-28s.mp4`, `PDF`: `https://terraspan-production.up.railway.app/submission/terraspan-deck-7slides.pdf`)
+3. Secondary Standalone CradleFlow Mirror (`projects/project_2`): `https://cradleflow-production.up.railway.app` (Guided Cadet Tour: `https://cradleflow-production.up.railway.app/?tour=1`)
+4. Local Unified Build & Preview (`projects/project_1` on `http://127.0.0.1:5179`): `cd projects/project_1 && bun install && bun run build && bun run dev`
+5. Local CradleFlow Standalone (`projects/project_2` on `http://127.0.0.1:5185`): `cd projects/project_2 && bun install && bun run test && bun run build && bun run dev`

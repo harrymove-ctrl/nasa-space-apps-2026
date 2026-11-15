@@ -10,11 +10,13 @@
 
 ## 2. Official 8 Project Page Form Fields (Nov 13, 2026 Guide)
 
+Complete ready to paste text for all eight fields plus curated `< 10 MB` PNG instructions and full Master Checklist live in [FINAL_SUBMISSION_PACK.md](file:///Volumes/Dev/nasa-space-apps-2026/docs/FINAL_SUBMISSION_PACK.md).
+
 | # | Official Form Field | Submission Target & Verification Standard |
 | :--- | :--- | :--- |
 | 1 | **Project Name** | Short title signaling the problem solved: `TerraSpan: Harmonized MODIS + VIIRS Burning Calendar & Grid Digital Twin`. |
-| 2 | **High-Level Project Summary** | Concise `50 to 200` word plain-English summary stating the challenge, harmonized `MODIS + VIIRS` solution, and impact. |
-| 3 | **Link to Project Demo** | Public zero-login link (YouTube or Google Drive) to a strict `<= 0:29` video following the 5 official timestamp beats (or `<= 7` slide deck listing Team Name, Member Name, Selected Challenge, project UI image, UX flow, and NASA/Partner data role). |
+| 2 | **High-Level Project Summary** | Concise `50 to 200` word plain-English summary (`153` words drafted in [FINAL_SUBMISSION_PACK.md](file:///Volumes/Dev/nasa-space-apps-2026/docs/FINAL_SUBMISSION_PACK.md)) stating the challenge, harmonized `MODIS + VIIRS` solution, and impact. |
+| 3 | **Link to Project Demo** | Public zero-login showcase `https://terraspan-production.up.railway.app/submission/`, `28.50s` MP4 `https://terraspan-production.up.railway.app/submission/terraspan-demo-28s.mp4`, and `7` slide PDF `https://terraspan-production.up.railway.app/submission/terraspan-deck-7slides.pdf` ([QA.md](file:///Volumes/Dev/nasa-space-apps-2026/docs/video/QA.md)). |
 | 4 | **Link to Final Project** | Unified public zero-login flagship URL `https://terraspan-production.up.railway.app` (hosting Overview, 5-layer Provenance Map, Phase 01 Earth Grid Triage, same-origin embedded Phase 02 CradleFlow Habitat Automation at `/cradleflow/`, and live NASA reverse proxies), secondary direct mirror `https://cradleflow-production.up.railway.app`, and public GitHub `https://github.com/harrymove-ctrl/nasa-space-apps-2026`. FortiGuard (`https://www.fortiguard.com/faq/wfratingsubmit`) requires manual reCAPTCHA completion by the operator. |
 | 5 | **Detailed Project Description** | End-to-end orbital-to-outpost pipeline: Stage 01 harmonizes `2000 to 2026` `MODIS C6.1` + `VIIRS 375 m` (`FRPD`) footprints with `NASA POWER` `IEEE 738` ampacity derates; Stage 02 links every metric inside the 5-layer Provenance Map; Stage 03 clears Phase 01 3-wave triage and escalates live `GOES-18` proton flux and `Kp` telemetry directly into Stage 04 (`Phase 02 CradleFlow`) same-origin `DONKI` + `OSDR` radiation shelter automation, plus inline `<= 10 MB` PNG screenshots pasted directly into the Project page editor. |
 | 6 | **Use of Artificial Intelligence (AI) / Super Intelligence (SI)** | Transparent list of AI coding and workflow tools used, confirming that all satellite ingestions, spatial algorithms, and app engineering are original and verifiable. |

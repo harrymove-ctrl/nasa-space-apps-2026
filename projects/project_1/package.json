@@ -8,7 +8,8 @@
     "build": "node scripts/sync-cradleflow.mjs && tsc -b && vite build",
     "preview": "vite preview --port 4179",
     "start": "bun server.mjs",
-    "qa": "node scripts/qa-landing.mjs"
+    "qa": "node scripts/qa-landing.mjs",
+    "submission:media": "node scripts/build-submission-media.mjs"
   },
   "dependencies": {
     "@number-flow/react": "^0.6.2",
