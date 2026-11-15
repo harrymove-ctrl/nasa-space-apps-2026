@@ -70,18 +70,18 @@ export const CadetTourBar: React.FC<CadetTourBarProps> = ({
       data-testid="cadet-tour-bar"
       role="region"
       aria-label="CradleFlow Guided Cadet Tour"
-      className="border-b border-[#38bdf8] bg-[#080d14] px-3 py-2 text-[#fafae5] lg:px-4"
+      className="border-b border-dashed border-[#45b8d6] bg-[#0c111d] px-3 py-2 text-[#f3efe6] lg:px-4"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0 flex-1 space-y-0.5">
           <div className="mono flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-wider">
-            <span className="inline-flex items-center gap-1 text-[#38bdf8]">
+            <span className="inline-flex items-center gap-1 text-[#45b8d6]">
               <Compass size={12} />
               {step.code}
             </span>
-            <span className="text-[#ff4700]">{step.title}</span>
+            <span className="text-[#ee6b47]">{step.title}</span>
           </div>
-          <p className="text-[11px] leading-snug text-[#d4d2bf]">{step.summary}</p>
+          <p className="text-[11px] leading-snug text-[#cbd5e1]">{step.summary}</p>
         </div>
 
         <div className="flex shrink-0 flex-wrap items-center gap-1.5">
@@ -89,7 +89,7 @@ export const CadetTourBar: React.FC<CadetTourBarProps> = ({
             <button
               type="button"
               onClick={() => onSetTab("donki")}
-              className="hud-btn border-[#ff4700] text-[#ff4700] px-2 py-1 text-[10px]"
+              className="hud-btn border-[#ee6b47] text-[#ee6b47] px-2 py-1 text-[10px]"
             >
               <Radiation size={12} />
               Open DONKI Storms

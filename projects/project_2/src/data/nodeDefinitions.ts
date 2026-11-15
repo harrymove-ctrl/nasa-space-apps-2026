@@ -19,7 +19,7 @@ export const NODE_DEFINITIONS: readonly NodeDefinition[] = [
     label: "DONKI Proton Flux",
     description:
       "Reads real-time or drill solar energetic proton flux (>=10 MeV in pfu) from GOES-18 / NASA DONKI.",
-    color: "#ff4700",
+    color: "#ee6b47",
     icon: "radiation",
     category: "sensor-trigger",
     chipLabel: "SEP-FLUX",

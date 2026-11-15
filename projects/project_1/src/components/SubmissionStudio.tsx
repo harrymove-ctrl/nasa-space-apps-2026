@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { flushSync } from 'react-dom';
 import { MotionConfig } from 'motion/react';
+import { Player } from '@remotion/player';
 import { AsciiRestBackdrop, type AsciiPieceName } from './AsciiRestBackdrop';
+import { DopaiMintVideo } from '@/remotion/DopaiMintVideo';
+import { CyberpunkTechIntro } from '@/remotion/scenes/CyberpunkTechIntro';
+import { HypeReelScene } from '@/remotion/scenes/HypeReelScene';
+import { WarmPaperPitchScene } from '@/remotion/scenes/WarmPaperPitchScene';
 import { Callout } from '@/registry/default/callout/callout';
 import { Endpoint } from '@/registry/default/endpoint/endpoint';
 import { GraphCheck } from '@/registry/default/graph-check/graph-check';
@@ -13,12 +17,6 @@ import { GraphStat } from '@/registry/default/graph-stat/graph-stat';
 import { GraphTable } from '@/registry/default/graph-table/graph-table';
 import { GraphUptime } from '@/registry/default/graph-uptime/graph-uptime';
 import { Step, Steps } from '@/registry/default/steps/steps';
-
-declare global {
-  interface Window {
-    __setVideoFrame?: (frameIdx: number) => void;
-  }
-}
 
 export type StudioMode = 'showcase' | 'plate' | 'deck' | 'video' | 'slides';
 
@@ -864,217 +862,141 @@ function InteractiveSlideDeck({
   );
 }
 
-function VideoStage() {
-  const [frame, setFrame] = useState(0);
+function NasaHackathonPlayerView() {
+  return <DopaiMintVideo variant="nasa-hackathon" />;
+}
 
-  useEffect(() => {
-    window.__setVideoFrame = (idx: number) => {
-      flushSync(() => {
-        setFrame(idx);
-      });
-    };
-    return () => {
-      delete window.__setVideoFrame;
-    };
-  }, []);
+function FullLaunchPlayerView() {
+  return <DopaiMintVideo variant="full-launch" />;
+}
 
-  const totalFrames = 855;
-  const t = Number((frame / 30).toFixed(4));
+function CyberpunkIntroPlayerView() {
+  return <CyberpunkTechIntro compact={false} showGameBotHook />;
+}
 
-  let piece: AsciiPieceName = 'earthrise';
-  let beatLabel = 'BEAT 01 // HOOK';
-  let imgSrc = '/submission/images/01-architecture-pipeline.png';
+const REMOTION_PRESETS = [
+  {
+    id: 'nasa',
+    label: 'NASA Hackathon 1080x700 · 28.5s',
+    badge: '1080x700 · 30 FPS · SUBMISSION CAP',
+    width: 1080,
+    height: 700,
+    durationInFrames: 855,
+    component: NasaHackathonPlayerView,
+    downloadHref: '/submission/dopaimint-demo-28s.mp4',
+  },
+  {
+    id: '1080p-28s',
+    label: 'NASA 16:9 HD 1080p · 28.5s',
+    badge: '1920x1080 · 30 FPS · SUBMISSION CAP',
+    width: 1920,
+    height: 1080,
+    durationInFrames: 855,
+    component: NasaHackathonPlayerView,
+    downloadHref: '/submission/dopaimint-demo-1080p-28s.mp4',
+  },
+  {
+    id: 'launch',
+    label: 'Launch Film 1080p · 54.0s',
+    badge: '1920x1080 · 30 FPS · FULL SHOWCASE',
+    width: 1920,
+    height: 1080,
+    durationInFrames: 1620,
+    component: FullLaunchPlayerView,
+    downloadHref: '/submission/dopaimint-cyberpunk-1080p.mp4',
+  },
+  {
+    id: 'intro',
+    label: 'Cyberpunk Intro + Bot Hook · 5.5s',
+    badge: '1920x1080 · SCANNER + BOT AVATARS',
+    width: 1920,
+    height: 1080,
+    durationInFrames: 165,
+    component: CyberpunkIntroPlayerView,
+    downloadHref: '/submission/dopaimint-cyberpunk-1080p.mp4',
+  },
+  {
+    id: 'hype',
+    label: 'Hype Reel 999k · 3.0s',
+    badge: '1920x1080 · SNAPCN SOCIAL BURST',
+    width: 1920,
+    height: 1080,
+    durationInFrames: 90,
+    component: HypeReelScene,
+    downloadHref: '/submission/dopaimint-demo-28s.mp4',
+  },
+  {
+    id: 'pitch',
+    label: 'Warm Paper Pitch · 12.0s',
+    badge: '1920x1080 · ZERO CAPTIONS · DEMO DAY',
+    width: 1920,
+    height: 1080,
+    durationInFrames: 360,
+    component: WarmPaperPitchScene,
+    downloadHref: '/submission/dopaimint-cyberpunk-1080p.mp4',
+  },
+] as const;
 
-  if (t >= 4.5 && t < 11.0) {
-    piece = 'earth';
-    beatLabel = 'BEAT 02 // OBSERVATORY';
-    imgSrc = '/submission/screens/overview.jpg';
-  } else if (t >= 11.0 && t < 17.0) {
-    piece = 'radar';
-    beatLabel = 'BEAT 03 // PROVENANCE';
-    imgSrc = '/submission/screens/map.jpg';
-  } else if (t >= 17.0 && t < 23.5) {
-    piece = 'solar-system';
-    beatLabel = 'BEAT 04 // TRIAGE TO HUD';
-    imgSrc = t < 20.2 ? '/submission/screens/game.jpg' : '/submission/screens/cradleflow.jpg';
-  } else if (t >= 23.5) {
-    piece = 'galaxy';
-    beatLabel = 'BEAT 05 // READY';
-    imgSrc = '/submission/screens/calendar.jpg';
-  }
+function RemotionVideoShowcase({ fullscreen = false }: { fullscreen?: boolean }) {
+  const [presetId, setPresetId] = useState<(typeof REMOTION_PRESETS)[number]['id']>('nasa');
+  const active = REMOTION_PRESETS.find((p) => p.id === presetId) ?? REMOTION_PRESETS[0];
 
   return (
-    <div className="relative h-[1080px] w-[1920px] overflow-hidden bg-[#090c14]">
-      <AsciiRestBackdrop piece={piece} timeSec={t} scrimOpacity={0.54} />
-      <div className="relative z-10 flex h-full flex-col justify-between p-7 gap-3">
-        {/* Top Bar: Pure mdxcn spec + stat */}
-        <div className="grid grid-cols-[1.6fr_1fr] gap-4 items-start">
-          <SurfacePanel>
-            <GraphSpec
-              title="DOPAIMINT"
-              rows={[
-                { label: 'chapter', value: beatLabel, accent: true },
-                { label: 'telemetry', value: 'MODIS + VIIRS + POWER + DONKI + OSDR live pipeline' },
-              ]}
-            />
-          </SurfacePanel>
-          <SurfacePanel>
-            <GraphStat
-              title="TIMECODE"
-              items={[
-                { value: `${t.toFixed(1)}s`, label: 'of 28.5s cap', accent: true },
-                { value: `${frame}`, label: 'frame / 855' },
-                { value: '8', label: 'nasa streams' },
-              ]}
-            />
-          </SurfacePanel>
+    <SurfacePanel>
+      <div data-testid="remotion-showcase-studio" className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-2">
+          <div>
+            <div className="font-mono text-[11px] tracking-[0.16em] text-graph-accent uppercase">
+              REMOTION STUDIO // LIVE PLAYER + SNAPCN + ELEVENLABS MIX
+            </div>
+            <div className="mt-1 text-base font-semibold text-foreground">
+              Interactive Video Compositions ({active.badge})
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
+            {REMOTION_PRESETS.map((preset) => (
+              <button
+                key={preset.id}
+                type="button"
+                data-testid={`remotion-preset-${preset.id}`}
+                onClick={() => setPresetId(preset.id)}
+                className={`graph-frame px-3 py-1.5 transition-colors ${
+                  preset.id === active.id
+                    ? 'bg-graph-accent/20 text-graph-accent'
+                    : 'text-graph-muted hover:text-foreground'
+                }`}
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Center Beat Content */}
-        {t < 4.5 ? (
-          <div className="grid grid-cols-[1.5fr_1fr] items-center gap-5">
-            <SurfacePanel>
-              <GraphFlow title="ARCHITECTURE" palette="duo" rows={PIPELINE_ROWS} />
-            </SurfacePanel>
-            <div className="flex flex-col gap-4">
-              <SurfacePanel>
-                <Callout type="tip" title="MISSION">
-                  <p>
-                    Eight keyless NASA open data streams fused from wildfire orbit swaths down to off-world crew habitat radiation automation.
-                  </p>
-                </Callout>
-              </SurfacePanel>
-              <SurfacePanel>
-                <GraphStat
-                  title="SCALE"
-                  items={[
-                    { value: '26 yr', label: 'burning archive', accent: true },
-                    { value: '375 m', label: 'viirs i-band' },
-                  ]}
-                />
-              </SurfacePanel>
+        <Graph title={active.label.toUpperCase()}>
+          <GraphBody className="p-3 sm:p-4">
+            <div className="flex w-full justify-center bg-[#060911]">
+              <Player
+                key={active.id}
+                component={active.component}
+                compositionWidth={active.width}
+                compositionHeight={active.height}
+                durationInFrames={active.durationInFrames}
+                fps={30}
+                controls
+                loop
+                clickToPlay
+                acknowledgeRemotionLicense
+                style={{
+                  width: '100%',
+                  maxWidth: fullscreen ? '1320px' : '920px',
+                  aspectRatio: `${active.width} / ${active.height}`,
+                }}
+              />
             </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-[1.75fr_1fr] items-center gap-5">
-            <SurfacePanel>
-              <Graph title={beatLabel.replace(/BEAT \d+ \/\/ /, '')}>
-                <GraphBody className="p-3 sm:p-4">
-                  <img
-                    src={imgSrc}
-                    alt={beatLabel}
-                    className="mx-auto block max-h-[540px] w-auto aspect-video object-cover"
-                  />
-                </GraphBody>
-              </Graph>
-            </SurfacePanel>
-            <div className="flex flex-col gap-4">
-              {t < 11.0 ? (
-                <>
-                  <SurfacePanel>
-                    <GraphKpi
-                      title="BUTTE 230 KV"
-                      value="17 min"
-                      label="ttce closure horizon"
-                      hint="96% match"
-                      data="42 39 34 30 27 23 19 17"
-                    />
-                  </SurfacePanel>
-                  <SurfacePanel>
-                    <Callout type="note" title="IEEE 738">
-                      <p>
-                        NASA POWER ambient T2M and wind speed compute dynamic ampacity safety margins across four wildfire corridors.
-                      </p>
-                    </Callout>
-                  </SurfacePanel>
-                </>
-              ) : t < 17.0 ? (
-                <>
-                  <SurfacePanel>
-                    <Endpoint
-                      title="PROVENANCE"
-                      method="GET"
-                      path="/proxy/{firms,eonet,donki,osdr}"
-                      params={[
-                        { name: 'firms', type: '375 m', required: true, description: 'VIIRS thermal contours' },
-                        { name: 'eonet', type: 'v3', description: 'Open natural hazard pin' },
-                      ]}
-                    />
-                  </SurfacePanel>
-                  <SurfacePanel>
-                    <GraphCheck
-                      title="VERIFIED"
-                      items={[
-                        { label: 'modis + viirs fused', done: true },
-                        { label: 'nasadem 30 m terrain aligned', done: true },
-                        { label: 'goes-18 + osdr linked', done: true },
-                      ]}
-                    />
-                  </SurfacePanel>
-                </>
-              ) : t < 23.5 ? (
-                <>
-                  <SurfacePanel>
-                    <GraphFlow
-                      title="HANDOFF"
-                      palette="duo"
-                      rows={[
-                        { nodes: [{ label: 'wave 1 dedup' }, { label: 'wave 2 ieee 738' }, { label: 'cradleflow', tone: 'accent' }] },
-                        { nodes: [{ label: 'donki >= 45' }, { label: 'osdr osd-73' }, { label: 'seal shelter', tone: 'accent' }] },
-                      ]}
-                    />
-                  </SurfacePanel>
-                  <SurfacePanel>
-                    <GraphSpec
-                      title="BRIDGE"
-                      rows={[
-                        { label: 'state', value: 'Synced from DopaiMint -> /cradleflow/', accent: true },
-                        { label: 'drill', value: 'Earth Grid Triage to Habitat HUD' },
-                      ]}
-                    />
-                  </SurfacePanel>
-                </>
-              ) : (
-                <>
-                  <SurfacePanel>
-                    <GraphCheck
-                      title="SUBMISSION"
-                      items={[
-                        { label: 'live zero login flagship url', done: true },
-                        { label: '9 of 9 playwright checks pass', done: true },
-                        { label: '18 of 18 cradleflow tests pass', done: true },
-                      ]}
-                    />
-                  </SurfacePanel>
-                  <SurfacePanel>
-                    <GraphSpec
-                      title="URL"
-                      rows={[
-                        { label: 'try live', value: 'dopaimint-production.up.railway.app', accent: true },
-                        { label: 'pack hub', value: '/submission/ & ?tour=1' },
-                      ]}
-                    />
-                  </SurfacePanel>
-                </>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Bottom Progress Strip */}
-        <SurfacePanel>
-          <GraphUptime
-            title="TIMELINE"
-            from="00.0s NASA INGEST"
-            to="28.5s READY"
-            columns={95}
-            days={Array.from({ length: 95 }, (_, i) =>
-              (i + 1) / 95 <= (frame + 1) / totalFrames ? 'ok' : 'empty',
-            ).join(' ')}
-          />
-        </SurfacePanel>
+          </GraphBody>
+        </Graph>
       </div>
-    </div>
+    </SurfacePanel>
   );
 }
 
@@ -1124,11 +1046,14 @@ export function SubmissionStudio({
 
   if (mode === 'video') {
     return (
-      <MotionConfig reducedMotion="always">
-        <div className="studio-1080">
-          <VideoStage />
+      <div
+        data-testid="presentation-video-view"
+        className="min-h-screen bg-[#090c14] px-4 py-6 text-foreground sm:px-8"
+      >
+        <div className="mx-auto w-full max-w-[1440px]">
+          <RemotionVideoShowcase fullscreen />
         </div>
-      </MotionConfig>
+      </div>
     );
   }
 
@@ -1187,7 +1112,23 @@ export function SubmissionStudio({
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  /submission/dopaimint-demo-28s.mp4 (28.50s HTTP 206)
+                  /submission/dopaimint-demo-28s.mp4 (1080x700 · 28.50s HTTP 206)
+                </a>
+                {' · '}
+                <a
+                  href="/submission/dopaimint-demo-1080p-28s.mp4"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  /submission/dopaimint-demo-1080p-28s.mp4 (1920x1080 · 28.50s)
+                </a>
+                {' · '}
+                <a
+                  href="/submission/dopaimint-cyberpunk-1080p.mp4"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  /submission/dopaimint-cyberpunk-1080p.mp4 (1920x1080 · 54.00s)
                 </a>
               </li>
             </ul>
@@ -1225,7 +1166,21 @@ export function SubmissionStudio({
                 download
                 className="graph-frame px-3 py-1.5 text-foreground hover:bg-white/5"
               >
-                Download 28.5s MP4
+                Download 28.5s (1080x700)
+              </a>
+              <a
+                href="/submission/dopaimint-demo-1080p-28s.mp4"
+                download
+                className="graph-frame px-3 py-1.5 text-foreground hover:bg-white/5"
+              >
+                Download 28.5s (1080p)
+              </a>
+              <a
+                href="/submission/dopaimint-cyberpunk-1080p.mp4"
+                download
+                className="graph-frame px-3 py-1.5 text-graph-accent hover:bg-white/5"
+              >
+                Download 1080p Launch Film
               </a>
             </div>
             <div className="flex items-center gap-2">
@@ -1324,13 +1279,15 @@ export function SubmissionStudio({
           />
         </SurfacePanel>
 
+        <RemotionVideoShowcase />
+
         <div id="slides" className="scroll-mt-8">
           <InteractiveSlideDeck initialSlide={initialSlide} />
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[1.55fr_1fr] items-start">
           <SurfacePanel>
-            <Graph title="DEMO FILM">
+            <Graph title="DEMO FILM // NASA HACKATHON 1080x700">
               <GraphBody className="p-4">
                 <video
                   controls
@@ -1338,7 +1295,8 @@ export function SubmissionStudio({
                   preload="metadata"
                   poster="/submission/images/02-overview-burning-calendar.png"
                   src="/submission/dopaimint-demo-28s.mp4"
-                  className="block aspect-video w-full bg-black"
+                  className="mx-auto block w-full max-w-[780px] bg-black"
+                  style={{ aspectRatio: '1080 / 700' }}
                 />
               </GraphBody>
             </Graph>
@@ -1349,6 +1307,7 @@ export function SubmissionStudio({
                 title="CAPS"
                 items={[
                   { value: '28.5s', label: 'strict <= 30s cap', accent: true },
+                  { value: '54.0s', label: '1080p launch film' },
                   { value: '7', label: 'pdf deck slides' },
                 ]}
               />
@@ -1357,8 +1316,10 @@ export function SubmissionStudio({
               <GraphSpec
                 title="VIDEO SPEC"
                 rows={[
-                  { label: 'resolution', value: '1920x1080 at 30 fps', accent: true },
-                  { label: 'codec', value: 'H.264 video + AAC stereo audio' },
+                  { label: 'nasa cut', value: '1080x700 at 30 fps (28.50s)', accent: true },
+                  { label: 'nasa 16:9', value: '1920x1080 at 30 fps (28.50s)' },
+                  { label: 'launch cut', value: '1920x1080 at 30 fps (54.00s)' },
+                  { label: 'audio mix', value: 'H.264 + AAC stereo (-16 LUFS)' },
                   { label: 'streaming', value: 'HTTP 206 byte range enabled' },
                 ]}
               />

@@ -20,7 +20,7 @@ async function saveScreen(page, name) {
   fs.copyFileSync(publicPath, path.join(DIST_SCREENS_DIR, filename));
 }
 const SCRATCH_ROOT =
-  '/Users/harryphan/.gemini/antigravity/brain/3ccece75-188a-4c72-af68-df1fd73b80b6/scratch';
+  '/Users/harryphan/.gemini/antigravity/brain/a1bd4e5f-d6e1-4cd4-baf7-2fe02d44ebde/scratch';
 const FRAMES_DIR = path.join(SCRATCH_ROOT, 'video-frames');
 const MOTION_SHEET_PATH = path.join(SCRATCH_ROOT, 'submission-motion-frames.png');
 const DECK_SHEET_PATH = path.join(SCRATCH_ROOT, 'submission-deck-7slides-sheet.png');
@@ -372,95 +372,86 @@ async function run() {
         throw new Error(`Expected exact 7 PDF pages, got ${pageCount}`);
       }
 
-      // 4. Render Audio + Deterministic 855 Video Frames (?present=video)
-      const audioPath = path.join(FRAMES_DIR, 'audio.wav');
-      generateWavAudio(audioPath);
+      // 4. Refresh -16 LUFS Audio & Render Remotion Compositions (NasaHackathon1080x700 + DopaiMintFullLaunch1080p)
+      execFileSync('node', [path.join(PROJECT_ROOT, 'scripts', 'build-audio.mjs')], {
+        cwd: PROJECT_ROOT,
+        stdio: 'inherit',
+      });
 
-      await studioPage.goto(`${baseUrl}/?present=video`, { waitUntil: 'load' });
-      await waitForStudioReady(studioPage);
-      await verifyAsciiCanvasNonEmpty(studioPage);
+      const chromeExe = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+      const browserArgs = fs.existsSync(chromeExe) ? ['--browser-executable', chromeExe] : [];
 
-      const beatBoundaryFrames = new Set([0, 135, 330, 510, 606, 705]);
-      for (let f = 0; f < TOTAL_FRAMES; f++) {
-        await studioPage.evaluate(async (idx) => {
-          window.__setVideoFrame?.(idx);
-          const imgs = Array.from(document.querySelectorAll('img'));
-          await Promise.all(
-            imgs.map((img) =>
-              img.complete
-                ? Promise.resolve()
-                : new Promise((resolve) => {
-                    img.addEventListener('load', resolve, { once: true });
-                    img.addEventListener('error', resolve, { once: true });
-                  }),
-            ),
-          );
-        }, f);
-
-        if (beatBoundaryFrames.has(f)) {
-          await studioPage.waitForTimeout(80);
-          const vCheck = await studioPage.evaluate(() => {
-            const figs = Array.from(document.querySelectorAll('figure[data-frame]'));
-            return {
-              scrollW: document.documentElement.scrollWidth,
-              scrollH: document.documentElement.scrollHeight,
-              maxBottom: Math.max(...figs.map((el) => el.getBoundingClientRect().bottom), 0),
-            };
-          });
-          if (vCheck.scrollW > 1920 || vCheck.scrollH > 1080 || vCheck.maxBottom > 1080) {
-            throw new Error(`Video beat overflow at frame ${f}: ${JSON.stringify(vCheck)}`);
-          }
-        }
-
-        const frameFile = path.join(FRAMES_DIR, `frame-${String(f).padStart(4, '0')}.jpg`);
-        await studioPage.screenshot({ path: frameFile, type: 'jpeg', quality: 94 });
-      }
+      const renderFlags = [
+        '--overwrite',
+        '--codec=h264',
+        '--pixel-format=yuv420p',
+        '--crf=18',
+        '--audio-codec=aac',
+        '--audio-bitrate=192k',
+        ...browserArgs,
+      ];
 
       const mp4Path = path.join(OUT_DIR, 'dopaimint-demo-28s.mp4');
       execFileSync(
-        'ffmpeg',
+        'npx',
         [
-          '-y',
-          '-framerate',
-          String(FPS),
-          '-i',
-          path.join(FRAMES_DIR, 'frame-%04d.jpg'),
-          '-i',
-          audioPath,
-          '-c:v',
-          'libx264',
-          '-preset',
-          'medium',
-          '-crf',
-          '22',
-          '-pix_fmt',
-          'yuv420p',
-          '-r',
-          String(FPS),
-          '-af',
-          'loudnorm=I=-16:TP=-1.5:LRA=11',
-          '-c:a',
-          'aac',
-          '-b:a',
-          '192k',
-          '-movflags',
-          '+faststart',
-          '-t',
-          DURATION_SEC.toFixed(2),
+          'remotion',
+          'render',
+          'src/remotion/index.ts',
+          'NasaHackathon1080x700',
           mp4Path,
+          ...renderFlags,
         ],
-        { stdio: 'pipe' },
+        { cwd: PROJECT_ROOT, stdio: 'inherit' },
       );
 
-      const probeJson = execFileSync(
-        'ffprobe',
-        ['-v', 'quiet', '-print_format', 'json', '-show_format', '-show_streams', mp4Path],
-        { encoding: 'utf8' },
+      const hd28Mp4Path = path.join(OUT_DIR, 'dopaimint-demo-1080p-28s.mp4');
+      execFileSync(
+        'npx',
+        [
+          'remotion',
+          'render',
+          'src/remotion/index.ts',
+          'NasaHackathon1080p',
+          hd28Mp4Path,
+          ...renderFlags,
+        ],
+        { cwd: PROJECT_ROOT, stdio: 'inherit' },
       );
-      const probe = JSON.parse(probeJson);
+
+      const launchMp4Path = path.join(OUT_DIR, 'dopaimint-cyberpunk-1080p.mp4');
+      execFileSync(
+        'npx',
+        [
+          'remotion',
+          'render',
+          'src/remotion/index.ts',
+          'DopaiMintFullLaunch1080p',
+          launchMp4Path,
+          ...renderFlags,
+        ],
+        { cwd: PROJECT_ROOT, stdio: 'inherit' },
+      );
+
+      const probeVideo = (filePath) =>
+        JSON.parse(
+          execFileSync(
+            'ffprobe',
+            ['-v', 'quiet', '-print_format', 'json', '-show_format', '-show_streams', filePath],
+            { encoding: 'utf8' },
+          ),
+        );
+
+      const probe = probeVideo(mp4Path);
+      const probeHd28 = probeVideo(hd28Mp4Path);
+      const probeLaunch = probeVideo(launchMp4Path);
       const duration = Number(probe.format?.duration || 0);
-      if (duration < 28.0 || duration > 29.0) {
-        throw new Error(`Video duration out of safe window (must be <= 29.0s): ${duration}s`);
+      const hd28Duration = Number(probeHd28.format?.duration || 0);
+      const launchDuration = Number(probeLaunch.format?.duration || 0);
+      if (duration < 28.0 || duration > 29.0 || hd28Duration < 28.0 || hd28Duration > 29.0) {
+        throw new Error(
+          `NASA cut duration out of safe window (must be <= 29.0s): 1080x700=${duration}s, 1080p=${hd28Duration}s`,
+        );
       }
 
       const blackRun = spawnSync(
@@ -480,7 +471,7 @@ async function run() {
           '-i',
           mp4Path,
           '-vf',
-          'fps=12/28.5,scale=480:270,tile=4x3',
+          'fps=12/28.5,scale=480:311,tile=4x3',
           '-frames:v',
           '1',
           MOTION_SHEET_PATH,
@@ -527,6 +518,10 @@ async function run() {
         status: 'PASS',
         videoDurationSec: Number(duration.toFixed(2)),
         videoBytes: fs.statSync(mp4Path).size,
+        video1080p28sDurationSec: Number(hd28Duration.toFixed(2)),
+        video1080p28sBytes: fs.statSync(hd28Mp4Path).size,
+        launchFilmDurationSec: Number(launchDuration.toFixed(2)),
+        launchFilmBytes: fs.statSync(launchMp4Path).size,
         pdfPages: pageCount,
         pdfBytes: fs.statSync(pdfPath).size,
         blackSegmentsDetected: /black_start/.test(blackDetectOut),

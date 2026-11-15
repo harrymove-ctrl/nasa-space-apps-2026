@@ -80,6 +80,7 @@ export function MissionGameBox({
   const [waveIndex, setWaveIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [internalStage, setInternalStage] = useState<'triage' | 'cradleflow'>('triage');
+  const [phase2ControlsOpen, setPhase2ControlsOpen] = useState(false);
 
   // Interactive physics sandbox offsets (0 / null means pure unmodified live NASA telemetry)
   const [tempDeltaC, setTempDeltaC] = useState<number>(0);
@@ -94,8 +95,10 @@ export function MissionGameBox({
   const currentStage = stage ?? internalStage;
   const selectStage = (next: 'triage' | 'cradleflow') => {
     setInternalStage(next);
+    if (next === 'triage') setPhase2ControlsOpen(false);
     onStageChange?.(next);
   };
+  const showStreamController = currentStage === 'triage' || phase2ControlsOpen;
 
   const activeWave = MISSION_WAVES[waveIndex] ?? MISSION_WAVES[0];
   const selectedOptionId = answers[activeWave.id];
@@ -157,9 +160,13 @@ export function MissionGameBox({
         data-testid="mission-game-box"
         className="mission-game-box mdxcn-surface-card"
       >
-        <GraphBody className="space-y-6">
+        <GraphBody className={currentStage === 'cradleflow' ? 'space-y-4' : 'space-y-6'}>
           {/* Header Row */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-dashed border-[var(--graph-frame)] pb-4">
+          <div
+            className={`flex flex-wrap items-center justify-between gap-3 border-b border-dashed border-[var(--graph-frame)] ${
+              currentStage === 'cradleflow' ? 'pb-3' : 'pb-4'
+            }`}
+          >
             <div className="min-w-0">
               <div className="font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--at-signal-fire)]">
                 Interactive Triage Drill · {clearedCount}/{MISSION_WAVES.length} Cleared
@@ -167,7 +174,9 @@ export function MissionGameBox({
               <h3 className="mt-1 font-sans text-xl font-semibold text-[var(--at-text-primary)]">
                 {stressLongValues
                   ? 'Three-Wave Corridor Clearance, IEEE 738 Derating, and GOES-18 Radiation Drill'
-                  : 'Execute Three Corridor and Deep Space Decisions'}
+                  : currentStage === 'cradleflow'
+                    ? 'Phase 02 · CradleFlow Habitat Automation'
+                    : 'Execute Three Corridor and Deep Space Decisions'}
               </h3>
             </div>
 
@@ -205,7 +214,8 @@ export function MissionGameBox({
             </div>
           </div>
 
-          {/* Live NASA Stream & Physics Playground Controller */}
+          {/* Live NASA Stream & Physics Playground Controller (full in Phase 01, on-demand toggle in Phase 02) */}
+          {showStreamController && (
           <Graph title="LIVE NASA STREAM CONTROLLER" className="mdxcn-surface-base">
             <GraphBody className="space-y-5 px-4 py-5 sm:px-6 sm:py-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -367,6 +377,7 @@ export function MissionGameBox({
               </div>
             </GraphBody>
           </Graph>
+          )}
 
           {/* Phase Selector Tabs */}
           <div className="flex flex-wrap items-center gap-2">
@@ -550,16 +561,15 @@ export function MissionGameBox({
             </>
           ) : (
             <Graph title="PHASE 02 · CRADLEFLOW HABITAT" className="mdxcn-surface-base">
-              <GraphBody className="space-y-4 px-4 py-5 sm:px-6">
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-dashed border-[var(--graph-frame)] pb-3 font-mono text-xs">
-                  <div className="flex flex-wrap items-center gap-3 text-[var(--at-text-secondary)]">
-                    <span className="text-[var(--at-signal-cyan)]">TELEMETRY HANDOFF</span>
+              <GraphBody className="space-y-3 px-4 py-4 sm:px-5">
+                <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-dashed border-[var(--graph-frame)] pb-2.5 font-mono text-xs">
+                  <div className="flex flex-wrap items-center gap-2.5 text-[var(--at-text-secondary)]">
+                    <span className="border border-[var(--at-signal-cyan)]/40 bg-[var(--at-signal-cyan)]/10 px-2 py-0.5 text-[var(--at-signal-cyan)]">
+                      TELEMETRY HANDOFF LIVE
+                    </span>
                     <span>{corridor.label}</span>
                     <span>
-                      POWER {effectiveWeather.tempC} C · {effectiveWeather.windMs} m/s
-                    </span>
-                    <span>
-                      GOES-18 {effectiveProtonPfu} pfu · Kp {effectiveKp}
+                      {effectiveWeather.tempC} C · {effectiveWeather.windMs} m/s · {effectiveProtonPfu} pfu · Kp {effectiveKp}
                     </span>
                     <span className="text-[var(--at-signal-fire)]">
                       Phase 01 Triage {clearedCount}/{MISSION_WAVES.length}
@@ -569,15 +579,24 @@ export function MissionGameBox({
                   <div className="flex flex-wrap items-center gap-2">
                     <button
                       type="button"
+                      data-testid="toggle-phase2-stream-controls"
+                      onClick={() => setPhase2ControlsOpen((open) => !open)}
+                      className="inline-flex cursor-pointer items-center gap-1 rounded border border-[var(--at-border-subtle)] px-2.5 py-1 text-[var(--at-text-primary)] hover:border-[var(--at-signal-cyan)]"
+                    >
+                      <SlidersHorizontal className="size-3" aria-hidden="true" />
+                      {phase2ControlsOpen ? 'Hide NASA Controls' : 'Edit NASA Controls'}
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => selectStage('triage')}
-                      className="inline-flex cursor-pointer items-center gap-1 border border-[var(--at-border-subtle)] px-2.5 py-1 text-[var(--at-text-primary)] hover:border-[var(--at-border-bright)]"
+                      className="inline-flex cursor-pointer items-center gap-1 rounded border border-[var(--at-border-subtle)] px-2.5 py-1 text-[var(--at-text-primary)] hover:border-[var(--at-border-bright)]"
                     >
                       <ArrowLeft className="size-3" aria-hidden="true" />
                       Return to Phase 01 Triage
                     </button>
                     <a
                       href={fullscreenHref}
-                      className="inline-flex items-center gap-1 border border-[var(--at-signal-cyan)] px-2.5 py-1 text-[var(--at-signal-cyan)] hover:underline"
+                      className="inline-flex items-center gap-1 rounded border border-[var(--at-signal-cyan)] px-2.5 py-1 text-[var(--at-signal-cyan)] hover:underline"
                     >
                       Open Fullscreen HUD
                       <ExternalLink className="size-3" aria-hidden="true" />
@@ -589,7 +608,7 @@ export function MissionGameBox({
                   data-testid="cradleflow-embed-frame"
                   title="CradleFlow Habitat Automation Simulator"
                   src={embedSrc}
-                  className="graph-frame h-[680px] w-full bg-[#060302] sm:h-[740px]"
+                  className="graph-frame h-[660px] w-full rounded bg-[#090c14] sm:h-[740px]"
                 />
               </GraphBody>
             </Graph>

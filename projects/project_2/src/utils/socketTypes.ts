@@ -9,12 +9,12 @@ import type {
 } from "../types/flow";
 
 const SOCKET_COLORS: Record<SocketType, string> = {
-  signal: "#fafae5",
-  metric: "#1abc9c",
-  storm: "#ff4700",
+  signal: "#f3efe6",
+  metric: "#45b8d6",
+  storm: "#ee6b47",
   bio: "#38bdf8",
   module: "#54a0ff",
-  any: "#6b6b5e",
+  any: "#94a3b8",
 };
 
 const SOCKET_COMPATIBILITY: Record<SocketType, readonly SocketType[]> = {

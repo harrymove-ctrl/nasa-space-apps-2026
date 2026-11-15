@@ -196,4 +196,39 @@ describe("CradleFlow App Integration UI", () => {
       globalThis.fetch = originalFetch;
     }
   });
+
+  it("preserves DopaiMint handoff proton flux and Kp across +0.5h steps and reset", async () => {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = vi.fn(() => Promise.reject(new Error("Offline unit render"))) as unknown as typeof fetch;
+    window.history.replaceState(
+      {},
+      "",
+      "/?corridor=Butte%20230%20kV&flux=185.0&kp=7.0&waves=3/3"
+    );
+
+    try {
+      render(<App />);
+      await waitFor(() => {
+        expect(screen.getByTestId("dopaimint-handoff-banner")).toBeInTheDocument();
+      });
+
+      expect(screen.getAllByText(/185 pfu/i).length).toBeGreaterThanOrEqual(2);
+      expect(screen.getAllByText(/Kp 7(\.00?)?/i).length).toBeGreaterThanOrEqual(2);
+
+      // Step +0.5h and confirm Kp stays >= 7 (never plunges to 1.78) and Proton Flux stays >= 185 pfu
+      fireEvent.click(screen.getByRole("button", { name: /\+0\.5h/i }));
+      expect(screen.getByText(/T\+0\.5 \/ 24h/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/185 pfu/i).length).toBeGreaterThanOrEqual(2);
+      expect(screen.getAllByText(/Kp 7(\.00?)?/i).length).toBeGreaterThanOrEqual(2);
+      expect(screen.queryByText(/Kp 1\.78/i)).not.toBeInTheDocument();
+
+      // Switch outpost and verify handoff seeding persists
+      fireEvent.click(screen.getByRole("button", { name: /Mars/i }));
+      expect(screen.getAllByText(/185 pfu/i).length).toBeGreaterThanOrEqual(2);
+      expect(screen.getAllByText(/Kp 7(\.00?)?/i).length).toBeGreaterThanOrEqual(2);
+    } finally {
+      window.history.replaceState({}, "", "/");
+      globalThis.fetch = originalFetch;
+    }
+  });
 });

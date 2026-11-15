@@ -135,7 +135,7 @@ export const HabitatTopologyPanel: React.FC<HabitatTopologyPanelProps> = ({
       aria-label="CradleOS Outpost HUD"
     >
       {/* Outpost Header & Selector */}
-      <div className="border-b border-[rgba(255,71,0,0.28)] pb-2.5">
+      <div className="border-b border-dashed border-[rgba(148,163,184,0.22)] pb-2.5">
         <div className="flex items-center justify-between gap-2">
           <span className="hud-panel-title text-[10px] tracking-[0.04em] xl:text-[11px] xl:tracking-[0.1em]">
             CRADLEOS // HABITAT HUD
@@ -154,16 +154,16 @@ export const HabitatTopologyPanel: React.FC<HabitatTopologyPanelProps> = ({
                 key={id}
                 type="button"
                 onClick={() => onChangeOutpost(id)}
-                className={`border px-2 py-1.5 text-left transition ${
+                className={`rounded border px-2 py-1.5 text-left transition ${
                   selected
-                    ? "border-[#ff4700] bg-[rgba(255,71,0,0.16)]"
-                    : "border-[rgba(250,250,229,0.16)] bg-[rgba(250,250,229,0.02)] hover:border-[rgba(250,250,229,0.35)]"
+                    ? "border-[#45b8d6] bg-[rgba(69,184,214,0.14)]"
+                    : "border-[rgba(148,163,184,0.18)] bg-[rgba(16,22,34,0.55)] hover:border-[rgba(69,184,214,0.45)]"
                 }`}
               >
-                <div className="mono text-[10px] font-bold text-[#ff4700]">
+                <div className="mono text-[10px] font-bold text-[#45b8d6]">
                   {id === "lunar-south" ? "MOON // 0.17G" : "MARS // 0.38G"}
                 </div>
-                <div className="truncate text-[11px] font-semibold text-[#fafae5]">
+                <div className="truncate text-[11px] font-semibold text-[#f3efe6]">
                   {p.name}
                 </div>
               </button>
@@ -171,13 +171,13 @@ export const HabitatTopologyPanel: React.FC<HabitatTopologyPanelProps> = ({
           })}
         </div>
 
-        <p className="mt-1.5 text-[11px] leading-snug text-[#9b9987]">
+        <p className="mt-1.5 text-[11px] leading-snug text-[#94a3b8]">
           {outpost.locationLabel} ({outpost.atmosphericShieldingGcm2} g/cm2 atm)
         </p>
       </div>
 
       {/* Reactor Shielding Ring Engine */}
-      <div className="flex flex-col items-center border border-[rgba(255,71,0,0.22)] bg-[rgba(0,0,0,0.35)] py-3 px-2">
+      <div className="flex flex-col items-center rounded border border-dashed border-[rgba(148,163,184,0.22)] bg-[#090c14]/70 py-3 px-2">
         <ReactorEngine
           state={engineState}
           chips={activeChips}
@@ -185,21 +185,21 @@ export const HabitatTopologyPanel: React.FC<HabitatTopologyPanelProps> = ({
           corePctLabel={`${state.shieldingGcm2.toFixed(0)}g`}
           statusCaption={staleCaption}
         />
-        <div className="mt-2 grid w-full grid-cols-3 gap-1.5 border-t border-[rgba(250,250,229,0.1)] pt-2 text-center">
+        <div className="mt-2 grid w-full grid-cols-3 gap-1.5 border-t border-dashed border-[rgba(148,163,184,0.18)] pt-2 text-center">
           <div>
-            <div className="mono text-[9px] text-[#8d8b7a]">SHIELDING</div>
-            <div className="mono text-xs font-bold text-[#fafae5]">
+            <div className="mono text-[9px] text-[#94a3b8]">SHIELDING</div>
+            <div className="mono text-xs font-bold text-[#f3efe6]">
               {state.shieldingGcm2} g/cm2
             </div>
           </div>
           <div>
-            <div className="mono text-[9px] text-[#8d8b7a]">PROTON FLUX</div>
-            <div className="mono text-xs font-bold text-[#ff4700]">
+            <div className="mono text-[9px] text-[#94a3b8]">PROTON FLUX</div>
+            <div className="mono text-xs font-bold text-[#ee6b47]">
               {state.protonFluxPfu} pfu
             </div>
           </div>
           <div>
-            <div className="mono text-[9px] text-[#8d8b7a]">KP INDEX</div>
+            <div className="mono text-[9px] text-[#94a3b8]">KP INDEX</div>
             <div className="mono text-xs font-bold text-[#fbbf24]">
               Kp {state.kpIndex}
             </div>
@@ -208,13 +208,13 @@ export const HabitatTopologyPanel: React.FC<HabitatTopologyPanelProps> = ({
       </div>
 
       {/* Life Support & Shield Bars */}
-      <div className="space-y-2.5 border border-[rgba(250,250,229,0.12)] bg-[rgba(250,250,229,0.02)] p-2.5">
+      <div className="space-y-2.5 rounded border border-dashed border-[rgba(148,163,184,0.18)] bg-[rgba(9,12,20,0.45)] p-2.5">
         <TelemetryBar
           label="Cumulative Crew Dose"
           valueText={`${state.cumulativeDoseMsv.toFixed(2)} / ${drill.maxSafeDoseMsv} mSv`}
           pct={dosePct}
           color={doseColor}
-          icon={<Radiation size={13} className="text-[#ff4700]" />}
+          icon={<Radiation size={13} className="text-[#ee6b47]" />}
           badge={state.stormShelterSealed ? "SHELTERED" : undefined}
         />
 
@@ -264,26 +264,26 @@ export const HabitatTopologyPanel: React.FC<HabitatTopologyPanelProps> = ({
       </div>
 
       {/* DONKI Storm Timeline Sparkline */}
-      <div className="border border-[rgba(250,250,229,0.12)] bg-[rgba(0,0,0,0.4)] p-2.5">
+      <div className="rounded border border-dashed border-[rgba(148,163,184,0.18)] bg-[rgba(9,12,20,0.62)] p-2.5">
         <div className="mb-1 flex items-center justify-between gap-2">
-          <span className="mono flex min-w-0 items-center gap-1.5 text-[10px] font-bold uppercase text-[#ff4700]">
+          <span className="mono flex min-w-0 items-center gap-1.5 text-[10px] font-bold uppercase text-[#ee6b47]">
             <Gauge size={12} className="shrink-0" />
             <span className="truncate">
               STORM ({storm.category} // {storm.xrayClass})
             </span>
           </span>
-          <span className="mono shrink-0 whitespace-nowrap text-[10px] text-[#fafae5]">
+          <span className="mono shrink-0 whitespace-nowrap text-[10px] text-[#f3efe6]">
             T+{state.elapsedHours.toFixed(1)} / {state.durationHours}h
           </span>
         </div>
         <svg
           viewBox="0 0 280 56"
-          className="h-14 w-full overflow-visible bg-[rgba(255,71,0,0.05)]"
+          className="h-14 w-full overflow-visible bg-[rgba(69,184,214,0.05)]"
           aria-label="Storm intensity timeline"
         >
           <polyline
             fill="none"
-            stroke="#ff4700"
+            stroke="#ee6b47"
             strokeWidth="2"
             points={curvePoints}
           />
@@ -298,7 +298,7 @@ export const HabitatTopologyPanel: React.FC<HabitatTopologyPanelProps> = ({
           />
           <circle cx={cursorX} cy={52 - state.solarFlareScale * 44} r="3.5" fill="#5dff9a" />
         </svg>
-        <div className="mt-1 flex justify-between text-[10px] text-[#9b9987]">
+        <div className="mt-1 flex justify-between text-[10px] text-[#94a3b8]">
           <span>Ext: {state.externalDoseRateMsvHr.toFixed(2)} mSv/h</span>
           <span>Cab: {state.internalDoseRateMsvHr.toFixed(3)} mSv/h</span>
           <span>Sup: {state.powerSupplyKw} kW</span>
@@ -306,17 +306,17 @@ export const HabitatTopologyPanel: React.FC<HabitatTopologyPanelProps> = ({
       </div>
 
       {/* Active Alerts & Console Log */}
-      <div className="space-y-1.5 border border-[rgba(250,250,229,0.12)] bg-[rgba(5,3,2,0.85)] p-2.5">
-        <div className="mono flex items-center gap-1.5 text-[10px] font-bold uppercase text-[#ff4700]">
+      <div className="space-y-1.5 rounded border border-dashed border-[rgba(148,163,184,0.18)] bg-[rgba(9,12,20,0.82)] p-2.5">
+        <div className="mono flex items-center gap-1.5 text-[10px] font-bold uppercase text-[#45b8d6]">
           <Shield size={12} />
           CRADLEOS MISSION FEED
         </div>
         {state.alerts.map((alert, i) => (
           <div
             key={i}
-            className="mono flex items-start gap-1.5 border-l-2 border-[#ff4700] bg-[rgba(255,71,0,0.08)] px-2 py-1 text-[10px] text-[#fafae5]"
+            className="mono flex items-start gap-1.5 border-l-2 border-[#ee6b47] bg-[rgba(238,107,71,0.09)] px-2 py-1 text-[10px] text-[#f3efe6]"
           >
-            <AlertTriangle size={11} className="mt-0.5 shrink-0 text-[#ff4700]" />
+            <AlertTriangle size={11} className="mt-0.5 shrink-0 text-[#ee6b47]" />
             <span>{alert}</span>
           </div>
         ))}
@@ -324,7 +324,7 @@ export const HabitatTopologyPanel: React.FC<HabitatTopologyPanelProps> = ({
           {state.actionLog.map((entry, idx) => (
             <div
               key={idx}
-              className="mono text-[10px] leading-tight text-[#8d8b7a]"
+              className="mono text-[10px] leading-tight text-[#94a3b8]"
             >
               {entry}
             </div>

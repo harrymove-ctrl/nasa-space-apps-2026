@@ -63,10 +63,10 @@ export const NodeFieldModal: React.FC<NodeFieldModalProps> = ({
         className="hud-panel max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto p-4"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-3 flex items-center justify-between gap-2 border-b border-[rgba(255,71,0,0.28)] pb-2">
+        <div className="mb-3 flex items-center justify-between gap-2 border-b border-dashed border-[rgba(148,163,184,0.25)] pb-2">
           <div className="min-w-0">
             <div className="hud-panel-title">NODE PARAMETER CALIBRATION</div>
-            <div className="mt-0.5 truncate text-sm font-bold text-[#fafae5]">
+            <div className="mt-0.5 truncate text-sm font-bold text-[#f3efe6]">
               {node.data.label}
             </div>
           </div>
@@ -80,7 +80,7 @@ export const NodeFieldModal: React.FC<NodeFieldModalProps> = ({
           </button>
         </div>
 
-        <p className="mb-4 text-xs leading-relaxed text-[#b9b8a7]">
+        <p className="mb-4 text-xs leading-relaxed text-[#94a3b8]">
           {def?.description}
         </p>
 
@@ -89,18 +89,18 @@ export const NodeFieldModal: React.FC<NodeFieldModalProps> = ({
             const value = draft[field.key] ?? "";
             return (
               <label key={field.key} className="flex flex-col gap-1">
-                <span className="mono text-[11px] font-semibold uppercase tracking-wider text-[#fafae5]">
+                <span className="mono text-[11px] font-semibold uppercase tracking-wider text-[#f3efe6]">
                   {field.label}
                   {field.type === "number" &&
                   (field.min !== undefined || field.max !== undefined) ? (
-                    <span className="ml-2 text-[10px] font-normal text-[#8d8b7a]">
+                    <span className="ml-2 text-[10px] font-normal text-[#94a3b8]">
                       [{field.min ?? ""}..{field.max ?? ""}]
                     </span>
                   ) : null}
                 </span>
                 {field.type === "select" ? (
                   <select
-                    className="mono border border-[rgba(250,250,229,0.28)] bg-[#0b0605] px-2.5 py-2 text-xs text-[#fafae5] outline-none focus:border-[#ff4700]"
+                    className="mono rounded border border-[rgba(148,163,184,0.28)] bg-[#090c14] px-2.5 py-2 text-xs text-[#f3efe6] outline-none focus:border-[#45b8d6]"
                     value={value}
                     onChange={(e) =>
                       setDraft((prev) => ({
@@ -121,7 +121,7 @@ export const NodeFieldModal: React.FC<NodeFieldModalProps> = ({
                     min={field.min}
                     max={field.max}
                     step={field.step}
-                    className="mono border border-[rgba(250,250,229,0.28)] bg-[#0b0605] px-2.5 py-2 text-xs text-[#fafae5] outline-none focus:border-[#ff4700]"
+                    className="mono rounded border border-[rgba(148,163,184,0.28)] bg-[#090c14] px-2.5 py-2 text-xs text-[#f3efe6] outline-none focus:border-[#45b8d6]"
                     value={value}
                     onChange={(e) =>
                       setDraft((prev) => ({

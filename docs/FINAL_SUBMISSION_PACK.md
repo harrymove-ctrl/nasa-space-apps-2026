@@ -20,11 +20,12 @@ DopaiMint solves this inside one zero login digital twin built directly on keyle
 
 ### Field 3: Link to Project Demo
 
-Official guidance allows pasting either the direct public `28.50s` MP4 showcase URL or uploading [dopaimint-demo-28s.mp4](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/dopaimint-demo-28s.mp4) (`<= 0:29`) to YouTube / Google Drive (`Anyone with the link`) alongside the exact 7 slide PDF [dopaimint-deck-7slides.pdf](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/dopaimint-deck-7slides.pdf):
+Official guidance caps Field 3 demo videos strictly at `30.0s` or under (`0:31` risks disqualification). Paste either compliant `28.50s` MP4 URL below (or upload [dopaimint-demo-1080p-28s.mp4](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/dopaimint-demo-1080p-28s.mp4) or [dopaimint-demo-28s.mp4](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/dopaimint-demo-28s.mp4) to YouTube or Google Drive set to `Anyone with the link`) alongside the exact 7 slide PDF [dopaimint-deck-7slides.pdf](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/dopaimint-deck-7slides.pdf). Never paste `dopaimint-cyberpunk-1080p.mp4` (`54.02s`) into Field 3 because its runtime exceeds the `30.0s` cap:
 
-1. **Primary Zero Login Demo Video URL (`28.50s`, `1920x1080` MP4)**: `https://dopaimint-production.up.railway.app/submission/dopaimint-demo-28s.mp4`
-2. **Zero Login Media Showcase Hub & Interactive 7 Slide Viewer**: `https://dopaimint-production.up.railway.app/submission/` (direct slides anchor `#slides`, fullscreen click through viewer `https://dopaimint-production.up.railway.app/?present=slides`)
-3. **Zero Login 7 Slide Deck PDF (`7` Pages Exact)**: `https://dopaimint-production.up.railway.app/submission/dopaimint-deck-7slides.pdf`
+1. **Primary Zero Login 1080p Demo Video URL (`28.50s`, `1920x1080` MP4)**: `https://dopaimint-production.up.railway.app/submission/dopaimint-demo-1080p-28s.mp4`
+2. **Compact Kinetic Demo Video URL (`28.50s`, `1080x700` MP4)**: `https://dopaimint-production.up.railway.app/submission/dopaimint-demo-28s.mp4`
+3. **Interactive Zero Login Remotion Player & 7 Slide Showcase**: `https://dopaimint-production.up.railway.app/submission/` (video player `https://dopaimint-production.up.railway.app/?present=video`, slides anchor `#slides`, fullscreen deck `https://dopaimint-production.up.railway.app/?present=slides`)
+4. **Zero Login 7 Slide Deck PDF (`7` Pages Exact)**: `https://dopaimint-production.up.railway.app/submission/dopaimint-deck-7slides.pdf`
 
 ### Field 4: Link to Final Project
 
@@ -69,9 +70,11 @@ DopaiMint (`https://dopaimint-production.up.railway.app`) eliminates login barri
 ## Live Links & Open Source Repository
 1. Unified Flagship Web App: https://dopaimint-production.up.railway.app
 2. Guided Tour Entry: https://dopaimint-production.up.railway.app/?tour=1
-3. Official Demo Media Hub: https://dopaimint-production.up.railway.app/submission/
-4. Standalone CradleFlow Mirror: https://cradleflow-production.up.railway.app
-5. Source Code (MIT / Open Repository): https://github.com/harrymove-ctrl/nasa-space-apps-2026
+3. Official Demo Media Hub & Interactive Player: https://dopaimint-production.up.railway.app/submission/
+4. Primary `28.50s` Demo Video (`1920x1080` MP4): https://dopaimint-production.up.railway.app/submission/dopaimint-demo-1080p-28s.mp4
+5. Extended `54.02s` Cyberpunk Launch Film (Showcase Only, Not Official Field 3): https://dopaimint-production.up.railway.app/submission/dopaimint-cyberpunk-1080p.mp4
+6. Standalone CradleFlow Mirror: https://cradleflow-production.up.railway.app
+7. Source Code (MIT / Open Repository): https://github.com/harrymove-ctrl/nasa-space-apps-2026
 ```
 
 ### Curated Inline PNG Upload Map (`<= 10 MB` Cap, Paste Into Project Description Editor)
@@ -79,10 +82,10 @@ DopaiMint (`https://dopaimint-production.up.railway.app`) eliminates login barri
 | Order | Local PNG File (`projects/project_1/public/submission/images/`) | Size | Suggested Section Caption in Project Editor |
 | :--- | :--- | :--- | :--- |
 | 1 | `01-architecture-pipeline.png` | `0.19 MB` | Figure 1: Four stage `mdxcn` architecture pipeline and eight NASA feed specification over `ascii.rest` Earthrise canvas. |
-| 2 | `02-overview-burning-calendar.png` | `0.72 MB` | Figure 2: DopaiMint live observatory framed in `mdxcn` over `ascii.rest` Earth canvas with IEEE 738 limits and TTCE lead time. |
-| 3 | `03-orbital-provenance-map.png` | `0.50 MB` | Figure 3: Five layer orbital data provenance map framed in `mdxcn` over `ascii.rest` Radar canvas binding claims to NASA endpoints. |
-| 4 | `04-earth-grid-triage-phase1.png` | `0.47 MB` | Figure 4: Phase 01 three wave interactive triage drill framed in `mdxcn` over `ascii.rest` Aurora canvas across grid corridors. |
-| 5 | `05-cradleflow-habitat-phase2.png` | `0.52 MB` | Figure 5: Same origin Phase 02 CradleFlow React Flow shelter automation framed in `mdxcn` over `ascii.rest` Solar System canvas. |
+| 2 | `02-overview-burning-calendar.png` | `0.69 MB` | Figure 2: DopaiMint live observatory framed in `mdxcn` over `ascii.rest` Earth canvas with IEEE 738 limits and TTCE lead time. |
+| 3 | `03-orbital-provenance-map.png` | `0.36 MB` | Figure 3: Five layer orbital data provenance map framed in `mdxcn` over `ascii.rest` Radar canvas binding claims to NASA endpoints. |
+| 4 | `04-earth-grid-triage-phase1.png` | `0.42 MB` | Figure 4: Phase 01 three wave interactive triage drill framed in `mdxcn` over `ascii.rest` Aurora canvas across grid corridors. |
+| 5 | `05-cradleflow-habitat-phase2.png` | `0.39 MB` | Figure 5: Same origin Phase 02 CradleFlow React Flow shelter automation framed in `mdxcn` over `ascii.rest` Solar System canvas. |
 
 ### Field 6: Use of Artificial Intelligence (AI) / Super Intelligence (SI)
 
@@ -122,13 +125,19 @@ AI coding and developer workflow tools (Antigravity coding assistants and Claude
 | `[x]` | `A2` | Verify server proxies (`/proxy/firms`, `/proxy/asf`, `/proxy/cmr`, `/proxy/osdr`, `/proxy/donki`) + HTTP `206` MP4 Range support | [server.mjs](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/server.mjs) |
 | `[x]` | `A3` | Pass CradleFlow `18/18` Vitest suite & `smear-type` `5/5` contract check | `bun run test` + `smear-type/scripts/check.mjs` |
 | `[x]` | `A4` | Pass all `9` Playwright multi-viewport QA checks (`0 px` overflow, Guided Tour, Phase 02 handoff, dark/light, mobile `390x844`) | [qa-landing.mjs](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/scripts/qa-landing.mjs) |
-| `[x]` | `A5` | Render & inspect `< 30s` Demo Film (`28.50s` exact, `855` frames, `0` black dropouts, `2.51 MiB`) | [dopaimint-demo-28s.mp4](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/dopaimint-demo-28s.mp4), [QA.md](file:///Volumes/Dev/nasa-space-apps-2026/docs/video/QA.md) |
-| `[x]` | `A6` | Export & inspect exact `7` slide PDF Deck (`7` pages verified, `4.17 MiB`) + clickable viewer | [dopaimint-deck-7slides.pdf](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/dopaimint-deck-7slides.pdf) |
-| `[x]` | `A7` | Generate `5` curated `< 10 MB` (`0.19 to 0.72 MB`) `1920x1080` `mdxcn` + `ascii.rest` PNG plates & live React `/submission/` hub | [SubmissionStudio.tsx](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/src/components/SubmissionStudio.tsx), [AsciiRestBackdrop.tsx](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/src/components/AsciiRestBackdrop.tsx) |
+| `[x]` | `A5` | Render & inspect `< 30s` Demo Films (`28.50s` exact, `855` frames, `0` true black dropouts: `14.97 MiB` `1080p` + `7.53 MiB` `1080x700`) and `54.02s` extended showcase (`20.83 MiB`) | [dopaimint-demo-1080p-28s.mp4](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/dopaimint-demo-1080p-28s.mp4), [dopaimint-demo-28s.mp4](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/dopaimint-demo-28s.mp4), [QA.md](file:///Volumes/Dev/nasa-space-apps-2026/docs/video/QA.md) |
+| `[x]` | `A6` | Export & inspect exact `7` slide PDF Deck (`7` pages verified, `3.88 MiB`) + clickable viewer | [dopaimint-deck-7slides.pdf](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/dopaimint-deck-7slides.pdf) |
+| `[x]` | `A7` | Generate `5` curated `< 10 MB` (`0.19 to 0.69 MB`) `1920x1080` `mdxcn` + `ascii.rest` PNG plates & live React `/submission/` hub | [SubmissionStudio.tsx](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/src/components/SubmissionStudio.tsx), [AsciiRestBackdrop.tsx](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/src/components/AsciiRestBackdrop.tsx) |
 | `[ ]` | `B1` | **Operator Action (~30s)**: Enter Name, Email, and complete Google reCAPTCHA on open FortiGuard browser tab (`https://dopaimint-production.up.railway.app` pre-filled) | Browser tab `https://www.fortiguard.com/faq/wfratingsubmit` |
 | `[ ]` | `C1` | **Operator Action (Before `18:00 ICT`)**: Confirm participant status is `Confirmed` (not waitlisted) on `spaceappschallenge.org/2026/` | Team dashboard on `spaceappschallenge.org` |
 | `[ ]` | `C2` | **Operator Action (Before `18:00 ICT`)**: Paste Fields 1 to 8 from Part 1 above + upload the 5 inline PNGs from `projects/project_1/public/submission/images/` | `spaceappschallenge.org` Project Tab editor |
-| `[ ]` | `C3` | **Operator Action (Before `18:00 ICT`)**: Optional mirror of [dopaimint-demo-28s.mp4](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/dopaimint-demo-28s.mp4) to Unlisted/Public YouTube or Drive if desired, otherwise paste `https://dopaimint-production.up.railway.app/submission/dopaimint-demo-28s.mp4` | `Field #3: Link to Project Demo` |
+| `[ ]` | `C3` | **Operator Action (Before `18:00 ICT`)**: Optional mirror of [dopaimint-demo-1080p-28s.mp4](file:///Volumes/Dev/nasa-space-apps-2026/projects/project_1/public/submission/dopaimint-demo-1080p-28s.mp4) (`28.50s`) to Unlisted or Public YouTube / Google Drive if desired, otherwise paste `https://dopaimint-production.up.railway.app/submission/dopaimint-demo-1080p-28s.mp4` (never paste `dopaimint-cyberpunk-1080p.mp4` into Field 3 because `54.02s` exceeds the `30.0s` cap) | `Field #3: Link to Project Demo` |
 | `[ ]` | `C4` | **Operator Action (Before `18:00 ICT`)**: Test every external URL in a fresh Incognito window (confirm zero logins requested) | Incognito browser check |
 | `[ ]` | `C5` | **Operator Action (Before `18:00 ICT`)**: Tick `Terms and Conditions` + `Confirm All Work is Original`, click **`Submit for Judging`**, and confirm the top confirmation banner | `spaceappschallenge.org` Submit banner |
 | `[ ]` | `D1` | **Operator Action (Before `23:59 ICT`)**: Review formatting, resave/resubmit any final polish, verify Profile Full Name spelling, and download the Letter-size (`8.5x11in`) Participant Certificate PDF | `spaceappschallenge.org` Certificate Download |
+
+Optional ElevenLabs voiceover upgrade (run inside `projects/project_1` after connecting an API key):
+
+```bash
+cd /Volumes/Dev/nasa-space-apps-2026/projects/project_1 && npx -y @elevenlabs/cli@latest onboard connect --env-path .env.local && node --env-file=.env.local scripts/generate-elevenlabs-audio.mjs
+```

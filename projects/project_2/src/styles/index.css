@@ -2,20 +2,21 @@
 @import "./engine.css";
 
 :root {
-  --brand-orange: #ff4700;
-  --brand-orange-dim: #732000;
-  --brand-orange-glow: rgba(255, 71, 0, 0.28);
-  --cream-white: #fafae5;
-  --cream-muted: rgba(250, 250, 229, 0.72);
-  --bg-primary: #070403;
-  --bg-surface: rgba(14, 9, 7, 0.94);
-  --bg-elevated: rgba(22, 13, 10, 0.96);
-  --border-hud: rgba(255, 71, 0, 0.3);
-  --border-muted: rgba(250, 250, 229, 0.14);
+  --brand-orange: #45b8d6;
+  --brand-orange-dim: #1d6f8a;
+  --brand-orange-glow: rgba(69, 184, 214, 0.24);
+  --brand-coral: #ee6b47;
+  --cream-white: #f3efe6;
+  --cream-muted: rgba(243, 239, 230, 0.72);
+  --bg-primary: #090c14;
+  --bg-surface: rgba(11, 16, 27, 0.94);
+  --bg-elevated: rgba(16, 22, 34, 0.96);
+  --border-hud: rgba(69, 184, 214, 0.28);
+  --border-muted: rgba(148, 163, 184, 0.22);
   --hud-good: #5dff9a;
   --hud-warn: #fbbf24;
-  --hud-crit: #ff3b30;
-  --ccp-secondary: #8d8b7a;
+  --hud-crit: #ee6b47;
+  --ccp-secondary: #94a3b8;
 }
 
 * {
@@ -31,25 +32,25 @@ body,
   padding: 0;
   background-color: var(--bg-primary);
   color: var(--cream-white);
-  font-family: "Space Grotesk", system-ui, -apple-system, sans-serif;
+  font-family: "Manrope", system-ui, -apple-system, sans-serif;
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
 .mono {
-  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
 @layer components {
   .hud-panel {
     background: var(--bg-surface);
-    border: 1px solid var(--border-hud);
-    border-radius: 0;
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
+    border: 1px dashed var(--border-muted);
+    border-radius: 4px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
   }
 
   .hud-panel-title {
-    font-family: "IBM Plex Mono", monospace;
+    font-family: "JetBrains Mono", monospace;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.1em;
@@ -61,15 +62,15 @@ body,
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-family: "IBM Plex Mono", monospace;
+    font-family: "JetBrains Mono", monospace;
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     padding: 6px 10px;
-    border-radius: 0;
-    border: 1px solid rgba(250, 250, 229, 0.22);
-    background: rgba(250, 250, 229, 0.04);
+    border-radius: 4px;
+    border: 1px solid rgba(148, 163, 184, 0.24);
+    background: rgba(16, 22, 34, 0.72);
     color: var(--cream-white);
     cursor: pointer;
     transition: all 0.15s ease;
@@ -77,7 +78,7 @@ body,
 
   .hud-btn:hover:not(:disabled) {
     border-color: var(--brand-orange);
-    background: rgba(255, 71, 0, 0.14);
+    background: rgba(69, 184, 214, 0.14);
   }
 
   .hud-btn:disabled {
@@ -88,13 +89,13 @@ body,
   .hud-btn--primary {
     background: var(--brand-orange);
     border-color: var(--brand-orange);
-    color: #0b0604;
+    color: #060911;
   }
 
   .hud-btn--primary:hover:not(:disabled) {
-    background: #ff6224;
-    border-color: #ff6224;
-    color: #0b0604;
+    background: #67cde7;
+    border-color: #67cde7;
+    color: #060911;
   }
 
   .hud-btn--good {
@@ -108,26 +109,26 @@ body,
 .ff-canvas {
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at 30% 25%, rgba(255, 71, 0, 0.07), transparent 55%),
-    #080403;
+  background: radial-gradient(circle at 30% 25%, rgba(69, 184, 214, 0.08), transparent 55%),
+    #090c14;
 }
 
 .ff-node {
   min-width: 204px;
   max-width: 238px;
-  background: rgba(16, 10, 8, 0.96);
-  border: 1.5px solid rgba(250, 250, 229, 0.28);
-  border-radius: 0;
+  background: rgba(16, 22, 34, 0.96);
+  border: 1.5px solid rgba(148, 163, 184, 0.28);
+  border-radius: 4px;
   color: var(--cream-white);
-  font-family: "IBM Plex Mono", monospace;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.65);
+  font-family: "JetBrains Mono", monospace;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.52);
   position: relative;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .ff-node--selected {
   border-color: var(--brand-orange);
-  box-shadow: 0 0 0 1px var(--brand-orange), 0 10px 24px rgba(255, 71, 0, 0.28);
+  box-shadow: 0 0 0 1px var(--brand-orange), 0 10px 24px rgba(69, 184, 214, 0.24);
 }
 
 .ff-node--active {
@@ -237,8 +238,8 @@ body,
 .ff-node__field-pill {
   font-size: 9.5px;
   padding: 1px 5px;
-  background: rgba(255, 71, 0, 0.12);
-  border: 1px solid rgba(255, 71, 0, 0.35);
+  background: rgba(69, 184, 214, 0.12);
+  border: 1px solid rgba(69, 184, 214, 0.35);
   color: var(--cream-white);
 }
 
@@ -278,8 +279,8 @@ body,
   width: 80px;
   height: 80px;
   transform: rotate(45deg);
-  background: rgba(16, 10, 8, 0.96);
-  border: 1.5px solid rgba(241, 196, 15, 0.65);
+  background: rgba(16, 22, 34, 0.96);
+  border: 1.5px solid rgba(69, 184, 214, 0.65);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
@@ -294,7 +295,7 @@ body,
 
 .ff-node--diamond.ff-node--selected .ff-node--diamond-shape {
   border-color: var(--brand-orange);
-  box-shadow: 0 0 16px rgba(255, 71, 0, 0.42);
+  box-shadow: 0 0 16px rgba(69, 184, 214, 0.42);
 }
 
 .ff-node--diamond-inner {
@@ -309,8 +310,8 @@ body,
 .ff-node__handle {
   width: 11px !important;
   height: 11px !important;
-  border-radius: 0 !important;
-  border: 1.5px solid #090504 !important;
+  border-radius: 2px !important;
+  border: 1.5px solid #090c14 !important;
 }
 
 @media (pointer: coarse) {
@@ -334,29 +335,29 @@ body,
 }
 
 .react-flow__controls {
-  border-radius: 0 !important;
-  border: 1px solid var(--border-hud) !important;
-  background: rgba(12, 7, 5, 0.92) !important;
+  border-radius: 4px !important;
+  border: 1px dashed var(--border-muted) !important;
+  background: rgba(11, 16, 27, 0.94) !important;
 }
 
 .react-flow__controls-button {
-  background: rgba(18, 10, 7, 0.95) !important;
-  border-bottom: 1px solid var(--border-hud) !important;
+  background: rgba(16, 22, 34, 0.95) !important;
+  border-bottom: 1px solid var(--border-muted) !important;
   fill: var(--cream-white) !important;
   color: var(--cream-white) !important;
 }
 
 .react-flow__controls-button:hover {
-  background: rgba(255, 71, 0, 0.2) !important;
+  background: rgba(69, 184, 214, 0.2) !important;
 }
 
 .react-flow__attribution {
-  background: rgba(9, 5, 4, 0.55) !important;
-  color: rgba(250, 250, 229, 0.35) !important;
+  background: rgba(9, 12, 20, 0.65) !important;
+  color: rgba(243, 239, 230, 0.38) !important;
   font-size: 9px !important;
   padding: 1px 5px !important;
 }
 
 .react-flow__attribution a {
-  color: rgba(250, 250, 229, 0.4) !important;
+  color: rgba(243, 239, 230, 0.44) !important;
 }

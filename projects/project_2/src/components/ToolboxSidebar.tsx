@@ -63,7 +63,7 @@ export const ToolboxSidebar: React.FC<ToolboxSidebarProps> = ({
             <ChevronRight size={14} />
           </button>
           <span
-            className="mono text-[10px] font-bold tracking-[0.2em] text-[#ff4700]"
+            className="mono text-[10px] font-bold tracking-[0.2em] text-[#45b8d6]"
             style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
           >
             FRONTIER FLOW PALETTE
@@ -76,10 +76,10 @@ export const ToolboxSidebar: React.FC<ToolboxSidebarProps> = ({
         className={`${asideVisibility} hud-panel h-full w-full min-w-0 flex-col overflow-hidden lg:w-52 lg:shrink-0 xl:w-64`}
         aria-label="Frontier Flow Node Toolbox"
       >
-        <div className="flex items-center justify-between border-b border-[rgba(255,71,0,0.28)] px-3 py-2.5">
+        <div className="flex items-center justify-between border-b border-dashed border-[rgba(148,163,184,0.22)] px-3 py-2.5">
           <div className="min-w-0">
             <div className="hud-panel-title">FLOW PALETTE</div>
-            <div className="text-[11px] text-[#9b9987]">
+            <div className="text-[11px] text-[#94a3b8]">
               Drag to canvas or click +
             </div>
           </div>
@@ -94,15 +94,15 @@ export const ToolboxSidebar: React.FC<ToolboxSidebarProps> = ({
           </button>
         </div>
 
-      <div className="border-b border-[rgba(250,250,229,0.1)] p-2">
-        <div className="flex items-center gap-1.5 border border-[rgba(250,250,229,0.22)] bg-[#050302] px-2 py-1.5">
-          <Search size={12} className="text-[#8d8b7a]" />
+      <div className="border-b border-dashed border-[rgba(148,163,184,0.16)] p-2">
+        <div className="flex items-center gap-1.5 rounded border border-[rgba(148,163,184,0.24)] bg-[#090c14] px-2 py-1.5">
+          <Search size={12} className="text-[#94a3b8]" />
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Filter sensors, gates..."
-            className="mono w-full bg-transparent text-[11px] text-[#fafae5] outline-none placeholder:text-[#6b6b5e]"
+            className="mono w-full bg-transparent text-[11px] text-[#f3efe6] outline-none placeholder:text-[#64748b]"
           />
         </div>
       </div>
@@ -111,7 +111,7 @@ export const ToolboxSidebar: React.FC<ToolboxSidebarProps> = ({
         {filteredByCategory.map(({ category, items }) =>
           items.length === 0 ? null : (
             <section key={category} className="space-y-1.5">
-              <div className="mono text-[10px] font-bold uppercase tracking-wider text-[#ff4700]">
+              <div className="mono text-[10px] font-bold uppercase tracking-wider text-[#45b8d6]">
                 {NODE_CATEGORY_LABELS[category]}
               </div>
               <div className="space-y-1.5">
@@ -123,17 +123,17 @@ export const ToolboxSidebar: React.FC<ToolboxSidebarProps> = ({
                       e.dataTransfer.setData("application/reactflow", def.type);
                       e.dataTransfer.effectAllowed = "move";
                     }}
-                    className="group flex cursor-grab items-center justify-between gap-2 border border-[rgba(250,250,229,0.16)] bg-[rgba(250,250,229,0.03)] px-2.5 py-2 transition hover:border-[#ff4700] hover:bg-[rgba(255,71,0,0.09)] active:cursor-grabbing"
+                    className="group flex cursor-grab items-center justify-between gap-2 rounded border border-[rgba(148,163,184,0.18)] bg-[rgba(16,22,34,0.65)] px-2.5 py-2 transition hover:border-[#45b8d6] hover:bg-[rgba(69,184,214,0.09)] active:cursor-grabbing"
                     style={{ borderLeft: `3px solid ${def.color}` }}
                     title={def.description}
                   >
                     <div className="flex min-w-0 items-center gap-2">
                       {renderNodeIcon(def.icon, def.color)}
                       <div className="min-w-0">
-                        <div className="mono truncate text-[11px] font-semibold text-[#fafae5]">
+                        <div className="mono truncate text-[11px] font-semibold text-[#f3efe6]">
                           {def.label}
                         </div>
-                        <div className="truncate text-[10px] text-[#8d8b7a]">
+                        <div className="truncate text-[10px] text-[#94a3b8]">
                           {def.sockets.length} sockets
                         </div>
                       </div>

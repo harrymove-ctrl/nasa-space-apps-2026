@@ -101,14 +101,14 @@ export const OsdrBioLabTab: React.FC<OsdrBioLabTabProps> = ({
         </div>
 
         <form onSubmit={handleSearch} className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
-          <div className="flex min-w-0 flex-1 items-center gap-1.5 border border-[rgba(250,250,229,0.24)] bg-[#050302] px-2.5 py-1.5 sm:flex-none">
-            <Search size={13} className="shrink-0 text-[#8d8b7a]" />
+          <div className="flex min-w-0 flex-1 items-center gap-1.5 rounded border border-[rgba(148,163,184,0.24)] bg-[#090c14] px-2.5 py-1.5 sm:flex-none">
+            <Search size={13} className="shrink-0 text-[#94a3b8]" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search live OSDR (radiation, lunar...)"
-              className="mono w-full min-w-0 bg-transparent text-xs text-[#fafae5] outline-none sm:w-56"
+              className="mono w-full min-w-0 bg-transparent text-xs text-[#f3efe6] outline-none sm:w-56"
             />
           </div>
           <button
@@ -146,9 +146,9 @@ export const OsdrBioLabTab: React.FC<OsdrBioLabTabProps> = ({
               {searchHits.titles.map((t) => (
                 <div
                   key={t.accession + t.title}
-                  className="mono break-words border border-[rgba(250,250,229,0.12)] bg-[rgba(0,0,0,0.4)] px-2.5 py-1.5 text-[11px] text-[#fafae5]"
+                  className="mono break-words border border-dashed border-[rgba(148,163,184,0.18)] bg-[rgba(9,12,20,0.6)] px-2.5 py-1.5 text-[11px] text-[#f3efe6]"
                 >
-                  <span className="font-bold text-[#ff4700]">{t.accession}</span>{" "}
+                  <span className="font-bold text-[#45b8d6]">{t.accession}</span>{" "}
                   // {t.title}
                 </div>
               ))}
@@ -176,10 +176,10 @@ export const OsdrBioLabTab: React.FC<OsdrBioLabTabProps> = ({
                     STRESS x{study.stressMultiplier}
                   </span>
                 </div>
-                <h3 className="text-sm font-bold text-[#fafae5]">
+                <h3 className="text-sm font-bold text-[#f3efe6]">
                   {study.title}
                 </h3>
-                <div className="mono mt-1 text-[10px] text-[#ff4700]">
+                <div className="mono mt-1 text-[10px] text-[#ee6b47]">
                   {study.organism} | {study.tissueOrCell}
                 </div>
                 <p className="mt-2 text-xs leading-relaxed text-[#b9b8a7]">
@@ -252,10 +252,10 @@ export const OsdrBioLabTab: React.FC<OsdrBioLabTabProps> = ({
                 className="flex flex-col justify-between border border-[rgba(250,250,229,0.14)] bg-[rgba(0,0,0,0.4)] p-3"
               >
                 <div>
-                  <div className="mono mb-1 text-[10px] font-bold text-[#ff4700]">
+                  <div className="mono mb-1 text-[10px] font-bold text-[#45b8d6]">
                     FIELD CHECK 0{idx + 1}
                   </div>
-                  <p className="text-xs font-semibold text-[#fafae5]">
+                  <p className="text-xs font-semibold text-[#f3efe6]">
                     {q.prompt}
                   </p>
                   <div className="mt-2.5 space-y-1.5">
@@ -268,12 +268,12 @@ export const OsdrBioLabTab: React.FC<OsdrBioLabTabProps> = ({
                           onClick={() =>
                             setAnswers((prev) => ({ ...prev, [q.id]: optIdx }))
                           }
-                          className={`w-full border px-2.5 py-1.5 text-left text-[11px] transition ${
+                          className={`w-full rounded border px-2.5 py-1.5 text-left text-[11px] transition ${
                             chosen
                               ? optIdx === q.correctIndex
-                                ? "border-[#5dff9a] bg-[rgba(93,255,154,0.14)] text-[#fafae5]"
-                                : "border-[#ff3b30] bg-[rgba(255,59,48,0.14)] text-[#fafae5]"
-                              : "border-[rgba(250,250,229,0.16)] bg-[rgba(250,250,229,0.02)] text-[#c7c5b2] hover:border-[#ff4700]"
+                                ? "border-[#5dff9a] bg-[rgba(93,255,154,0.14)] text-[#f3efe6]"
+                                : "border-[#ee6b47] bg-[rgba(238,107,71,0.14)] text-[#f3efe6]"
+                              : "border-[rgba(148,163,184,0.2)] bg-[rgba(16,22,34,0.45)] text-[#cbd5e1] hover:border-[#45b8d6]"
                           }`}
                         >
                           {opt}

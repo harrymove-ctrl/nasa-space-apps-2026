@@ -25,6 +25,9 @@ const MIME_TYPES = {
   '.webm': 'video/webm',
   '.pdf': 'application/pdf',
   '.wav': 'audio/wav',
+  '.mp3': 'audio/mpeg',
+  '.m4a': 'audio/mp4',
+  '.ogg': 'audio/ogg',
 };
 
 const PROXY_ROUTES = [

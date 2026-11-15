@@ -20,6 +20,11 @@ export interface StepResult {
   readonly flowEvaluation: EvaluatedFlowBundle;
 }
 
+export interface HandoffTelemetryFloor {
+  readonly minFluxPfu?: number | null;
+  readonly minKpIndex?: number | null;
+}
+
 const BATTERY_CAPACITY_KWH = 52;
 
 export function interpolateStormIntensity(
@@ -101,7 +106,8 @@ export function stepHabitatSimulation(
   osdrStudy: OsdrStudyRecord,
   nodes: readonly FlowNode[],
   edges: readonly FlowEdge[],
-  dtHours = 0.5
+  dtHours = 0.5,
+  handoffFloor?: HandoffTelemetryFloor | null
 ): StepResult {
   const nextElapsed = Math.min(
     drill.durationHours,
@@ -112,11 +118,15 @@ export function stepHabitatSimulation(
   const intensity = interpolateStormIntensity(drill.timelineCurve, progress);
 
   const effectivePeakFlux = Math.max(storm.protonFluxPfu, drill.gustPeakPfu ?? 0);
+  const curveFlux = Math.max(0.24, effectivePeakFlux * intensity + 1.2);
+  const minFlux = handoffFloor?.minFluxPfu ?? null;
   const protonFluxPfu = Number(
-    Math.max(0.24, effectivePeakFlux * intensity + 1.2).toFixed(1)
+    (minFlux !== null && minFlux > 0 ? Math.max(curveFlux, minFlux) : curveFlux).toFixed(1)
   );
+  const curveKp = Math.min(9.0, Math.max(1.0, 1.2 + (storm.kpIndex - 1.2) * intensity));
+  const minKp = handoffFloor?.minKpIndex ?? null;
   const kpIndex = Number(
-    Math.min(9.0, Math.max(1.0, 1.2 + (storm.kpIndex - 1.2) * intensity)).toFixed(2)
+    (minKp !== null && minKp > 0 ? Math.min(9.0, Math.max(curveKp, minKp)) : curveKp).toFixed(2)
   );
 
   const flowEvaluation = evaluateFlowGraph(nodes, edges, {

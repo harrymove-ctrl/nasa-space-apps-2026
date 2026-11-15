@@ -76,35 +76,35 @@ export const DonkiWeatherTab: React.FC<DonkiWeatherTabProps> = ({
             >
               <div>
                 <div className="mb-2 flex flex-wrap items-center justify-between gap-1.5">
-                  <span className="mono border border-[#ff4700] bg-[rgba(255,71,0,0.16)] px-2 py-0.5 text-[10px] font-bold text-[#ff4700]">
+                  <span className="mono border border-[#ee6b47] bg-[rgba(238,107,71,0.14)] px-2 py-0.5 text-[10px] font-bold text-[#ee6b47]">
                     {ev.category} // {ev.xrayClass}
                   </span>
-                  <span className="mono text-[10px] text-[#9b9987]">
+                  <span className="mono text-[10px] text-[#94a3b8]">
                     {ev.startTime.slice(0, 16)}Z
                   </span>
                 </div>
 
-                <h3 className="text-sm font-bold text-[#fafae5]">{ev.title}</h3>
-                <p className="mt-1.5 text-xs leading-relaxed text-[#b9b8a7]">
+                <h3 className="text-sm font-bold text-[#f3efe6]">{ev.title}</h3>
+                <p className="mt-1.5 text-xs leading-relaxed text-[#cbd5e1]">
                   {ev.summary}
                 </p>
 
-                <div className="mt-3 grid grid-cols-3 gap-2 border-y border-[rgba(250,250,229,0.1)] py-2">
+                <div className="mt-3 grid grid-cols-3 gap-2 border-y border-dashed border-[rgba(148,163,184,0.18)] py-2">
                   <div>
-                    <div className="mono text-[9px] text-[#8d8b7a]">PEAK PROTON</div>
-                    <div className="mono text-xs font-bold text-[#ff4700]">
+                    <div className="mono text-[9px] text-[#94a3b8]">PEAK PROTON</div>
+                    <div className="mono text-xs font-bold text-[#ee6b47]">
                       {ev.protonFluxPfu} pfu
                     </div>
                   </div>
                   <div>
-                    <div className="mono text-[9px] text-[#8d8b7a]">KP INDEX</div>
+                    <div className="mono text-[9px] text-[#94a3b8]">KP INDEX</div>
                     <div className="mono text-xs font-bold text-[#fbbf24]">
                       Kp {ev.kpIndex}
                     </div>
                   </div>
                   <div>
-                    <div className="mono text-[9px] text-[#8d8b7a]">CME SPEED</div>
-                    <div className="mono text-xs font-bold text-[#fafae5]">
+                    <div className="mono text-[9px] text-[#94a3b8]">CME SPEED</div>
+                    <div className="mono text-xs font-bold text-[#f3efe6]">
                       {ev.speedKmS} km/s
                     </div>
                   </div>

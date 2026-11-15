@@ -100,6 +100,40 @@ function parseDopaiMintHandoff(): DopaiMintHandoff {
   };
 }
 
+function parseHandoffNumber(value: string | null): number | null {
+  if (!value) return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
+function seedStateWithHandoff(
+  base: HabitatState,
+  handoff: DopaiMintHandoff
+): HabitatState {
+  const handoffFlux = parseHandoffNumber(handoff.flux);
+  const handoffKp = parseHandoffNumber(handoff.kp);
+  if (!handoff.corridor && handoffFlux === null && handoffKp === null) {
+    return base;
+  }
+  const nextFlux = handoffFlux ?? base.protonFluxPfu;
+  const nextKp = handoffKp ?? base.kpIndex;
+  const elevated = nextFlux >= 50 || nextKp >= 5;
+  return {
+    ...base,
+    protonFluxPfu: nextFlux,
+    kpIndex: nextKp,
+    alerts: elevated
+      ? [
+          `DOPAIMINT CORRIDOR ALERT (${handoff.corridor ?? "ACTIVE"}) // ${nextFlux} PFU · KP ${nextKp} · PRESS RUN DRILL`,
+        ]
+      : base.alerts,
+    actionLog: [
+      ...base.actionLog,
+      `T+00.0h // Telemetry seeded from DopaiMint (${handoff.corridor ?? "Orbital Link"}: ${nextFlux} pfu, Kp ${nextKp}).`,
+    ],
+  };
+}
+
 export function App() {
   const handoff = useMemo(parseDopaiMintHandoff, []);
   const defaultPreset = FLOW_PRESETS[0];
@@ -120,7 +154,7 @@ export function App() {
   const [speedMultiplier, setSpeedMultiplier] = useState<1 | 3>(1);
 
   const [habitatState, setHabitatState] = useState<HabitatState>(() =>
-    createInitialHabitatState(MISSION_DRILLS[0].id)
+    seedStateWithHandoff(createInitialHabitatState(MISSION_DRILLS[0].id), handoff)
   );
   const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
   const [debriefOpen, setDebriefOpen] = useState(false);
@@ -140,6 +174,14 @@ export function App() {
     const id = customStormId ?? activeDrill.linkedStormId;
     return events.find((e) => e.id === id) ?? events[0];
   }, [events, customStormId, activeDrill.linkedStormId]);
+
+  const handoffFloor = useMemo(() => {
+    if (customStormId !== null) return null;
+    const minFluxPfu = parseHandoffNumber(handoff.flux);
+    const minKpIndex = parseHandoffNumber(handoff.kp);
+    if (minFluxPfu === null && minKpIndex === null) return null;
+    return { minFluxPfu, minKpIndex };
+  }, [customStormId, handoff.flux, handoff.kp]);
 
   const activeOsdrStudy = useMemo(() => {
     const id = customOsdId ?? activeDrill.linkedOsdId;
@@ -220,7 +262,8 @@ export function App() {
           activeOsdrStudy,
           nodes,
           edges,
-          0.5
+          0.5,
+          handoffFloor
         ).nextState;
       });
     }, delayMs);
@@ -234,6 +277,7 @@ export function App() {
     activeOsdrStudy,
     nodes,
     edges,
+    handoffFloor,
   ]);
 
   const handleRefreshTelemetry = useCallback(async (includeDonkiApi: boolean) => {
@@ -248,26 +292,39 @@ export function App() {
     setSyncing(false);
   }, []);
 
-  const handleSelectDrill = useCallback((nextDrillId: string) => {
-    const target =
-      MISSION_DRILLS.find((d) => d.id === nextDrillId) ?? MISSION_DRILLS[0];
-    setDrillId(target.id);
-    setCustomStormId(null);
-    setCustomOsdId(null);
-    setDebriefOpen(false);
-    setGraphStale(false);
-    prevFinishedRef.current = false;
-    setHabitatState(createInitialHabitatState(target.id, target.defaultOutpost));
-  }, []);
+  const handleSelectDrill = useCallback(
+    (nextDrillId: string) => {
+      const target =
+        MISSION_DRILLS.find((d) => d.id === nextDrillId) ?? MISSION_DRILLS[0];
+      setDrillId(target.id);
+      setCustomStormId(null);
+      setCustomOsdId(null);
+      setDebriefOpen(false);
+      setGraphStale(false);
+      prevFinishedRef.current = false;
+      setHabitatState(
+        seedStateWithHandoff(
+          createInitialHabitatState(target.id, target.defaultOutpost),
+          handoff
+        )
+      );
+    },
+    [handoff]
+  );
 
   const handleChangeOutpost = useCallback(
     (outpostId: OutpostId) => {
       setDebriefOpen(false);
       setGraphStale(false);
       prevFinishedRef.current = false;
-      setHabitatState(createInitialHabitatState(activeDrill.id, outpostId));
+      setHabitatState(
+        seedStateWithHandoff(
+          createInitialHabitatState(activeDrill.id, outpostId),
+          handoff
+        )
+      );
     },
-    [activeDrill.id]
+    [activeDrill.id, handoff]
   );
 
   const handleResetDrill = useCallback(() => {
@@ -275,9 +332,12 @@ export function App() {
     setGraphStale(false);
     prevFinishedRef.current = false;
     setHabitatState((prev) =>
-      createInitialHabitatState(activeDrill.id, prev.outpostId)
+      seedStateWithHandoff(
+        createInitialHabitatState(activeDrill.id, prev.outpostId),
+        handoff
+      )
     );
-  }, [activeDrill.id]);
+  }, [activeDrill.id, handoff]);
 
   const handleStepOnce = useCallback(() => {
     setGraphStale(false);
@@ -290,10 +350,11 @@ export function App() {
         activeOsdrStudy,
         nodes,
         edges,
-        0.5
+        0.5,
+        handoffFloor
       ).nextState;
     });
-  }, [activeDrill, activeStorm, activeOsdrStudy, nodes, edges]);
+  }, [activeDrill, activeStorm, activeOsdrStudy, nodes, edges, handoffFloor]);
 
   const handleLoadPreset = useCallback(
     (presetId: string) => {
@@ -432,10 +493,13 @@ export function App() {
       setGraphStale(false);
       prevFinishedRef.current = false;
       setHabitatState((prev) =>
-        createInitialHabitatState(activeDrill.id, prev.outpostId)
+        seedStateWithHandoff(
+          createInitialHabitatState(activeDrill.id, prev.outpostId),
+          handoff
+        )
       );
     },
-    [activeDrill.id]
+    [activeDrill.id, handoff]
   );
 
   const handleNextDrill = useCallback(() => {
@@ -466,19 +530,27 @@ export function App() {
   return (
     <ReactFlowProvider>
       <NodeRuntimeContext.Provider value={runtimeCallbacks}>
-        <div className="flex h-[100dvh] w-full flex-col overflow-hidden bg-[#060302] text-[#fafae5]">
+        <div className="flex h-[100dvh] w-full flex-col overflow-hidden bg-[#090c14] text-[#f3efe6]">
           {/* Top CradleOS Command Header */}
-          <header className="flex flex-wrap items-center justify-between gap-1 border-b border-[rgba(255,71,0,0.35)] bg-[#0c0605] px-2 py-1 sm:gap-1.5 sm:px-2.5 sm:py-1.5 lg:gap-2 lg:px-3 lg:py-2">
-            <div className="flex w-full min-w-0 flex-wrap items-center gap-1 sm:gap-1.5 lg:w-auto lg:gap-3">
-              <div className="flex w-full min-w-0 items-center gap-1.5 border border-[#ff4700] bg-[rgba(255,71,0,0.14)] px-2 py-0.5 sm:w-auto sm:gap-2 sm:py-1 lg:px-2.5">
-                <Radiation size={15} className="shrink-0 text-[#ff4700]" />
+          <header
+            className={`flex flex-wrap items-center justify-between gap-1 border-b border-dashed border-[rgba(148,163,184,0.24)] bg-[#0b101b] ${
+              handoff.embedded
+                ? "px-2 py-1 sm:px-2.5 sm:py-1"
+                : "px-2 py-1 sm:gap-1.5 sm:px-2.5 sm:py-1.5 lg:gap-2 lg:px-3 lg:py-2"
+            }`}
+          >
+            <div className="flex w-full min-w-0 flex-wrap items-center gap-1 sm:gap-1.5 lg:w-auto lg:gap-2.5">
+              <div className="flex w-full min-w-0 items-center gap-1.5 rounded border border-[rgba(69,184,214,0.45)] bg-[rgba(69,184,214,0.1)] px-2 py-0.5 sm:w-auto sm:gap-2 sm:py-1 lg:px-2.5">
+                <Radiation size={14} className="shrink-0 text-[#45b8d6]" />
                 <div className="min-w-0">
-                  <div className="mono truncate text-[10.5px] font-bold tracking-wider text-[#fafae5] lg:text-xs lg:tracking-widest">
+                  <div className="mono truncate text-[10.5px] font-bold tracking-wider text-[#f3efe6] lg:text-xs lg:tracking-widest">
                     CRADLEFLOW // JUNIOR ASTRONAUT TRAINER
                   </div>
-                  <div className="mono short-vp-hide hidden truncate text-[9px] tracking-wider text-[#ff4700] sm:block">
-                    CRADLEOS x FRONTIER FLOW // NASA DONKI + OSDR
-                  </div>
+                  {!handoff.embedded ? (
+                    <div className="mono short-vp-hide hidden truncate text-[9px] tracking-wider text-[#45b8d6] sm:block">
+                      CRADLEOS x FRONTIER FLOW // NASA DONKI + OSDR
+                    </div>
+                  ) : null}
                 </div>
               </div>
 
@@ -557,7 +629,7 @@ export function App() {
                 aria-label="Select Mission Drill"
                 value={activeDrill.id}
                 onChange={(e) => handleSelectDrill(e.target.value)}
-                className="mono w-full min-w-0 max-w-full border border-[rgba(255,71,0,0.4)] bg-[#060302] px-2 py-0.5 text-[10.5px] font-semibold text-[#fafae5] outline-none focus:border-[#ff4700] sm:w-auto sm:py-1 sm:text-[11px] lg:py-1.5"
+                className="mono w-full min-w-0 max-w-full rounded border border-[rgba(148,163,184,0.28)] bg-[#090c14] px-2 py-0.5 text-[10.5px] font-semibold text-[#f3efe6] outline-none focus:border-[#45b8d6] sm:w-auto sm:py-1 sm:text-[11px] lg:py-1.5"
               >
                 {MISSION_DRILLS.map((d) => (
                   <option key={d.id} value={d.id}>
@@ -573,9 +645,12 @@ export function App() {
                   onClick={() => {
                     setGraphStale(false);
                     if (habitatState.finished) {
-                      const fresh = createInitialHabitatState(
-                        activeDrill.id,
-                        habitatState.outpostId
+                      const fresh = seedStateWithHandoff(
+                        createInitialHabitatState(
+                          activeDrill.id,
+                          habitatState.outpostId
+                        ),
+                        handoff
                       );
                       prevFinishedRef.current = false;
                       setDebriefOpen(false);
@@ -661,13 +736,13 @@ export function App() {
           {handoff.corridor ? (
             <div
               data-testid="dopaimint-handoff-banner"
-              className="mono flex flex-wrap items-center justify-between gap-2 border-b border-[rgba(56,189,248,0.3)] bg-[#080d14] px-2.5 py-1 text-[10.5px] text-[#e2f2ff]"
+              className="mono flex flex-wrap items-center justify-between gap-2 border-b border-dashed border-[rgba(69,184,214,0.28)] bg-[#0c111d] px-2.5 py-1 text-[10.5px] text-[#cbd5e1]"
             >
               <span className="truncate">
-                <strong className="text-[#38bdf8]">SYNCED FROM DOPAIMINT //</strong>{" "}
-                <span className="text-[#fafae5]">{handoff.corridor}</span>
+                <strong className="text-[#45b8d6]">SYNCED FROM DOPAIMINT //</strong>{" "}
+                <span className="text-[#f3efe6]">{handoff.corridor}</span>
                 {" · "}
-                <span className="text-[#ff8a5c]">
+                <span className="text-[#ee6b47]">
                   GOES-18 {handoff.flux ?? provenance.goesProton10Mev} pfu
                 </span>
                 {" · "}
@@ -677,6 +752,11 @@ export function App() {
                   Phase 01 Triage {handoff.waves ?? "Verified"}
                 </span>
               </span>
+              {!habitatState.running && habitatState.elapsedHours === 0 ? (
+                <span className="hidden shrink-0 text-[10px] text-[#45b8d6] sm:inline">
+                  Wired logic ready · Press Run Drill to step T+0.0h to T+{habitatState.durationHours}h
+                </span>
+              ) : null}
             </div>
           ) : null}
 
@@ -743,11 +823,11 @@ export function App() {
                   <button
                     type="button"
                     onClick={() => setMobilePane("hud")}
-                    className="mono short-vp-hide flex w-full items-center justify-between gap-2 border border-[rgba(255,71,0,0.28)] bg-[#0c0605] px-2 py-0.5 text-[10px] text-[#d8d6c3]"
+                    className="mono short-vp-hide flex w-full items-center justify-between gap-2 rounded border border-[rgba(148,163,184,0.22)] bg-[#0b101b] px-2 py-0.5 text-[10px] text-[#cbd5e1]"
                     title="Open Habitat HUD"
                   >
                     <span className="truncate">
-                      <span className="font-bold text-[#ff4700]">
+                      <span className="font-bold text-[#45b8d6]">
                         T+{habitatState.elapsedHours.toFixed(1)}/{habitatState.durationHours}h
                       </span>
                       {" | "}

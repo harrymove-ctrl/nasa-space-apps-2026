@@ -160,18 +160,18 @@ export const FlowCanvasWorkspace: React.FC<FlowCanvasWorkspaceProps> = ({
       } hud-panel relative h-full min-w-0 flex-1 flex-col overflow-hidden`}
     >
       {/* Top Flow Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-1 border-b border-[rgba(255,71,0,0.28)] bg-[rgba(10,6,5,0.96)] px-2 py-1 sm:gap-1.5 sm:px-2.5 sm:py-1.5">
+      <div className="flex flex-wrap items-center justify-between gap-1 border-b border-dashed border-[rgba(148,163,184,0.22)] bg-[#0b101b] px-2 py-1 sm:gap-1.5 sm:px-2.5 sm:py-1.5">
         <div className="flex w-full min-w-0 items-center justify-between gap-1.5 xl:w-auto">
           <div className="flex min-w-0 items-center gap-1.5">
-            <Sparkles size={13} className="shrink-0 text-[#ff4700]" />
+            <Sparkles size={13} className="shrink-0 text-[#45b8d6]" />
             <span className="hud-panel-title truncate">
               FRONTIER FLOW // AUTOMATION CANVAS
             </span>
           </div>
-          <span className="mono shrink-0 text-[10px] text-[#8d8b7a] 2xl:hidden">
+          <span className="mono shrink-0 text-[10px] text-[#94a3b8] 2xl:hidden">
             {nodes.length}b / {edges.length}w
           </span>
-          <span className="mono hidden text-[10px] text-[#8d8b7a] 2xl:inline">
+          <span className="mono hidden text-[10px] text-[#94a3b8] 2xl:inline">
             | {nodes.length} blocks, {edges.length} wires
           </span>
         </div>
@@ -183,7 +183,7 @@ export const FlowCanvasWorkspace: React.FC<FlowCanvasWorkspaceProps> = ({
             onChange={(e) => {
               if (e.target.value !== "custom") onLoadPreset(e.target.value);
             }}
-            className="mono w-full min-w-0 border border-[rgba(255,71,0,0.4)] bg-[#060302] px-2 py-0.5 text-[10px] font-semibold text-[#fafae5] outline-none focus:border-[#ff4700] sm:w-auto sm:min-w-[180px] sm:py-1 xl:hidden"
+            className="mono w-full min-w-0 rounded border border-[rgba(148,163,184,0.28)] bg-[#090c14] px-2 py-0.5 text-[10px] font-semibold text-[#f3efe6] outline-none focus:border-[#45b8d6] sm:w-auto sm:min-w-[180px] sm:py-1 xl:hidden"
           >
             {activePresetId === "custom" ? (
               <option value="custom">
@@ -273,18 +273,18 @@ export const FlowCanvasWorkspace: React.FC<FlowCanvasWorkspaceProps> = ({
       </div>
 
       {/* Cadet Tip Strip */}
-      <div className="short-vp-hide flex items-center justify-between gap-2 border-b border-[rgba(250,250,229,0.08)] bg-[rgba(255,71,0,0.07)] px-2 py-0.5 text-[10px] leading-tight sm:px-2.5 sm:py-1 sm:text-[11px] sm:leading-normal">
-        <div className="line-clamp-1 min-w-0 flex-1 text-[#fafae5] sm:line-clamp-2 xl:line-clamp-none">
-          <span className="mono mr-2 font-bold text-[#ff4700]">CADET WIRING BRIEF:</span>
+      <div className="short-vp-hide flex items-center justify-between gap-2 border-b border-dashed border-[rgba(148,163,184,0.16)] bg-[rgba(69,184,214,0.06)] px-2 py-0.5 text-[10px] leading-tight sm:px-2.5 sm:py-1 sm:text-[11px] sm:leading-normal">
+        <div className="line-clamp-1 min-w-0 flex-1 text-[#f3efe6] sm:line-clamp-2 xl:line-clamp-none">
+          <span className="mono mr-2 font-bold text-[#45b8d6]">CADET WIRING BRIEF:</span>
           {briefingHint}
         </div>
-        <div className="mono hidden shrink-0 items-center gap-2.5 text-[10px] text-[#9b9987] xl:flex">
+        <div className="mono hidden shrink-0 items-center gap-2.5 text-[10px] text-[#94a3b8] xl:flex">
           <span className="flex items-center gap-1">
-            <span className="inline-block h-2 w-2 bg-[#ff4700]" />
+            <span className="inline-block h-2 w-2 bg-[#ee6b47]" />
             STORM
           </span>
           <span className="flex items-center gap-1">
-            <span className="inline-block h-2 w-2 bg-[#1abc9c]" />
+            <span className="inline-block h-2 w-2 bg-[#45b8d6]" />
             METRIC
           </span>
           <span className="flex items-center gap-1">
@@ -292,7 +292,7 @@ export const FlowCanvasWorkspace: React.FC<FlowCanvasWorkspaceProps> = ({
             OSDR BIO
           </span>
           <span className="flex items-center gap-1">
-            <span className="inline-block h-2 w-2 bg-[#fafae5]" />
+            <span className="inline-block h-2 w-2 bg-[#f3efe6]" />
             SIGNAL
           </span>
           <span className="flex items-center gap-1">
@@ -328,7 +328,7 @@ export const FlowCanvasWorkspace: React.FC<FlowCanvasWorkspaceProps> = ({
           maxZoom={2}
           deleteKeyCode={["Backspace", "Delete"]}
         >
-          <Background color="rgba(255, 71, 0, 0.18)" gap={24} size={1} />
+          <Background color="rgba(69, 184, 214, 0.16)" gap={24} size={1} />
           <Controls showInteractive={false} />
           {showMiniMap ? (
             <MiniMap
@@ -338,12 +338,12 @@ export const FlowCanvasWorkspace: React.FC<FlowCanvasWorkspaceProps> = ({
                 width: 128,
                 height: 86,
                 marginBottom: 24,
-                backgroundColor: "rgba(9, 5, 4, 0.92)",
-                border: "1px solid rgba(255, 71, 0, 0.4)",
+                backgroundColor: "rgba(9, 12, 20, 0.94)",
+                border: "1px dashed rgba(69, 184, 214, 0.42)",
               }}
               nodeColor={(node) => {
                 const d = (node as FlowNode).data;
-                return d?.color ?? "#ff4700";
+                return d?.color ?? "#45b8d6";
               }}
             />
           ) : null}
@@ -351,18 +351,18 @@ export const FlowCanvasWorkspace: React.FC<FlowCanvasWorkspaceProps> = ({
 
         {edges.length === 0 ? (
           <div
-            className={`short-vp-hide pointer-events-none absolute bottom-6 left-12 border border-[#ff4700] bg-[rgba(12,6,5,0.92)] px-2.5 py-1 text-[10px] text-[#fafae5] sm:bottom-3 sm:left-14 sm:px-3 sm:py-1.5 sm:text-[11px] ${
+            className={`short-vp-hide pointer-events-none absolute bottom-6 left-12 rounded border border-[#45b8d6] bg-[rgba(11,16,27,0.94)] px-2.5 py-1 text-[10px] text-[#f3efe6] sm:bottom-3 sm:left-14 sm:px-3 sm:py-1.5 sm:text-[11px] ${
               showMiniMap
                 ? "max-w-[calc(100%-204px)]"
                 : "max-w-[calc(100%-60px)] sm:max-w-[calc(100%-175px)]"
             }`}
           >
-            <span className="mono font-bold text-[#ff4700]">UNWIRED MODE:</span>{" "}
+            <span className="mono font-bold text-[#45b8d6]">UNWIRED MODE:</span>{" "}
             Drag from a right/bottom square output socket to a matching input socket, or select a protocol above. Click any wire to delete it.
           </div>
         ) : (
           <div
-            className={`short-vp-hide pointer-events-none absolute bottom-6 left-12 border border-[rgba(250,250,229,0.18)] bg-[rgba(10,6,5,0.85)] px-2 py-1 text-[9.5px] text-[#9b9987] sm:bottom-3 sm:left-14 sm:px-2.5 sm:text-[10px] ${
+            className={`short-vp-hide pointer-events-none absolute bottom-6 left-12 rounded border border-dashed border-[rgba(148,163,184,0.24)] bg-[rgba(11,16,27,0.88)] px-2 py-1 text-[9.5px] text-[#94a3b8] sm:bottom-3 sm:left-14 sm:px-2.5 sm:text-[10px] ${
               showMiniMap
                 ? "hidden max-w-[calc(100%-204px)] sm:block"
                 : "max-w-[calc(100%-60px)] sm:max-w-[calc(100%-175px)]"
