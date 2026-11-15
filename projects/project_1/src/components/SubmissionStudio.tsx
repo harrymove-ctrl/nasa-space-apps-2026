@@ -956,7 +956,7 @@ export function SubmissionStudio({
           </div>
         </SurfacePanel>
 
-        <div className="grid gap-6 lg:grid-cols-[1.65fr_1fr]">
+        <div className="grid gap-6 lg:grid-cols-[1.55fr_1fr] items-start">
           <SurfacePanel>
             <Graph title="DEMO FILM">
               <GraphBody className="p-4">
@@ -971,17 +971,27 @@ export function SubmissionStudio({
               </GraphBody>
             </Graph>
           </SurfacePanel>
-          <SurfacePanel>
-            <GraphStat
-              title="VIDEO SPEC"
-              items={[
-                { value: '28.50s', label: 'strict <= 30s cap', accent: true },
-                { value: '1920x1080', label: '30 fps h.264 + aac' },
-                { value: 'HTTP 206', label: 'byte-range stream' },
-                { value: '7', label: 'pdf deck slides' },
-              ]}
-            />
-          </SurfacePanel>
+          <div className="flex flex-col gap-6">
+            <SurfacePanel>
+              <GraphStat
+                title="CAPS"
+                items={[
+                  { value: '28.5s', label: 'strict <= 30s cap', accent: true },
+                  { value: '7', label: 'pdf deck slides' },
+                ]}
+              />
+            </SurfacePanel>
+            <SurfacePanel>
+              <GraphSpec
+                title="VIDEO SPEC"
+                rows={[
+                  { label: 'resolution', value: '1920x1080 at 30 fps', accent: true },
+                  { label: 'codec', value: 'H.264 video + AAC stereo audio' },
+                  { label: 'streaming', value: 'HTTP 206 byte range enabled' },
+                ]}
+              />
+            </SurfacePanel>
+          </div>
         </div>
 
         <SurfacePanel>
@@ -1018,6 +1028,28 @@ export function SubmissionStudio({
               </Graph>
             </SurfacePanel>
           ))}
+          <SurfacePanel>
+            <GraphSpec
+              title="DECK"
+              rows={[
+                { label: 'format', value: '7 Slide PDF (1920x1080 exact)', accent: true },
+                { label: 'slides 1-2', value: 'Summary + Burning Calendar' },
+                { label: 'slides 3-4', value: '8 Keyless Feeds + Provenance' },
+                { label: 'slides 5-6', value: 'Phase 01 Triage + CradleFlow HUD' },
+                { label: 'slide 7', value: 'QA Proof + Zero Login Links' },
+              ]}
+            />
+            <div className="px-5 pb-3 font-mono text-xs">
+              <a
+                href="/submission/terraspan-deck-7slides.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-graph-accent underline decoration-dashed underline-offset-4"
+              >
+                Open 7 Slide Deck PDF
+              </a>
+            </div>
+          </SurfacePanel>
         </div>
 
         <SurfacePanel>
