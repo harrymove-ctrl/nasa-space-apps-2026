@@ -217,7 +217,7 @@ function Endpoint({
                   </span>
                   {param.description ? (
                     <span className="min-w-0 max-sm:col-span-2 max-sm:col-start-2">
-                      <GraphProse className="text-foreground/80">
+                      <GraphProse className="text-foreground/80 [overflow-wrap:anywhere]">
                         {param.description}
                       </GraphProse>
                     </span>

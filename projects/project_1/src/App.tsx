@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { EarthriseBackground } from './components/EarthriseBackground';
+import { EarthriseBackground, type LiveAsciiPiece } from './components/EarthriseBackground';
 import { HeroSection } from './components/HeroSection';
 import { KnowledgeMapBox } from './components/KnowledgeMapBox';
 import { MinimalLandingSections } from './components/MinimalLandingSections';
@@ -97,12 +97,24 @@ function ObservatoryApp() {
 
   const {
     bundle,
+    firms,
+    sar,
     activeCorridor,
     selectedCorridorId,
     syncing,
+    lastSyncMs,
     refresh,
     selectCorridor,
   } = useNasaTelemetry();
+
+  const activeBgPiece: LiveAsciiPiece =
+    view === 'map'
+      ? 'radar'
+      : view === 'game'
+        ? missionStage === 'cradleflow'
+          ? 'solar-system'
+          : 'aurora'
+        : 'earthrise';
 
   useEffect(() => {
     const root = document.documentElement;
@@ -158,7 +170,7 @@ function ObservatoryApp() {
 
   return (
     <div className="relative isolate flex min-h-screen flex-col">
-      <EarthriseBackground isDark={isDark} />
+      <EarthriseBackground isDark={isDark} piece={activeBgPiece} />
 
       {showPreloader && (
         <PreloaderOverlay
@@ -183,7 +195,7 @@ function ObservatoryApp() {
         onNavigateSection={handleNavigateSection}
       />
 
-      <main className="relative z-10 flex flex-1 flex-col">
+      <main className={`relative z-10 flex flex-1 flex-col ${tourOpen ? 'pb-52' : ''}`}>
         {view === 'landing' ? (
           <>
             <HeroSection
@@ -194,10 +206,17 @@ function ObservatoryApp() {
             />
             <MinimalLandingSections
               bundle={bundle}
+              firms={firms}
+              sar={sar}
               activeCorridor={activeCorridor}
               selectedCorridorId={selectedCorridorId}
               onSelectCorridor={(id) => {
                 void selectCorridor(id);
+              }}
+              syncing={syncing}
+              lastSyncMs={lastSyncMs}
+              onRefreshTelemetry={() => {
+                void refresh();
               }}
               onOpenKnowledgeMap={() => switchView('map')}
               onOpenMissionGame={() => switchView('game', 'triage')}
@@ -210,6 +229,18 @@ function ObservatoryApp() {
           <div className="lp-container py-10">
             <KnowledgeMapBox
               bundle={bundle}
+              firms={firms}
+              sar={sar}
+              activeCorridor={activeCorridor}
+              selectedCorridorId={selectedCorridorId}
+              onSelectCorridor={(id) => {
+                void selectCorridor(id);
+              }}
+              syncing={syncing}
+              lastSyncMs={lastSyncMs}
+              onRefreshTelemetry={() => {
+                void refresh();
+              }}
               onBack={() => switchView('landing')}
               stressLongValues={stressLongValues}
             />
@@ -218,7 +249,18 @@ function ObservatoryApp() {
           <div className="lp-container py-10">
             <MissionGameBox
               bundle={bundle}
+              firms={firms}
+              sar={sar}
               activeCorridor={activeCorridor}
+              selectedCorridorId={selectedCorridorId}
+              onSelectCorridor={(id) => {
+                void selectCorridor(id);
+              }}
+              syncing={syncing}
+              lastSyncMs={lastSyncMs}
+              onRefreshTelemetry={() => {
+                void refresh();
+              }}
               stage={missionStage}
               onStageChange={(nextStage) => switchView('game', nextStage)}
               onBack={() => switchView('landing')}

@@ -14,11 +14,32 @@ function makeNasaProxy(prefix: string, target: string) {
       changeOrigin: true,
       rewrite: (p: string) => p.replace(prefixRegex, ''),
       configure: (proxy: {
-        on: (event: string, cb: (req: { removeHeader: (h: string) => void }) => void) => void;
+        on: (
+          event: string,
+          cb: (
+            arg0: { removeHeader?: (h: string) => void },
+            arg1?: unknown,
+            arg2?: {
+              headersSent?: boolean;
+              writeHead?: (status: number, headers: Record<string, string>) => void;
+              end?: (body: string) => void;
+            }
+          ) => void
+        ) => void;
       }) => {
         proxy.on('proxyReq', (proxyReq) => {
-          proxyReq.removeHeader('origin');
-          proxyReq.removeHeader('referer');
+          proxyReq.removeHeader?.('origin');
+          proxyReq.removeHeader?.('referer');
+        });
+        proxy.on('error', (_err, _req, res) => {
+          if (res && !res.headersSent && typeof res.writeHead === 'function') {
+            res.writeHead(200, {
+              'Content-Type': 'application/json; charset=utf-8',
+              'Cache-Control': 'no-store',
+              'X-Proxy-Fallback': '1',
+            });
+            res.end?.('{"fallback":true}');
+          }
         });
       },
     },

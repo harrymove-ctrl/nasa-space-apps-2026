@@ -244,7 +244,7 @@ export function getInitialSarSnapshot(preset: CorridorPreset): AsfSarBundle {
     ],
     latencyMs: 280,
     live: false,
-    endpointUrl: 'https://api.daac.asf.alaska.edu/services/search/param',
+    endpointUrl: 'https://cmr.earthdata.nasa.gov/search/granules.json?provider=ASF&short_name=SENTINEL-1A_SLC',
   };
 }
 
@@ -267,7 +267,7 @@ export async function fetchLiveFirmsHotspots(preset: CorridorPreset): Promise<Fi
   const timer = window.setTimeout(() => controller.abort(), 7500);
   try {
     const res = await fetch(url, { signal: controller.signal });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok || res.headers.get('x-proxy-fallback') === '1') throw new Error(`HTTP ${res.status}`);
     const csv = await res.text();
     const lines = csv.trim().split('\n');
     if (lines.length < 2) throw new Error('Empty FIRMS CSV');
@@ -317,30 +317,32 @@ export async function fetchLiveAsfSar(preset: CorridorPreset): Promise<AsfSarBun
   const maxLon = (preset.lon + 0.35).toFixed(2);
   const minLat = (preset.lat - 0.35).toFixed(2);
   const maxLat = (preset.lat + 0.35).toFixed(2);
-  const polygon = encodeURIComponent(
-    `POLYGON((${minLon} ${minLat},${maxLon} ${minLat},${maxLon} ${maxLat},${minLon} ${maxLat},${minLon} ${minLat}))`
-  );
-  const queryPath = `/services/search/param?platform=SENTINEL-1&intersectsWith=${polygon}&maxResults=3&output=json`;
-  const publicEndpoint = `https://api.daac.asf.alaska.edu${queryPath}`;
-  const url = publicEndpoint;
+  const queryPath = `/search/granules.json?provider=ASF&short_name=SENTINEL-1A_SLC&bounding_box=${minLon},${minLat},${maxLon},${maxLat}&sort_key=-start_date&page_size=3`;
+  const publicEndpoint = `https://cmr.earthdata.nasa.gov${queryPath}`;
+  const url = canUseLocalProxy() ? `/proxy/cmr${queryPath}` : publicEndpoint;
 
   const controller = new AbortController();
   const started = performance.now();
   const timer = window.setTimeout(() => controller.abort(), 7500);
   try {
     const res = await fetch(url, { signal: controller.signal });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const payload = (await res.json()) as unknown[];
-    const rows = Array.isArray(payload[0]) ? (payload[0] as Record<string, unknown>[]) : [];
-    const bursts: AsfSarBurst[] = rows.slice(0, 3).map((item, idx) => ({
-      granuleName: String(item.granuleName ?? `S1A_IW_SLC_${preset.id.toUpperCase()}_${idx + 1}`),
-      platform: String(item.platform ?? 'Sentinel-1'),
-      beamMode: String(item.beamModeType ?? 'IW'),
-      polarization: String(item.polarization ?? 'VV+VH'),
-      startTime: String(item.startTime ?? '2026-11-12T02:14:00Z'),
-      browseUrl: typeof item.browse === 'string' ? item.browse : undefined,
-      live: true,
-    }));
+    if (!res.ok || res.headers.get('x-proxy-fallback') === '1') throw new Error(`HTTP ${res.status}`);
+    const payload = (await res.json()) as { feed?: { entry?: Record<string, unknown>[] } };
+    const rows = Array.isArray(payload.feed?.entry) ? payload.feed.entry : [];
+    const bursts: AsfSarBurst[] = rows.slice(0, 3).map((item, idx) => {
+      const id = String(item.producer_granule_id ?? item.title ?? `S1A_IW_SLC_${preset.id.toUpperCase()}_${idx + 1}`);
+      const links = Array.isArray(item.links) ? (item.links as { rel?: string; href?: string }[]) : [];
+      const browse = links.find((l) => typeof l.href === 'string' && l.rel?.includes('browse'))?.href;
+      return {
+        granuleName: id,
+        platform: 'Sentinel-1A',
+        beamMode: 'IW',
+        polarization: id.includes('SDV') ? 'VV+VH' : 'VV',
+        startTime: String(item.time_start ?? '2026-11-12T02:14:00Z'),
+        browseUrl: browse,
+        live: true,
+      };
+    });
     if (!bursts.length) throw new Error('No Sentinel-1 scenes returned');
     return {
       bursts,

@@ -101,12 +101,13 @@
   --background: var(--at-surface-base);
   --foreground: var(--at-text-primary);
   --destructive: oklch(0.55 0.21 27);
-  --graph-accent: oklch(0.5 0.18 255);
-  --graph-accent-2: oklch(0.58 0.14 70);
-  --graph-accent-3: oklch(0.5 0.12 165);
-  --graph-frame: oklch(0.205 0 0 / 0.28);
-  --graph-muted: oklch(0.52 0 0);
-  --graph-faint: oklch(0.82 0 0);
+  --graph-accent: #1d6f8a;
+  --graph-accent-2: #c2410c;
+  --graph-accent-3: #15803d;
+  --graph-frame: rgba(14, 20, 30, 0.34);
+  --graph-muted: #495464;
+  --graph-faint: rgba(14, 20, 30, 0.14);
+  --graph-surface: var(--at-surface-base);
   --contrast-14: oklch(0.88 0 0);
   --contrast-23: oklch(0.76 0 0);
   --contrast-45: oklch(0.48 0 0);
@@ -183,12 +184,13 @@ html.dark {
   --background: var(--at-surface-base);
   --foreground: var(--at-text-primary);
   --destructive: oklch(0.68 0.2 25);
-  --graph-accent: oklch(0.7 0.12 255);
-  --graph-accent-2: oklch(0.78 0.12 70);
+  --graph-accent: #45b8d6;
+  --graph-accent-2: #ee6b47;
   --graph-accent-3: oklch(0.78 0.1 165);
-  --graph-frame: oklch(0.56 0.02 220);
-  --graph-muted: oklch(0.68 0.01 230);
+  --graph-frame: rgba(148, 163, 184, 0.44);
+  --graph-muted: #a6a49d;
   --graph-faint: oklch(0.28 0 0);
+  --graph-surface: var(--at-surface-base);
   --contrast-14: oklch(0.22 0 0);
   --contrast-23: oklch(0.34 0 0);
   --contrast-45: oklch(0.62 0 0);
@@ -1048,9 +1050,19 @@ html.dark .earthrise-bg-scrim {
     );
 }
 
+.mdxcn-surface-card {
+  background-color: var(--at-surface-card);
+  --graph-surface: var(--at-surface-card);
+}
+
+.mdxcn-surface-base {
+  background-color: var(--at-surface-base);
+  --graph-surface: var(--at-surface-base);
+}
+
 .knowledge-map-box,
 .mission-game-box {
-  backdrop-filter: blur(10px);
+  --graph-surface: var(--at-surface-card);
 }
 
 .knowledge-map-grid {

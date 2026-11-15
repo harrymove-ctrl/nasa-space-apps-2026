@@ -1,5 +1,7 @@
-import { ArrowLeft, ArrowRight, Compass, X } from 'lucide-react';
+import { MotionConfig } from 'motion/react';
+import { ArrowLeft, ArrowRight, ChevronDown, ChevronUp, Compass, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { Graph, GraphBody } from '@/registry/default/graph-frame/graph-frame';
 
 type TourView = 'landing' | 'map' | 'game';
 
@@ -68,6 +70,7 @@ export function ProductTourOverlay({
   onOpenCradleFlow,
 }: ProductTourOverlayProps) {
   const [stepIndex, setStepIndex] = useState(0);
+  const [collapsed, setCollapsed] = useState(false);
 
   const activateStep = (index: number) => {
     const clamped = Math.max(0, Math.min(TOUR_STEPS.length - 1, index));
@@ -82,6 +85,7 @@ export function ProductTourOverlay({
 
   useEffect(() => {
     if (!open) return;
+    setCollapsed(false);
     activateStep(0);
   }, [open]);
 
@@ -129,107 +133,128 @@ export function ProductTourOverlay({
 
   if (!open) return null;
 
-  const current = TOUR_STEPS[stepIndex];
+  const current = TOUR_STEPS[stepIndex] ?? TOUR_STEPS[0];
   const isLast = stepIndex === TOUR_STEPS.length - 1;
 
   return (
     <aside
       data-testid="product-tour-card"
-      role="dialog"
-      aria-label="DopaiMint Guided Product Tour"
-      className="fixed bottom-4 right-4 z-40 w-[min(420px,calc(100vw-2rem))] rounded-2xl border border-[var(--at-border-bright)] bg-[var(--at-surface-floating)] p-4 shadow-2xl backdrop-blur-md"
+      aria-label="Interactive Product Tour"
+      className="fixed bottom-3 right-3 z-40 w-[min(92vw,24rem)]"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--at-signal-cyan)]">
-            <Compass className="size-3.5" aria-hidden="true" />
-            <span>Guided Tour</span>
-            <span className="text-[var(--at-text-dim)]">{current.target}</span>
-          </div>
-          <h3 className="text-sm font-semibold text-[var(--at-text-primary)]">
-            {current.title}
-          </h3>
-        </div>
-
-        <button
-          type="button"
-          data-testid="tour-close-btn"
-          onClick={onClose}
-          aria-label="Close guided tour"
-          className="inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-[var(--at-border-subtle)] text-[var(--at-text-muted)] transition-colors hover:border-[var(--at-border-bright)] hover:text-[var(--at-text-primary)]"
+      <MotionConfig reducedMotion="always">
+        <Graph
+          title={`GUIDED TOUR · ${current.target}`}
+          className="mdxcn-surface-card shadow-2xl"
         >
-          <X className="size-3.5" />
-        </button>
-      </div>
+          <GraphBody className="px-4 py-4 sm:px-5 sm:py-4">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--graph-accent)]">
+                  <Compass className="size-3.5" aria-hidden="true" />
+                  <span>Interactive Walkthrough</span>
+                </div>
+                <h3 className="mt-0.5 font-sans text-sm font-semibold text-[var(--at-text-primary)]">
+                  {current.title}
+                </h3>
+              </div>
 
-      <p className="mt-2.5 text-xs leading-relaxed text-[var(--at-text-secondary)]">
-        {current.detail}
-      </p>
+              <div className="flex shrink-0 items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setCollapsed((c) => !c)}
+                  aria-label={collapsed ? 'Expand guided tour' : 'Minimize guided tour'}
+                  className="inline-flex size-7 cursor-pointer items-center justify-center border border-[var(--at-border-subtle)] text-[var(--at-text-muted)] hover:border-[var(--at-border-bright)] hover:text-[var(--at-text-primary)]"
+                >
+                  {collapsed ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
+                </button>
+                <button
+                  type="button"
+                  data-testid="tour-close-btn"
+                  onClick={onClose}
+                  aria-label="Close guided tour"
+                  className="inline-flex size-7 cursor-pointer items-center justify-center border border-[var(--at-border-subtle)] text-[var(--at-text-muted)] hover:border-[var(--at-border-bright)] hover:text-[var(--at-text-primary)]"
+                >
+                  <X className="size-3.5" />
+                </button>
+              </div>
+            </div>
 
-      <div className="mt-3 flex items-center gap-1">
-        {TOUR_STEPS.map((item, idx) => (
-          <button
-            key={item.title}
-            type="button"
-            onClick={() => activateStep(idx)}
-            aria-label={`Jump to ${item.title}`}
-            className="h-1.5 flex-1 cursor-pointer rounded-full transition-colors"
-            style={{
-              background:
-                idx === stepIndex
-                  ? 'var(--at-signal-cyan)'
-                  : idx < stepIndex
-                    ? 'var(--at-border-focus)'
-                    : 'var(--at-border-subtle)',
-            }}
-          />
-        ))}
-      </div>
+            {!collapsed && (
+              <>
+                <p className="mt-2 font-sans text-xs leading-relaxed text-[var(--at-text-secondary)]">
+                  {current.detail}
+                </p>
 
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--at-border-subtle)] pt-3">
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            data-testid="tour-prev-btn"
-            onClick={() => activateStep(stepIndex - 1)}
-            disabled={stepIndex === 0}
-            className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-[var(--at-border-subtle)] px-2.5 py-1.5 font-mono text-[11px] text-[var(--at-text-primary)] disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <ArrowLeft className="size-3" aria-hidden="true" />
-            Prev
-          </button>
-          <button
-            type="button"
-            data-testid="tour-next-btn"
-            onClick={() => {
-              if (isLast) onClose();
-              else activateStep(stepIndex + 1);
-            }}
-            className="inline-flex cursor-pointer items-center gap-1 rounded-lg bg-[var(--at-text-primary)] px-3 py-1.5 font-mono text-[11px] font-semibold text-[var(--at-surface-base)]"
-          >
-            {isLast ? 'Finish Tour' : 'Next'}
-            {!isLast ? <ArrowRight className="size-3" aria-hidden="true" /> : null}
-          </button>
-        </div>
+                <div className="mt-2.5 flex items-center gap-1">
+                  {TOUR_STEPS.map((item, idx) => (
+                    <button
+                      key={item.title}
+                      type="button"
+                      onClick={() => activateStep(idx)}
+                      aria-label={`Jump to ${item.title}`}
+                      className="h-1.5 flex-1 cursor-pointer transition-colors"
+                      style={{
+                        background:
+                          idx === stepIndex
+                            ? 'var(--at-signal-cyan)'
+                            : idx < stepIndex
+                              ? 'var(--at-border-focus)'
+                              : 'var(--at-border-subtle)',
+                      }}
+                    />
+                  ))}
+                </div>
 
-        {isLast ? (
-          <button
-            type="button"
-            data-testid="tour-launch-cradleflow"
-            onClick={() => {
-              onClose();
-              onOpenCradleFlow();
-            }}
-            className="inline-flex cursor-pointer items-center gap-1 font-mono text-[11px] font-medium text-[var(--at-signal-cyan)] hover:underline"
-          >
-            Open Phase 02: CradleFlow
-          </button>
-        ) : (
-          <span className="font-mono text-[10px] text-[var(--at-text-dim)]">
-            Arrows step · Esc closes
-          </span>
-        )}
-      </div>
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-dashed border-[var(--graph-frame)] pt-3">
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      data-testid="tour-prev-btn"
+                      onClick={() => activateStep(stepIndex - 1)}
+                      disabled={stepIndex === 0}
+                      className="inline-flex cursor-pointer items-center gap-1 border border-[var(--at-border-subtle)] px-2.5 py-1 font-mono text-[11px] text-[var(--at-text-primary)] disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      <ArrowLeft className="size-3" aria-hidden="true" />
+                      Prev
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="tour-next-btn"
+                      onClick={() => {
+                        if (isLast) onClose();
+                        else activateStep(stepIndex + 1);
+                      }}
+                      className="inline-flex cursor-pointer items-center gap-1 bg-[var(--at-text-primary)] px-3 py-1 font-mono text-[11px] font-semibold text-[var(--at-surface-base)]"
+                    >
+                      {isLast ? 'Finish Tour' : 'Next'}
+                      {!isLast ? <ArrowRight className="size-3" aria-hidden="true" /> : null}
+                    </button>
+                  </div>
+
+                  {isLast ? (
+                    <button
+                      type="button"
+                      data-testid="tour-launch-cradleflow"
+                      onClick={() => {
+                        onClose();
+                        onOpenCradleFlow();
+                      }}
+                      className="inline-flex cursor-pointer items-center gap-1 font-mono text-[11px] font-medium text-[var(--at-signal-cyan)] hover:underline"
+                    >
+                      Open Phase 02: CradleFlow
+                    </button>
+                  ) : (
+                    <span className="font-mono text-[10px] text-[var(--graph-muted)]">
+                      Arrows step · Esc closes
+                    </span>
+                  )}
+                </div>
+              </>
+            )}
+          </GraphBody>
+        </Graph>
+      </MotionConfig>
     </aside>
   );
 }

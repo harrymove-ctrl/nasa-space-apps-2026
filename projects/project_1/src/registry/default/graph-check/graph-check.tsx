@@ -117,11 +117,11 @@ function CheckRow({
         {done ? "[x]" : "[ ]"}
       </span>
       <span className="flex min-w-0 flex-col gap-1">
-        <span className={done ? "text-foreground" : "text-graph-muted"}>
+        <span className={cn("[overflow-wrap:anywhere]", done ? "text-foreground" : "text-graph-muted")}>
           {entry.label}
         </span>
         {entry.note ? (
-          <span className="text-graph-muted">{entry.note}</span>
+          <span className="[overflow-wrap:anywhere] text-graph-muted">{entry.note}</span>
         ) : null}
         {entry.items?.length ? (
           <ul className="mt-1 flex flex-col gap-2" role="list">

@@ -35,6 +35,20 @@ const PROXY_ROUTES = [
   ['/proxy/donki', 'https://ccmc.gsfc.nasa.gov'],
 ];
 
+const PROXY_CACHE = new Map();
+const PROXY_CACHE_TTL_MS = 45_000;
+
+async function fetchUpstreamOnce(req, upstreamUrl) {
+  return fetch(upstreamUrl, {
+    method: req.method || 'GET',
+    headers: {
+      Accept: req.headers.accept || '*/*',
+      'User-Agent': 'DopaiMint-NASA-SpaceApps-2026/1.0',
+    },
+    signal: AbortSignal.timeout(12000),
+  });
+}
+
 async function handleProxy(req, res, urlPath, search) {
   const match = PROXY_ROUTES.find(([prefix]) => urlPath.startsWith(prefix));
   if (!match) return false;
@@ -42,28 +56,58 @@ async function handleProxy(req, res, urlPath, search) {
   const [prefix, origin] = match;
   const upstreamPath = urlPath.slice(prefix.length) || '/';
   const upstreamUrl = `${origin}${upstreamPath}${search}`;
+  const method = (req.method || 'GET').toUpperCase();
 
-  try {
-    const upstream = await fetch(upstreamUrl, {
-      method: req.method || 'GET',
-      headers: {
-        Accept: req.headers.accept || '*/*',
-        'User-Agent': 'DopaiMint-NASA-SpaceApps-2026/1.0',
-      },
-      signal: AbortSignal.timeout(12000),
-    });
-
-    const contentType = upstream.headers.get('content-type') || 'application/octet-stream';
-    const body = Buffer.from(await upstream.arrayBuffer());
-    res.writeHead(upstream.status, {
-      'Content-Type': contentType,
-      'Cache-Control': 'no-store',
-    });
-    res.end(body);
-  } catch (err) {
-    res.writeHead(502, { 'Content-Type': 'application/json; charset=utf-8' });
-    res.end(JSON.stringify({ error: 'Upstream NASA request failed', detail: String(err) }));
+  if (method === 'GET') {
+    const cached = PROXY_CACHE.get(upstreamUrl);
+    if (cached && cached.expiresAt > Date.now()) {
+      res.writeHead(200, {
+        'Content-Type': cached.contentType,
+        'Cache-Control': 'no-store',
+        'X-Proxy-Cache': 'HIT',
+      });
+      res.end(cached.body);
+      return true;
+    }
   }
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const upstream = await fetchUpstreamOnce(req, upstreamUrl);
+      if (upstream.status >= 500 && attempt === 0) {
+        await new Promise((r) => setTimeout(r, 250));
+        continue;
+      }
+      const contentType = upstream.headers.get('content-type') || 'application/octet-stream';
+      const body = Buffer.from(await upstream.arrayBuffer());
+      if (method === 'GET' && upstream.status === 200) {
+        if (PROXY_CACHE.size > 64) PROXY_CACHE.clear();
+        PROXY_CACHE.set(upstreamUrl, {
+          contentType,
+          body,
+          expiresAt: Date.now() + PROXY_CACHE_TTL_MS,
+        });
+      }
+      res.writeHead(upstream.status, {
+        'Content-Type': contentType,
+        'Cache-Control': 'no-store',
+      });
+      res.end(body);
+      return true;
+    } catch {
+      if (attempt === 0) {
+        await new Promise((r) => setTimeout(r, 250));
+        continue;
+      }
+    }
+  }
+
+  res.writeHead(200, {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Cache-Control': 'no-store',
+    'X-Proxy-Fallback': '1',
+  });
+  res.end('{"fallback":true}');
   return true;
 }
 

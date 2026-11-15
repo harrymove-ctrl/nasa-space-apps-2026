@@ -1,8 +1,6 @@
-import { ArrowUpRight, Radio, ShieldAlert, Wind } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { MotionConfig } from 'motion/react';
+import { ArrowUpRight } from 'lucide-react';
 import {
-  fetchLiveAsfSar,
-  fetchLiveFirmsHotspots,
   getInitialFirmsSnapshot,
   getInitialSarSnapshot,
   type AsfSarBundle,
@@ -27,12 +25,19 @@ import { FlipText } from './obsidian/flip-text';
 import { InteractiveHoverButton } from './obsidian/interactive-hover-button';
 import { SplitShowcase } from './obsidian/split-showcase';
 import { StatusBars } from './obsidian/status-bars';
+import { Graph, GraphBody } from '@/registry/default/graph-frame/graph-frame';
+import { GraphStat } from '@/registry/default/graph-stat/graph-stat';
 
 interface MinimalLandingSectionsProps {
   bundle: NasaTelemetryBundle;
+  firms?: FirmsBundle;
+  sar?: AsfSarBundle;
   activeCorridor: CorridorPreset;
   selectedCorridorId: string;
   onSelectCorridor: (id: string) => void;
+  syncing?: boolean;
+  lastSyncMs?: number;
+  onRefreshTelemetry?: () => void;
   onOpenKnowledgeMap: () => void;
   onOpenMissionGame: () => void;
   onOpenCradleFlow: () => void;
@@ -42,9 +47,14 @@ interface MinimalLandingSectionsProps {
 
 export function MinimalLandingSections({
   bundle,
+  firms: firmsProp,
+  sar: sarProp,
   activeCorridor,
   selectedCorridorId,
   onSelectCorridor,
+  syncing = false,
+  lastSyncMs = 0,
+  onRefreshTelemetry,
   onOpenKnowledgeMap,
   onOpenMissionGame,
   onOpenCradleFlow,
@@ -53,23 +63,8 @@ export function MinimalLandingSections({
 }: MinimalLandingSectionsProps) {
   const weather = bundle.powerByCorridor[activeCorridor.id];
   const physics = computeIeee738Physics(activeCorridor, weather);
-  const [firms, setFirms] = useState<FirmsBundle>(() => getInitialFirmsSnapshot(activeCorridor));
-  const [sar, setSar] = useState<AsfSarBundle>(() => getInitialSarSnapshot(activeCorridor));
-
-  useEffect(() => {
-    let active = true;
-    setFirms(getInitialFirmsSnapshot(activeCorridor));
-    setSar(getInitialSarSnapshot(activeCorridor));
-    void fetchLiveFirmsHotspots(activeCorridor).then((next) => {
-      if (active) setFirms(next);
-    });
-    void fetchLiveAsfSar(activeCorridor).then((next) => {
-      if (active) setSar(next);
-    });
-    return () => {
-      active = false;
-    };
-  }, [activeCorridor]);
+  const firms = firmsProp ?? getInitialFirmsSnapshot(activeCorridor);
+  const sar = sarProp ?? getInitialSarSnapshot(activeCorridor);
 
   return (
     <>
@@ -124,89 +119,70 @@ export function MinimalLandingSections({
             />
           </div>
 
-          <div
-            data-testid="corridor-physics-summary"
-            className="grid grid-cols-1 gap-4 rounded-2xl border border-[var(--at-border-subtle)] bg-[var(--at-surface-card)] p-5 md:grid-cols-4"
-          >
-            <div>
-              <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-[var(--at-text-dim)]">
-                Selected Span
-              </div>
-              <div className="mt-1 text-lg font-semibold text-[var(--at-text-primary)]">
-                {activeCorridor.label}
-              </div>
-              <div className="text-xs text-[var(--at-text-muted)]">
-                {activeCorridor.region} · {activeCorridor.sensorBadge}
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.08em] text-[var(--at-text-dim)]">
-                <Wind className="size-3.5 text-[var(--at-signal-cyan)]" />
-                NASA POWER Weather
-              </div>
-              <div className="mt-1 font-mono text-lg font-semibold text-[var(--at-text-primary)]">
-                {weather.tempC} C · {weather.windMs} m/s
-              </div>
-              <div className="text-xs text-[var(--at-text-muted)]">
-                RH {weather.rhPct}% · {weather.live ? 'Live API' : `Snapshot ${weather.date}`}
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.08em] text-[var(--at-text-dim)]">
-                <ShieldAlert className="size-3.5 text-[var(--at-signal-fire)]" />
-                IEEE 738 Safe Limit
-              </div>
-              <div className="mt-1 font-mono text-lg font-semibold text-[var(--at-signal-fire)]">
-                {physics.deratedAmps} A
-              </div>
-              <div className="text-xs text-[var(--at-text-muted)]">
-                {physics.marginAmps > 0
-                  ? `Down ${physics.marginAmps} A below ${activeCorridor.nominalAmps} A nameplate`
-                  : physics.marginAmps < 0
-                    ? `+${Math.abs(physics.marginAmps)} A ambient headroom over ${activeCorridor.nominalAmps} A`
-                    : `At ${activeCorridor.nominalAmps} A nameplate ceiling`}
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.08em] text-[var(--at-text-dim)]">
-                <Radio className="size-3.5 text-[var(--at-signal-cyan)]" />
-                Head Spread Closure
-              </div>
-              <div className="mt-1 font-mono text-lg font-semibold text-[var(--at-text-primary)]">
-                {physics.ttceMinutes} min TTCE
-              </div>
-              <div className="text-xs text-[var(--at-text-muted)]">
-                {activeCorridor.frpdMw} MW FRPD · {activeCorridor.distanceKm} km offset
-              </div>
-            </div>
-          </div>
-
-          <BurningCalendarPanel preset={activeCorridor} firms={firms} sar={sar} />
-
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-            {bundle.feedHealth.map((feed) => (
-              <div
-                key={feed.id}
-                className="rounded-2xl border border-[var(--at-border-subtle)] bg-[var(--at-surface-card)] p-5"
-              >
-                <StatusBars
-                  days={feed.days}
-                  label={feed.label}
-                  current={feed.current}
-                  maxDays={45}
+          <MotionConfig reducedMotion="always">
+            <Graph
+              title={`CORRIDOR TELEMETRY · ${activeCorridor.label.toUpperCase()}`}
+              data-testid="corridor-physics-summary"
+              className="mdxcn-surface-card"
+            >
+              <GraphBody className="px-5 py-6 sm:px-7">
+                <GraphStat
+                  frame="none"
+                  items={[
+                    {
+                      value: activeCorridor.label,
+                      label: 'Selected Span',
+                      hint: `${activeCorridor.region} · ${activeCorridor.sensorBadge}`,
+                    },
+                    {
+                      value: `${weather.tempC} C`,
+                      label: 'NASA POWER Weather',
+                      hint: `${weather.windMs} m/s · RH ${weather.rhPct}% · ${weather.live ? 'Live API' : `Snapshot ${weather.date}`}`,
+                    },
+                    {
+                      value: `${physics.deratedAmps} A`,
+                      label: 'IEEE 738 Safe Limit',
+                      hint:
+                        physics.marginAmps > 0
+                          ? `Down ${physics.marginAmps} A below ${activeCorridor.nominalAmps} A`
+                          : physics.marginAmps < 0
+                            ? `+${Math.abs(physics.marginAmps)} A headroom over ${activeCorridor.nominalAmps} A`
+                            : `At ${activeCorridor.nominalAmps} A nameplate ceiling`,
+                      accent: true,
+                    },
+                    {
+                      value: `${physics.ttceMinutes} min`,
+                      label: 'Head Spread Closure',
+                      hint: `${activeCorridor.frpdMw} MW FRPD · ${activeCorridor.distanceKm} km offset`,
+                    },
+                  ]}
                 />
-                <div className="mt-3 flex items-center justify-between border-t border-[var(--at-border-subtle)] pt-2.5 font-mono text-[11px] text-[var(--at-text-dim)]">
-                  <span className="truncate">{feed.endpoint}</span>
-                  <span>
-                    {feed.latencyMs} ms · {feed.recordsCount} items
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+              </GraphBody>
+            </Graph>
+
+            <BurningCalendarPanel preset={activeCorridor} firms={firms} sar={sar} />
+
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+              {bundle.feedHealth.map((feed) => (
+                <Graph key={feed.id} title={feed.label} className="mdxcn-surface-card">
+                  <GraphBody className="px-5 py-6">
+                    <StatusBars
+                      days={feed.days}
+                      label={feed.label}
+                      current={feed.current}
+                      maxDays={45}
+                    />
+                    <div className="mt-3 flex items-center justify-between border-t border-dashed border-[var(--graph-frame)] pt-2.5 font-mono text-[11px] text-[var(--graph-muted)]">
+                      <span className="truncate">{feed.endpoint}</span>
+                      <span>
+                        {feed.latencyMs} ms · {feed.recordsCount} items
+                      </span>
+                    </div>
+                  </GraphBody>
+                </Graph>
+              ))}
+            </div>
+          </MotionConfig>
         </div>
       </section>
 
@@ -231,7 +207,18 @@ export function MinimalLandingSections({
           </div>
 
           <AskTheGridCopilot preset={activeCorridor} bundle={bundle} firms={firms} sar={sar} />
-          <KnowledgeMapBox bundle={bundle} stressLongValues={stressLongValues} />
+          <KnowledgeMapBox
+            bundle={bundle}
+            firms={firms}
+            sar={sar}
+            activeCorridor={activeCorridor}
+            selectedCorridorId={selectedCorridorId}
+            onSelectCorridor={onSelectCorridor}
+            syncing={syncing}
+            lastSyncMs={lastSyncMs}
+            onRefreshTelemetry={onRefreshTelemetry}
+            stressLongValues={stressLongValues}
+          />
           <SourceRail bundle={bundle} preset={activeCorridor} />
         </div>
       </section>
@@ -296,7 +283,14 @@ export function MinimalLandingSections({
 
           <MissionGameBox
             bundle={bundle}
+            firms={firms}
+            sar={sar}
             activeCorridor={activeCorridor}
+            selectedCorridorId={selectedCorridorId}
+            onSelectCorridor={onSelectCorridor}
+            syncing={syncing}
+            lastSyncMs={lastSyncMs}
+            onRefreshTelemetry={onRefreshTelemetry}
             embedded
             stressLongValues={stressLongValues}
             onOpenKnowledgeMap={onOpenKnowledgeMap}

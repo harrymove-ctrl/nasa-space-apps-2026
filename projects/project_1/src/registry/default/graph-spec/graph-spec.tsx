@@ -96,11 +96,11 @@ function GraphSpec({
         >
           {rows.map((row) => (
             <motion.div
-              className="grid grid-cols-[minmax(0,11rem)_minmax(0,1fr)] items-baseline gap-x-3 sm:gap-x-6"
+              className="grid grid-cols-1 gap-y-1 sm:grid-cols-[minmax(0,11rem)_minmax(0,1fr)] sm:items-baseline sm:gap-x-6"
               key={row.label}
               variants={item}
             >
-              <dt className="text-graph-muted">{row.label}</dt>
+              <dt className="[overflow-wrap:anywhere] text-graph-muted">{row.label}</dt>
               <dd className="flex min-w-0 flex-col gap-1">
                 {row.rich ? (
                   <GraphProse
@@ -114,7 +114,7 @@ function GraphSpec({
                 ) : (
                   <span
                     className={cn(
-                      "tabular-nums",
+                      "[overflow-wrap:anywhere] tabular-nums",
                       row.accent ? "text-graph-accent" : "text-foreground"
                     )}
                   >
