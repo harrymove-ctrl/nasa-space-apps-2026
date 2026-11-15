@@ -42,7 +42,6 @@ export interface OsdrSearchResult {
 function isDevProxyAvailable(): boolean {
   return (
     typeof window !== "undefined" &&
-    Boolean((import.meta as ImportMeta & { env?: { DEV?: boolean; MODE?: string } }).env?.DEV) &&
     (import.meta as ImportMeta & { env?: { MODE?: string } }).env?.MODE !== "test"
   );
 }

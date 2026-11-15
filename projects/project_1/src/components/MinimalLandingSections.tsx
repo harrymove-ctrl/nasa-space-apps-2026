@@ -18,6 +18,7 @@ import { CRADLEFLOW_URL, NASA_OPEN_PARTNERS } from '../data/terraspanData';
 import { AskTheGridCopilot } from './aicanvas/AskTheGridCopilot';
 import { GlassDock } from './aicanvas/GlassDock';
 import { SourceRail } from './aicanvas/SourceRail';
+import { HowItWorksSection } from './HowItWorksSection';
 import { KnowledgeMapBox } from './KnowledgeMapBox';
 import { MissionGameBox } from './MissionGameBox';
 import { BurningCalendarPanel } from './obsidian/BurningCalendarPanel';
@@ -34,6 +35,7 @@ interface MinimalLandingSectionsProps {
   onSelectCorridor: (id: string) => void;
   onOpenKnowledgeMap: () => void;
   onOpenMissionGame: () => void;
+  onStartTour: () => void;
   stressLongValues?: boolean;
 }
 
@@ -44,6 +46,7 @@ export function MinimalLandingSections({
   onSelectCorridor,
   onOpenKnowledgeMap,
   onOpenMissionGame,
+  onStartTour,
   stressLongValues = false,
 }: MinimalLandingSectionsProps) {
   const weather = bundle.powerByCorridor[activeCorridor.id];
@@ -68,6 +71,14 @@ export function MinimalLandingSections({
 
   return (
     <>
+      <HowItWorksSection
+        bundle={bundle}
+        activeCorridor={activeCorridor}
+        onOpenKnowledgeMap={onOpenKnowledgeMap}
+        onOpenMissionGame={onOpenMissionGame}
+        onStartTour={onStartTour}
+      />
+
       <section className="lp-section scroll-mt-20 border-t border-[var(--at-border-subtle)]" id="gallery">
         <div className="lp-container">
           <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">

@@ -6,6 +6,8 @@ import { MinimalLandingSections } from './components/MinimalLandingSections';
 import { MissionGameBox } from './components/MissionGameBox';
 import { Navbar } from './components/Navbar';
 import { PreloaderOverlay } from './components/PreloaderOverlay';
+import { ProductTourOverlay } from './components/ProductTourOverlay';
+import { CRADLEFLOW_URL } from './data/terraspanData';
 import { useNasaTelemetry } from './data/useNasaTelemetry';
 
 type ViewMode = 'landing' | 'map' | 'game';
@@ -16,6 +18,7 @@ function parseUrlFlags() {
       skipPreloader: false,
       holdMode: false,
       initialView: 'landing' as ViewMode,
+      initialTour: false,
       debug: false,
       theme: null as 'light' | 'dark' | null,
     };
@@ -27,11 +30,13 @@ function parseUrlFlags() {
   const themeParam = params.get('theme');
   const theme: 'light' | 'dark' | null =
     themeParam === 'light' ? 'light' : themeParam === 'dark' ? 'dark' : null;
+  const initialTour = params.get('tour') === '1';
 
   return {
-    skipPreloader: params.get('skipPreloader') === '1' || initialView !== 'landing',
+    skipPreloader: params.get('skipPreloader') === '1' || initialView !== 'landing' || initialTour,
     holdMode: params.get('hold') === '1',
     initialView,
+    initialTour,
     debug: params.get('debug') === '1',
     theme,
   };
@@ -41,6 +46,7 @@ export function App() {
   const [flags] = useState(parseUrlFlags);
   const [showPreloader, setShowPreloader] = useState(!flags.skipPreloader);
   const [view, setView] = useState<ViewMode>(flags.initialView);
+  const [tourOpen, setTourOpen] = useState(flags.initialTour);
   const [stressLongValues, setStressLongValues] = useState(false);
   const [isDark, setIsDark] = useState<boolean>(() => {
     if (flags.theme === 'light') return false;
@@ -68,8 +74,12 @@ export function App() {
     setView(nextView);
     if (typeof window !== 'undefined') {
       const url = new URL(window.location.href);
-      if (nextView === 'landing') url.searchParams.delete('view');
-      else url.searchParams.set('view', nextView);
+      if (nextView === 'landing') {
+        url.searchParams.delete('view');
+      } else {
+        url.searchParams.set('view', nextView);
+        url.hash = '';
+      }
       window.history.replaceState({}, '', url.toString());
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -77,16 +87,23 @@ export function App() {
 
   const handleNavigateSection = (hash: string) => {
     const targetId = hash.replace(/^#/, '');
+    const nextHash = targetId && targetId !== 'top' ? `#${targetId}` : '';
+    const applyScroll = () => {
+      if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('view');
+        url.hash = nextHash;
+        window.history.replaceState({}, '', url.toString());
+      }
+      if (!targetId || targetId === 'top') window.scrollTo({ top: 0, behavior: 'smooth' });
+      else document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
+    };
     if (view !== 'landing') {
-      switchView('landing');
-      window.setTimeout(() => {
-        if (!targetId || targetId === 'top') window.scrollTo({ top: 0, behavior: 'smooth' });
-        else document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
-      }, 60);
+      setView('landing');
+      window.setTimeout(applyScroll, 75);
       return;
     }
-    if (!targetId || targetId === 'top') window.scrollTo({ top: 0, behavior: 'smooth' });
-    else document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
+    applyScroll();
   };
 
   return (
@@ -112,6 +129,7 @@ export function App() {
         onToggleTheme={() => setIsDark((prev) => !prev)}
         onToggleView={() => switchView(view === 'landing' ? 'map' : 'landing')}
         onOpenMissionGame={() => switchView('game')}
+        onStartTour={() => setTourOpen(true)}
         onNavigateSection={handleNavigateSection}
       />
 
@@ -133,6 +151,7 @@ export function App() {
               }}
               onOpenKnowledgeMap={() => switchView('map')}
               onOpenMissionGame={() => switchView('game')}
+              onStartTour={() => setTourOpen(true)}
               stressLongValues={stressLongValues}
             />
           </>
@@ -155,6 +174,14 @@ export function App() {
           </div>
         )}
       </main>
+
+      <ProductTourOverlay
+        open={tourOpen}
+        onClose={() => setTourOpen(false)}
+        onSwitchView={switchView}
+        onNavigateSection={handleNavigateSection}
+        cradleflowUrl={CRADLEFLOW_URL}
+      />
 
       {flags.debug && (
         <div

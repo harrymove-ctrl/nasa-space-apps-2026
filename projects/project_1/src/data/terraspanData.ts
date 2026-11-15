@@ -1,7 +1,8 @@
 import type { ParallaxSlide } from '../components/obsidian/parallax-slider';
 
 export const CRADLEFLOW_URL =
-  import.meta.env.VITE_CRADLEFLOW_URL ?? 'http://127.0.0.1:5185';
+  import.meta.env.VITE_CRADLEFLOW_URL ??
+  (import.meta.env.DEV ? 'http://127.0.0.1:5185' : 'https://cradleflow-production.up.railway.app');
 
 export const NASA_OPEN_PARTNERS = [
   'NASA EONET v3',

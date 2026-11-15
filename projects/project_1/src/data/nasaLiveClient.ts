@@ -455,8 +455,8 @@ async function fetchJsonWithTimeout<T>(url: string, ms = 6500): Promise<{ data: 
 function canUseLocalOsdrProxy(): boolean {
   if (typeof window === 'undefined') return false;
   return (
-    ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname) &&
-    ['5179', '4179', '5173', '4173'].includes(window.location.port)
+    ['http:', 'https:'].includes(window.location.protocol) &&
+    !window.location.hostname.endsWith('.github.io')
   );
 }
 

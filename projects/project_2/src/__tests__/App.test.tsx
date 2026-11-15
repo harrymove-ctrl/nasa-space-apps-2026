@@ -158,6 +158,18 @@ describe("CradleFlow App Integration UI", () => {
       fireEvent.click(screen.getByRole("button", { name: /Reset Graph/i }));
       expect(screen.getByText(/9 blocks, 7 wires/i)).toBeInTheDocument();
       expect(screen.queryByText(/UNWIRED MODE:/i)).not.toBeInTheDocument();
+
+      // Guided cadet tour opens, steps to OSDR Bio-Lab, and closes cleanly
+      fireEvent.click(screen.getByTestId("cadet-tour-toggle"));
+      expect(screen.getByTestId("cadet-tour-bar")).toBeInTheDocument();
+      expect(screen.getByText(/01 \/ Select Storm & Outpost/i)).toBeInTheDocument();
+      fireEvent.click(screen.getByTestId("cadet-tour-next"));
+      fireEvent.click(screen.getByTestId("cadet-tour-next"));
+      fireEvent.click(screen.getByTestId("cadet-tour-next"));
+      expect(screen.getByText(/04 \/ Live DONKI & OSDR Bio-Lab/i)).toBeInTheDocument();
+      expect(screen.getByText(/NASA OSDR RADIOBIOLOGY & COUNTERMEASURE LAB/i)).toBeInTheDocument();
+      fireEvent.click(screen.getByTestId("cadet-tour-close"));
+      expect(screen.queryByTestId("cadet-tour-bar")).not.toBeInTheDocument();
     } finally {
       globalThis.fetch = originalFetch;
     }

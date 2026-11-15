@@ -9,6 +9,7 @@ import {
 import {
   Activity,
   Award,
+  Compass,
   Dna,
   FastForward,
   LayoutGrid,
@@ -23,6 +24,7 @@ import {
   Wifi,
 } from "lucide-react";
 import { DebriefBanner } from "./components/DebriefBanner";
+import { CadetTourBar } from "./components/CadetTourBar";
 import { DonkiWeatherTab } from "./components/DonkiWeatherTab";
 import { FlowCanvasWorkspace } from "./components/FlowCanvasWorkspace";
 import {
@@ -86,6 +88,9 @@ export function App() {
   );
   const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
   const [debriefOpen, setDebriefOpen] = useState(false);
+  const [tourOpen, setTourOpen] = useState(
+    () => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("tour") === "1"
+  );
   const [graphStale, setGraphStale] = useState(false);
 
   const prevFinishedRef = useRef(false);
@@ -486,6 +491,17 @@ export function App() {
                   <Award size={13} className="shrink-0" />
                   <span className="truncate">Debrief ({habitatState.grade})</span>
                 </button>
+                <button
+                  type="button"
+                  data-testid="cadet-tour-toggle"
+                  className={`hud-btn justify-center px-2 py-0.5 text-[10px] sm:justify-start sm:py-1 sm:text-[10.5px] lg:px-2.5 lg:py-1.5 lg:text-[11px] ${
+                    tourOpen ? "border-[#38bdf8] text-[#38bdf8]" : ""
+                  }`}
+                  onClick={() => setTourOpen((prev) => !prev)}
+                >
+                  <Compass size={13} className="shrink-0" />
+                  <span className="truncate">Tour</span>
+                </button>
               </nav>
             </div>
 
@@ -595,6 +611,12 @@ export function App() {
               </div>
             </div>
           </header>
+
+          <CadetTourBar
+            open={tourOpen}
+            onClose={() => setTourOpen(false)}
+            onSetTab={(tab) => setActiveTab(tab)}
+          />
 
           {/* Main Workspace Body */}
           <main className="relative flex min-h-0 flex-1 overflow-hidden">

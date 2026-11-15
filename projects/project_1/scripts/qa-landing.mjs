@@ -525,6 +525,39 @@ async function run() {
       throw new Error(`Full view overflow: map=${mapViewOverflow}, game=${gameViewOverflow}`);
     }
 
+    // Pass E2: How It Works pipeline & Guided Product Tour
+    await page.goto(`${baseUrl}/?skipPreloader=1`, { waitUntil: 'domcontentloaded' });
+    await page.getByTestId('how-it-works-section').waitFor({ state: 'visible', timeout: 3000 });
+    await page.getByTestId('start-product-tour').click();
+    await page.getByTestId('product-tour-card').waitFor({ state: 'visible', timeout: 3000 });
+    const tourStep1Text = await page.getByTestId('product-tour-card').textContent();
+    await page.getByTestId('tour-next-btn').click();
+    await page.getByTestId('tour-next-btn').click();
+    await page.getByTestId('tour-next-btn').click();
+    await page.waitForTimeout(250);
+    await page.getByTestId('knowledge-map-box').waitFor({ state: 'visible', timeout: 3000 });
+    const tourStep4Url = page.url();
+    const tourStep4Text = await page.getByTestId('product-tour-card').textContent();
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(150);
+    const tourClosed = !(await page.getByTestId('product-tour-card').isVisible());
+    results.push({
+      check: 'Pass E2: How It Works + Guided Tour',
+      hasStep1: Boolean(tourStep1Text?.includes('Step 1 of 5')),
+      hasStep4: Boolean(tourStep4Text?.includes('Step 4 of 5')),
+      cleanUrl: tourStep4Url.includes('view=map') && !tourStep4Url.includes('#corridors'),
+      tourClosed,
+    });
+    if (
+      !tourStep1Text?.includes('Step 1 of 5') ||
+      !tourStep4Text?.includes('Step 4 of 5') ||
+      !tourStep4Url.includes('view=map') ||
+      tourStep4Url.includes('#corridors') ||
+      !tourClosed
+    ) {
+      throw new Error(`Pass E2 Guided Tour failed: ${JSON.stringify(results.at(-1))}`);
+    }
+
     // Pass F: Mobile Viewport (390x844) + Popover Nav + Zero Overflow
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`${baseUrl}/?skipPreloader=1`, { waitUntil: 'domcontentloaded' });

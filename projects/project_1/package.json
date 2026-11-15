@@ -7,6 +7,7 @@
     "dev": "vite --port 5179",
     "build": "tsc -b && vite build",
     "preview": "vite preview --port 4179",
+    "start": "bun server.mjs",
     "qa": "node scripts/qa-landing.mjs"
   },
   "dependencies": {

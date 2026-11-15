@@ -17,7 +17,9 @@ Workspace at `/Volumes/Dev/nasa-space-apps-2026` (`https://www.spaceappschalleng
 6. [Submission Checklist](docs/SUBMISSION.md)
 7. [Twice-Daily Update Log](docs/DAILY_LOG.md)
 
-## Quick Start
+## Quick Start & Public URLs
 
-1. Run TerraSpan (`projects/project_1` on `http://127.0.0.1:5179`): `cd projects/project_1 && bun install && bun run build && bun run dev`
-2. Run CradleFlow (`projects/project_2` on `http://127.0.0.1:5185`): `cd projects/project_2 && bun install && bun run test && bun run build && bun run dev`
+1. Live TerraSpan Public URL (`projects/project_1`): `https://terraspan-production.up.railway.app` (Guided Tour: `https://terraspan-production.up.railway.app/?tour=1`)
+2. Live CradleFlow Public URL (`projects/project_2`): `https://cradleflow-production.up.railway.app` (Guided Tour: `https://cradleflow-production.up.railway.app/?tour=1`)
+3. Local TerraSpan (`projects/project_1` on `http://127.0.0.1:5179`): `cd projects/project_1 && bun install && bun run build && bun run dev`
+4. Local CradleFlow (`projects/project_2` on `http://127.0.0.1:5185`): `cd projects/project_2 && bun install && bun run test && bun run build && bun run dev`

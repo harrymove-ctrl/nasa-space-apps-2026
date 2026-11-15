@@ -11,10 +11,12 @@ interface NavbarProps {
   onToggleTheme: () => void;
   onToggleView: () => void;
   onOpenMissionGame: () => void;
+  onStartTour: () => void;
   onNavigateSection: (hash: string) => void;
 }
 
 const NAV_LINKS = [
+  { label: 'How It Works', href: '#how-it-works' },
   { label: 'Plates', href: '#gallery' },
   { label: 'Telemetry', href: '#telemetry' },
   { label: 'Map', href: '#corridors' },
@@ -31,6 +33,7 @@ export function Navbar({
   onToggleTheme,
   onToggleView,
   onOpenMissionGame,
+  onStartTour,
   onNavigateSection,
 }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -168,6 +171,16 @@ export function Navbar({
                 type="button"
                 onClick={() => {
                   closePopoverIfOpen();
+                  onStartTour();
+                }}
+                className="lp-btn lp-btn--outline w-full justify-center"
+              >
+                Guided Tour
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  closePopoverIfOpen();
                   onToggleView();
                 }}
                 className="lp-btn lp-btn--outline w-full justify-center"
@@ -213,6 +226,15 @@ export function Navbar({
               }}
             >
               {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+            </button>
+
+            <button
+              type="button"
+              onClick={onStartTour}
+              data-testid="nav-tour-btn"
+              className="lp-btn lp-btn--outline nav-desktop-only"
+            >
+              Tour
             </button>
 
             <button
