@@ -58,19 +58,39 @@ export const FlowCanvasWorkspace: React.FC<FlowCanvasWorkspaceProps> = ({
   const { screenToFlowPosition, fitView } = useReactFlow();
   const [showMiniMap, setShowMiniMap] = useState(false);
   const prevPresetRef = useRef(activePresetId);
+  const fitViewTimerRef = useRef<number | null>(null);
+
+  const scheduleFitView = useCallback(
+    (padding = 0.16, duration = 200, delayMs = 40) => {
+      if (typeof window === "undefined") return;
+      if (fitViewTimerRef.current !== null) {
+        window.clearTimeout(fitViewTimerRef.current);
+      }
+      fitViewTimerRef.current = window.setTimeout(() => {
+        fitViewTimerRef.current = null;
+        fitView({ padding, duration });
+      }, delayMs);
+    },
+    [fitView]
+  );
+
+  useEffect(() => {
+    return () => {
+      if (fitViewTimerRef.current !== null && typeof window !== "undefined") {
+        window.clearTimeout(fitViewTimerRef.current);
+        fitViewTimerRef.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (prevPresetRef.current !== activePresetId) {
       prevPresetRef.current = activePresetId;
       if (activePresetId !== "custom") {
-        const timer = window.setTimeout(() => {
-          fitView({ padding: 0.16, duration: 200 });
-        }, 40);
-        return () => window.clearTimeout(timer);
+        scheduleFitView(0.16, 200, 40);
       }
     }
-    return undefined;
-  }, [activePresetId, fitView]);
+  }, [activePresetId, scheduleFitView]);
 
   const nodesById = useMemo(
     () => new Map(nodes.map((n) => [n.id, n])),
@@ -126,10 +146,8 @@ export const FlowCanvasWorkspace: React.FC<FlowCanvasWorkspaceProps> = ({
   const handleAutoLayout = useCallback(() => {
     const arranged = autoArrangeFlow(nodes, edges);
     onNodesReplace(arranged);
-    setTimeout(() => {
-      fitView({ padding: 0.18, duration: 240 });
-    }, 30);
-  }, [nodes, edges, onNodesReplace, fitView]);
+    scheduleFitView(0.18, 240, 30);
+  }, [nodes, edges, onNodesReplace, scheduleFitView]);
 
   const handleClearWires = useCallback(() => {
     onEdgesUpdate([]);
@@ -226,9 +244,7 @@ export const FlowCanvasWorkspace: React.FC<FlowCanvasWorkspaceProps> = ({
               className="hud-btn justify-center px-1.5 py-0.5 text-[10px] sm:justify-start sm:px-2 sm:py-1"
               onClick={() => {
                 onLoadPreset("preset-storm-standard");
-                window.setTimeout(() => {
-                  fitView({ padding: 0.16, duration: 200 });
-                }, 40);
+                scheduleFitView(0.16, 200, 40);
               }}
               aria-label="Reset Graph"
               title="Restore Recommended Protocol"
