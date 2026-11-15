@@ -45,9 +45,9 @@ export function HeroSection({
 
           <div className="lp-hero-buttons">
             <DiscoverButton
-              label="Inspect Live Twin"
+              label="Watch Product Demo"
               onClick={() => {
-                document.getElementById('corridors')?.scrollIntoView({ behavior: 'smooth' });
+                document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
               }}
             />
             <button

@@ -19,10 +19,11 @@ async function saveScreen(page, name) {
   await page.screenshot({ path: publicPath, type: 'jpeg', quality: 92 });
   fs.copyFileSync(publicPath, path.join(DIST_SCREENS_DIR, filename));
 }
-const SCRATCH_ROOT =
-  '/Users/harryphan/.gemini/antigravity/brain/a1bd4e5f-d6e1-4cd4-baf7-2fe02d44ebde/scratch';
+const SCRATCH_ROOT = path.join(PROJECT_ROOT, '.cache-vo', 'scratch');
 const FRAMES_DIR = path.join(SCRATCH_ROOT, 'video-frames');
 const MOTION_SHEET_PATH = path.join(SCRATCH_ROOT, 'submission-motion-frames.png');
+const HD28_SHEET_PATH = path.join(SCRATCH_ROOT, 'submission-hd28-sheet.png');
+const LAUNCH_SHEET_PATH = path.join(SCRATCH_ROOT, 'submission-launch-1080p-sheet.png');
 const DECK_SHEET_PATH = path.join(SCRATCH_ROOT, 'submission-deck-7slides-sheet.png');
 
 const FPS = 30;
@@ -453,16 +454,25 @@ async function run() {
           `NASA cut duration out of safe window (must be <= 29.0s): 1080x700=${duration}s, 1080p=${hd28Duration}s`,
         );
       }
-
-      const blackRun = spawnSync(
-        'ffmpeg',
-        ['-i', mp4Path, '-vf', 'blackdetect=d=0.5:pix_th=0.05', '-f', 'null', '-'],
-        { encoding: 'utf8' },
-      );
-      if (blackRun.status !== 0) {
-        throw new Error(`ffmpeg blackdetect failed: ${blackRun.stderr}`);
+      if (launchDuration < 91.0 || launchDuration > 93.0) {
+        throw new Error(`Full launch duration out of expected 92.0s window: ${launchDuration}s`);
       }
-      const blackDetectOut = `${blackRun.stdout || ''}\n${blackRun.stderr || ''}`;
+
+      let anyBlack = false;
+      for (const candidateMp4 of [mp4Path, hd28Mp4Path, launchMp4Path]) {
+        const blackRun = spawnSync(
+          'ffmpeg',
+          ['-i', candidateMp4, '-vf', 'blackdetect=d=0.5:pix_th=0.05', '-f', 'null', '-'],
+          { encoding: 'utf8' },
+        );
+        if (blackRun.status !== 0) {
+          throw new Error(`ffmpeg blackdetect failed on ${candidateMp4}: ${blackRun.stderr}`);
+        }
+        const blackDetectOut = `${blackRun.stdout || ''}\n${blackRun.stderr || ''}`;
+        if (/black_start/.test(blackDetectOut)) {
+          anyBlack = true;
+        }
+      }
 
       execFileSync(
         'ffmpeg',
@@ -475,6 +485,36 @@ async function run() {
           '-frames:v',
           '1',
           MOTION_SHEET_PATH,
+        ],
+        { stdio: 'pipe' },
+      );
+
+      execFileSync(
+        'ffmpeg',
+        [
+          '-y',
+          '-i',
+          hd28Mp4Path,
+          '-vf',
+          'fps=12/28.5,scale=480:270,tile=4x3',
+          '-frames:v',
+          '1',
+          HD28_SHEET_PATH,
+        ],
+        { stdio: 'pipe' },
+      );
+
+      execFileSync(
+        'ffmpeg',
+        [
+          '-y',
+          '-i',
+          launchMp4Path,
+          '-vf',
+          'fps=16/92.0,scale=480:270,tile=4x4',
+          '-frames:v',
+          '1',
+          LAUNCH_SHEET_PATH,
         ],
         { stdio: 'pipe' },
       );
@@ -524,8 +564,10 @@ async function run() {
         launchFilmBytes: fs.statSync(launchMp4Path).size,
         pdfPages: pageCount,
         pdfBytes: fs.statSync(pdfPath).size,
-        blackSegmentsDetected: /black_start/.test(blackDetectOut),
+        blackSegmentsDetected: anyBlack,
         motionContactSheet: MOTION_SHEET_PATH,
+        hd28ContactSheet: HD28_SHEET_PATH,
+        launchContactSheet: LAUNCH_SHEET_PATH,
         deckContactSheet: DECK_SHEET_PATH,
         images: pngPaths.map((p) => ({
           file: path.basename(p),

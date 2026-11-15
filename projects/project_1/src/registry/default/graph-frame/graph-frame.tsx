@@ -108,13 +108,17 @@ function GraphTitle({
       className={cn(
         "tracking-wide whitespace-nowrap uppercase",
         placement === "edge"
-          ? "absolute top-0 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2 bg-[var(--graph-surface,var(--background))] px-2.5"
+          ? "absolute top-0 left-1/2 z-10 max-w-[calc(100%-2.5rem)] -translate-x-1/2 -translate-y-1/2 bg-[var(--graph-surface,var(--background))] px-2.5"
           : "mb-4 block truncate",
         className
       )}
       {...props}
     >
-      <span className="graph-title-ink text-graph-accent">[ {children} ]</span>
+      <span className="graph-title-ink inline-flex max-w-full items-center gap-1 text-graph-accent">
+        <span aria-hidden="true">[</span>
+        <span className="truncate">{children}</span>
+        <span aria-hidden="true">]</span>
+      </span>
     </figcaption>
   )
 }

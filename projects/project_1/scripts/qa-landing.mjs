@@ -320,6 +320,14 @@ async function run() {
     });
 
     await page.screenshot({ path: path.join(SHOTS_DIR, '02-landing-desktop-dark.png') });
+    await page.locator('#demo').scrollIntoViewIfNeeded();
+    await page.getByTestId('demo-showcase-section').waitFor({ state: 'visible', timeout: 4000 });
+    await page.getByTestId('demo-tab-nasa-1080p').click();
+    await page.waitForTimeout(250);
+    await page.getByTestId('demo-tab-launch-1080p').click();
+    await page.waitForTimeout(250);
+    await page.screenshot({ path: path.join(SHOTS_DIR, '02a-demo-section-dark.png') });
+
     await page.locator('#gallery').scrollIntoViewIfNeeded();
     await page.waitForTimeout(350);
     const imgsDark = await measureVisibleImages(page);
@@ -685,6 +693,136 @@ async function run() {
       fullscreenOverflow > 0
     ) {
       throw new Error(`Pass G Submission Hub / Slides failed: ${JSON.stringify(passG, null, 2)}`);
+    }
+
+    // Pass H: Fullscreen Remotion Video Studio (/?present=video) + Audio MP3 Streaming
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(`${baseUrl}/?present=video`, { waitUntil: 'load' });
+    await page.getByTestId('presentation-video-view').waitFor({ state: 'visible', timeout: 8000 });
+    await page.getByTestId('remotion-showcase-studio').waitFor({ state: 'visible', timeout: 8000 });
+    await page.waitForTimeout(800);
+
+    const videoInitChecks = await page.evaluate(() => {
+      const breadcrumbs = Array.from(
+        document.querySelectorAll('[data-testid="video-studio-breadcrumbs"] a'),
+      ).map((a) => a.getAttribute('href') || '');
+      return {
+        overflowPx: Math.max(0, document.documentElement.scrollWidth - window.innerWidth),
+        hasBreadcrumbs: breadcrumbs.length >= 2,
+        hasSubmissionBack: breadcrumbs.some((href) => href.includes('/submission/')),
+        hasWebsiteBack: breadcrumbs.some((href) => href.includes('skipPreloader=1')),
+        studioText: document.querySelector('[data-testid="remotion-showcase-studio"]')?.textContent || '',
+      };
+    });
+
+    await page.getByTestId('remotion-showcase-studio').scrollIntoViewIfNeeded();
+    await page.waitForTimeout(300);
+    const playerBoxInit = await page.locator('.remotion-player-shell').boundingBox();
+    if (playerBoxInit) {
+      await page.mouse.move(
+        playerBoxInit.x + playerBoxInit.width / 2,
+        playerBoxInit.y + playerBoxInit.height - 24,
+      );
+      await page.waitForTimeout(300);
+    }
+    await page.screenshot({ path: path.join(SHOTS_DIR, '07-video-studio.png') });
+
+    const presetIds = ['1080p-28s', 'launch', 'intro', 'hype', 'pitch', 'nasa'];
+    const presetBadges = [];
+    let pitchFolioClearancePx = null;
+    for (const pid of presetIds) {
+      await page.getByTestId(`remotion-preset-${pid}`).click();
+      await page.waitForTimeout(450);
+      const studioHeader = await page.getByTestId('remotion-showcase-studio').textContent();
+      const presetOverflow = await page.evaluate(() =>
+        Math.max(0, document.documentElement.scrollWidth - window.innerWidth),
+      );
+      presetBadges.push({ pid, overflowPx: presetOverflow, hasText: Boolean(studioHeader?.length) });
+      if (pid === 'pitch') {
+        const playerShell = page.locator('.remotion-player-shell');
+        await playerShell.scrollIntoViewIfNeeded();
+        const box = await playerShell.boundingBox();
+        if (box) {
+          await page.mouse.move(box.x + box.width / 2, box.y + box.height - 24);
+          await page.waitForTimeout(350);
+        }
+        pitchFolioClearancePx = await page.evaluate(() => {
+          const shell = document.querySelector('.remotion-player-shell');
+          if (!shell) return null;
+          const playBtn = shell.querySelector(
+            'button[aria-label="Play video"], button[aria-label="Pause video"]',
+          );
+          const folioEl = Array.from(shell.querySelectorAll('div, span')).find(
+            (el) => el.textContent?.trim() === 'EARTH + SPACE CORRIDOR INTELLIGENCE',
+          );
+          if (!playBtn || !folioEl) return null;
+          const playRect = playBtn.getBoundingClientRect();
+          const folioRect = folioEl.getBoundingClientRect();
+          return Math.round(playRect.top - folioRect.bottom);
+        });
+        await page.screenshot({ path: path.join(SHOTS_DIR, '07b-video-studio-pitch.png') });
+        if (pitchFolioClearancePx === null || pitchFolioClearancePx < 4) {
+          throw new Error(
+            `Pass H Pitch folio collided with <Player controls>: clearancePx=${String(pitchFolioClearancePx)}`,
+          );
+        }
+      }
+      if (presetOverflow > 0) {
+        throw new Error(`Pass H Video preset ${pid} caused horizontal overflow ${presetOverflow}px`);
+      }
+    }
+
+    const audioChecks = [];
+    for (const audioPath of ['/audio/dopaimint-hackathon-28s.mp3', '/audio/dopaimint-launch-1080p.mp3']) {
+      const res = await fetch(`${baseUrl}${audioPath}`);
+      const buf = await res.arrayBuffer();
+      const ct = res.headers.get('content-type') || '';
+      audioChecks.push({
+        path: audioPath,
+        status: res.status,
+        contentType: ct,
+        bytes: buf.byteLength,
+      });
+      if (res.status !== 200 || !ct.includes('audio/mpeg') || buf.byteLength < 50000) {
+        throw new Error(`Pass H Audio asset check failed for ${audioPath}: ${JSON.stringify(audioChecks.at(-1))}`);
+      }
+    }
+
+    await page.goto(`${baseUrl}/demo`, { waitUntil: 'load' });
+    await page.getByTestId('presentation-video-view').waitFor({ state: 'visible', timeout: 8000 });
+    const demoRouteOverflow = await page.evaluate(() =>
+      Math.max(0, document.documentElement.scrollWidth - window.innerWidth),
+    );
+
+    await page.goto(`${baseUrl}/slides`, { waitUntil: 'load' });
+    await page.getByTestId('presentation-slides-view').waitFor({ state: 'visible', timeout: 8000 });
+    const slidesRouteOverflow = await page.evaluate(() =>
+      Math.max(0, document.documentElement.scrollWidth - window.innerWidth),
+    );
+
+    const passH = {
+      check: 'Pass H: Fullscreen Video Studio + Presets + Clean /demo & /slides Routes + Audio Assets',
+      overflowPx: videoInitChecks.overflowPx,
+      demoRouteOverflow,
+      slidesRouteOverflow,
+      hasBreadcrumbs: videoInitChecks.hasBreadcrumbs,
+      hasSubmissionBack: videoInitChecks.hasSubmissionBack,
+      hasWebsiteBack: videoInitChecks.hasWebsiteBack,
+      pitchFolioClearancePx,
+      presetsTested: presetBadges.length,
+      audioChecks,
+    };
+    results.push(passH);
+
+    if (
+      videoInitChecks.overflowPx > 0 ||
+      demoRouteOverflow > 0 ||
+      slidesRouteOverflow > 0 ||
+      !videoInitChecks.hasBreadcrumbs ||
+      !videoInitChecks.hasSubmissionBack ||
+      !videoInitChecks.hasWebsiteBack
+    ) {
+      throw new Error(`Pass H Video Studio checks failed: ${JSON.stringify(passH, null, 2)}`);
     }
 
     if (errors.length > 0 || failedResponses.length > 0) {

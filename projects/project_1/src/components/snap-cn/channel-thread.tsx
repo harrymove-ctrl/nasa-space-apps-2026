@@ -74,8 +74,8 @@ const { fontFamily: SANS } = loadSans("normal", {
    The transcript, in the recording's own 638 × 354 pixels
    ───────────────────────────────────────────────────────────────────────── */
 
-export const REF_W = 638;
-export const REF_H = 354;
+export const REF_W = 960;
+export const REF_H = 380;
 
 /** Baseline of a group's first message, below the name. */
 export const NAME_GAP = 37.59;
@@ -101,18 +101,18 @@ export const START_Y = 158.9;
 export const ANCHOR = 219.48;
 
 /** The avatar is square, and its top sits this far above the name's baseline. */
-export const AVATAR = 70;
-export const AVATAR_X = 119.5;
-export const AVATAR_RISE = 28;
-/** Left of the text column's box. Ink starts at 201.1 (name) and 202.4 (body). */
-export const TEXT_X = 202;
+export const AVATAR = 66;
+export const AVATAR_X = 76;
+export const AVATAR_RISE = 26;
+/** Left of the text column's box. */
+export const TEXT_X = 162;
 
-/** Body type. Cap height measured at 22.40px. */
-export const SIZE = 31.2;
-/** The timestamp, measured on its digits: cap 18.09. */
-export const TIME_SIZE = 24.9;
+/** Body type. */
+export const SIZE = 26.5;
+/** The timestamp, measured on its digits. */
+export const TIME_SIZE = 21.5;
 /** Box top → baseline at `lineHeight: 1`. A face metric, measured, not guessed. */
-export const ASC = 28.95;
+export const ASC = 25.0;
 
 /** Typing dots: on the line the message will take, a little above its baseline. */
 export const DOT = 5;

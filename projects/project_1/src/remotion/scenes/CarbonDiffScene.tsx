@@ -1,12 +1,19 @@
 import {
   AbsoluteFill,
-  Img,
   interpolate,
   spring,
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion';
-import { FONT_MONO, FONT_SANS, PALETTE, resolveAssetUrl } from '../palette';
+import { FONT_MONO, FONT_SANS, PALETTE } from '../palette';
+import {
+  AndromedaPanel,
+  BotAvatarCell,
+  DopaiMintHudBar,
+  MdxcnFrame,
+  MdxcnRule,
+  RemotionAsciiBackdrop,
+} from '../primitives';
 
 export interface CarbonDiffSceneProps {
   readonly extended?: boolean;
@@ -14,542 +21,439 @@ export interface CarbonDiffSceneProps {
 
 interface DiffLine {
   readonly kind: 'ctx' | 'del' | 'add';
+  readonly lineNo: string;
   readonly code: string;
 }
 
-const CODE_DIFF_LINES: readonly DiffLine[] = [
-  { kind: 'ctx', code: 'export function dispatchCorridor(pass: CorridorPass) {' },
-  { kind: 'del', code: '- return openStaticFallbackTab("cradleflow");' },
-  { kind: 'add', code: '+ const plume = fuseEllipticPlumes(pass.viirs, pass.modis);' },
-  { kind: 'add', code: '+ const limitA = derateIeee738(pass.tempC, pass.windMs);' },
-  { kind: 'add', code: '+ const handoff = buildCradleUrl(pass.id, pass.fluxPfu, pass.kp);' },
-  { kind: 'add', code: '+ return mountShelterTwin(plume, limitA, handoff);' },
-  { kind: 'ctx', code: '}' },
+const CARBON_DIFF_LINES: readonly DiffLine[] = [
+  { kind: 'ctx', lineNo: '41', code: 'export function evaluateCorridorTwin(corridor: CorridorPreset, bundle: NasaTelemetryBundle) {' },
+  { kind: 'del', lineNo: '42', code: '-  const rawFires = loadStaticModisCsv(corridor.id);' },
+  { kind: 'del', lineNo: '43', code: '-  return { safeAmps: corridor.nominalAmps, shelterSync: null };' },
+  { kind: 'add', lineNo: '44', code: '+  const harmonized = clusterHarmonizedFootprints(bundle.modisC61, bundle.viirs375m);' },
+  { kind: 'add', lineNo: '45', code: '+  const physics = computeIeee738Physics(corridor, bundle.powerByCorridor[corridor.id]);' },
+  { kind: 'add', lineNo: '46', code: '+  const handoff = buildCradleFlowUrl(corridor.id, bundle.spaceWeather.protonFluxPfu, bundle.spaceWeather.kpIndex);' },
+  { kind: 'add', lineNo: '47', code: '+  return { harmonized, safeAmps: physics.deratedAmps, ttceMin: physics.ttceMinutes, handoff };' },
+  { kind: 'ctx', lineNo: '48', code: '}' },
 ];
 
-interface FeatureStep {
-  readonly step: string;
-  readonly title: string;
-  readonly detail: string;
-  readonly image: string;
-  readonly accent: string;
-}
+const VERSION_ROWS = [
+  {
+    ver: 'v0.1 · Baseline',
+    tone: 'del' as const,
+    title: 'Raw MODIS + VIIRS duplicate thermal counts',
+    note: '38% overlapping orbital scan ellipses and static nameplate line ratings.',
+  },
+  {
+    ver: 'v1.4 · Physics Twin',
+    tone: 'mid' as const,
+    title: 'H3 elliptical deduplication + IEEE 738 derating',
+    note: '26-year Burning Calendar paired with live NASA POWER T2M, wind, and TTCE closure.',
+  },
+  {
+    ver: 'v2.4 · Shipped Today',
+    tone: 'add' as const,
+    title: 'Same-origin DopaiMint → CradleFlow storm shelter handoff',
+    note: 'Live GOES-18 proton flux, DONKI CMEs, and 1,064 OSDR bio-assays drive React Flow shields.',
+  },
+] as const;
 
-const FEATURE_STEPS: readonly FeatureStep[] = [
-  {
-    step: 'STEP 01',
-    title: 'Orbital Corridor Fusion',
-    detail: 'VIIRS + MODIS fire ellipse · IEEE 738 line load',
-    image: '/video-assets/screens/overview-hero.jpg',
-    accent: PALETTE.cyan,
-  },
-  {
-    step: 'STEP 02',
-    title: 'Triage & Telemetry',
-    detail: 'Real NASA DONKI + OSDR triage loop',
-    image: '/video-assets/screens/triage-game.jpg',
-    accent: PALETTE.sky,
-  },
-  {
-    step: 'STEP 03',
-    title: 'CradleFlow Habitat',
-    detail: 'Live proton & Kp handoff seals Grade S shelter',
-    image: '/video-assets/screens/cradleflow-unified.jpg',
-    accent: PALETTE.scannerBright,
-  },
-];
-
-/**
- * Carbon-model hackathon narrative:
- * 1. Headline: What we are shipping on NASA Space Apps 2026
- * 2. Versions diff (v1 Single-Feed Silos -> v2 DopaiMint x CradleFlow)
- * 3. Animated unified code diff with Carbon glass chrome
- * 4. Step-by-step live feature highlight cards
- */
 export function CarbonDiffScene({ extended = true }: CarbonDiffSceneProps) {
   const frame = useCurrentFrame();
   const { fps, width, height, durationInFrames } = useVideoConfig();
   const u = Math.min(width / 1920, height / 1080);
 
-  // Beat timings adapt cleanly between 100f compact (28.5s demo) and 175f extended (1080p film)
-  const diffSplitEnd = extended ? 92 : 52;
-  const phase2Progress = spring({
-    frame: Math.max(0, frame - diffSplitEnd),
-    fps,
-    config: { damping: 17, stiffness: 150, mass: 0.8 },
-  });
-
-  // Top bar entrance
   const headerSpring = spring({
     frame,
     fps,
-    config: { damping: 16, stiffness: 170, mass: 0.7 },
+    config: { damping: 16, stiffness: 175, mass: 0.72 },
   });
-  const headerY = interpolate(headerSpring, [0, 1], [-18 * u, 0]);
-  const headerOpacity = interpolate(frame, [0, 8], [0, 1], { extrapolateRight: 'clamp' });
-
-  // Card container entrance
-  const windowSpring = spring({
-    frame: Math.max(0, frame - 4),
+  const leftSpring = spring({
+    frame: Math.max(0, frame - 6),
     fps,
-    config: { damping: 16, stiffness: 155, mass: 0.8 },
+    config: { damping: 16, stiffness: 165, mass: 0.78 },
   });
-  const windowScale = interpolate(windowSpring, [0, 1], [0.94, 1]);
+  const rightSpring = spring({
+    frame: Math.max(0, frame - 10),
+    fps,
+    config: { damping: 16, stiffness: 165, mass: 0.78 },
+  });
 
-  // Subtle background sweep indicator
-  const lineCursor = interpolate(
+  const revealCadence = extended ? 14 : 6;
+  const activeScanLine = interpolate(
     frame,
-    [10, diffSplitEnd - 6],
-    [0, CODE_DIFF_LINES.length - 1],
+    [16, Math.max(36, durationInFrames - 36)],
+    [0, CARBON_DIFF_LINES.length - 1],
     { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
   );
 
-  // Determine whether beat 1 (Headline + Versions + Code Diff) or beat 2 (Step-by-Step Features) dominates
-  const showCodeCardOpacity = interpolate(
-    phase2Progress,
-    [0, 0.36],
-    [1, 0],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  const showFeatureStepsOpacity = interpolate(
-    phase2Progress,
-    [0.34, 0.72],
-    [0, 1],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-
-  const exitFade = interpolate(
-    frame,
-    [durationInFrames - 8, durationInFrames],
-    [1, 0.9],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
+  const padX = Math.round(64 * u);
 
   return (
     <AbsoluteFill
       style={{
         backgroundColor: PALETTE.obsidianBase,
-        overflow: 'hidden',
-        opacity: exitFade,
         fontFamily: FONT_SANS,
         color: PALETTE.inkPrimary,
+        overflow: 'hidden',
       }}
     >
-      {/* Subtle architectural blueprint background glow */}
-      <AbsoluteFill
-        style={{
-          backgroundImage: `radial-gradient(circle at 20% 20%, rgba(69,184,214,0.12) 0%, transparent 48%), radial-gradient(circle at 82% 76%, rgba(93,255,154,0.08) 0%, transparent 50%)`,
-          pointerEvents: 'none',
-        }}
-      />
-      <AbsoluteFill
-        style={{
-          backgroundImage: `linear-gradient(rgba(69,184,214,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(69,184,214,0.045) 1px, transparent 1px)`,
-          backgroundSize: `${Math.round(52 * u)}px ${Math.round(52 * u)}px`,
-          pointerEvents: 'none',
-        }}
+      <RemotionAsciiBackdrop piece="radar" mode="dark" scrimOpacity={0.66} speed={0.75} />
+
+      <DopaiMintHudBar
+        mode="dark"
+        activeTab="Telemetry"
+        rightLabel="Hackathon Shipping Diff · v0.1 → v2.4"
+        scale={u}
       />
 
-      {/* Top hackathon header & version delta */}
+      {/* Section Heading matching Andromeda SectionHeading */}
       <div
         style={{
           position: 'absolute',
-          top: Math.round(44 * u),
-          left: Math.round(80 * u),
-          right: Math.round(80 * u),
+          top: Math.round(78 * u),
+          left: padX,
+          right: padX,
           display: 'flex',
-          alignItems: 'center',
+          alignItems: 'flex-end',
           justifyContent: 'space-between',
           gap: Math.round(24 * u),
-          transform: `translateY(${headerY}px)`,
-          opacity: headerOpacity,
+          transform: `translateY(${interpolate(headerSpring, [0, 1], [18 * u, 0])}px)`,
+          opacity: headerSpring,
         }}
       >
         <div>
           <div
             style={{
               fontFamily: FONT_MONO,
-              fontSize: Math.round(17 * u),
-              letterSpacing: '0.16em',
-              color: PALETTE.cyan,
+              fontSize: Math.max(10, Math.round(12.5 * u)),
+              letterSpacing: '0.14em',
               textTransform: 'uppercase',
+              color: PALETTE.cyan,
             }}
           >
-            HACKATHON SHIPPING LOG // CARBON DIFF MODEL
+            WHAT WE SHIPPED IN 48 HOURS · CARBON DIFF MODEL
           </div>
-          <div
+          <h2
             style={{
-              marginTop: Math.round(8 * u),
-              fontSize: Math.round(44 * u),
-              fontWeight: 700,
+              margin: `${Math.round(6 * u)}px 0 0 0`,
+              fontSize: Math.round(40 * u),
+              fontWeight: 600,
               letterSpacing: '-0.025em',
-              lineHeight: 1.08,
+              lineHeight: 1.1,
+              color: PALETTE.inkPrimary,
             }}
           >
-            8 NASA Feeds into 1 Live Habitat Loop
-          </div>
+            From siloed fire CSVs to a unified Earth-to-Orbit physics engine
+          </h2>
         </div>
 
-        {/* Version pill comparison */}
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: Math.round(12 * u),
+            gap: Math.round(10 * u),
             fontFamily: FONT_MONO,
-            fontSize: Math.round(16 * u),
+            fontSize: Math.max(10, Math.round(12.5 * u)),
           }}
         >
           <span
             style={{
-              padding: `${Math.round(9 * u)}px ${Math.round(16 * u)}px`,
-              borderRadius: Math.round(999 * u),
-              border: `1px dashed rgba(238, 107, 71, 0.5)`,
+              padding: `${Math.round(6 * u)}px ${Math.round(12 * u)}px`,
+              borderRadius: 4,
+              border: '1px solid rgba(238, 107, 71, 0.42)',
               backgroundColor: 'rgba(238, 107, 71, 0.1)',
               color: PALETTE.coral,
             }}
           >
-            v1.0 Siloed Feeds
+            -2 legacy stubs
           </span>
-          <span style={{ color: PALETTE.inkMuted }}>→</span>
           <span
             style={{
-              padding: `${Math.round(9 * u)}px ${Math.round(16 * u)}px`,
-              borderRadius: Math.round(999 * u),
-              border: `1px dashed rgba(93, 255, 154, 0.55)`,
-              backgroundColor: 'rgba(93, 255, 154, 0.1)',
+              padding: `${Math.round(6 * u)}px ${Math.round(12 * u)}px`,
+              borderRadius: 4,
+              border: '1px solid rgba(52, 211, 153, 0.45)',
+              backgroundColor: 'rgba(52, 211, 153, 0.12)',
               color: PALETTE.scannerBright,
-              fontWeight: 600,
             }}
           >
-            v2.4 Unified Handoff
+            +4 live NASA physics stages
           </span>
         </div>
       </div>
 
-      {/* Stage Layer A: Version Architecture Diff + Carbon Code Diff Window */}
+      {/* Main Split: Left mdxcn Version Progression + Right Carbon Code Window */}
       <div
         style={{
           position: 'absolute',
-          top: Math.round(186 * u),
-          left: Math.round(80 * u),
-          right: Math.round(80 * u),
-          bottom: Math.round(64 * u),
+          top: Math.round(184 * u),
+          left: padX,
+          right: padX,
+          bottom: Math.round(42 * u),
           display: 'grid',
-          gridTemplateColumns: '1fr 1.65fr',
+          gridTemplateColumns: '0.94fr 1.36fr',
           gap: Math.round(28 * u),
-          opacity: showCodeCardOpacity,
-          transform: `scale(${windowScale}) translateY(${interpolate(phase2Progress, [0, 1], [0, -24 * u])}px)`,
-          pointerEvents: 'none',
+          alignItems: 'stretch',
         }}
       >
-        {/* Left panel: Version Architecture Diff */}
+        {/* Left: Versions Diff in official mdxcn dashed frame */}
         <div
           style={{
-            backgroundColor: 'rgba(16, 22, 34, 0.94)',
-            border: `1.5px dashed ${PALETTE.obsidianBorder}`,
-            borderRadius: Math.round(20 * u),
-            padding: Math.round(28 * u),
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'space-between',
-            boxShadow: `0 ${Math.round(24 * u)}px ${Math.round(60 * u)}px rgba(2, 6, 16, 0.65)`,
+            transform: `translateY(${interpolate(leftSpring, [0, 1], [24 * u, 0])}px)`,
+            opacity: leftSpring,
           }}
         >
-          <div>
-            <div
-              style={{
-                fontFamily: FONT_MONO,
-                fontSize: Math.round(15 * u),
-                color: PALETTE.inkMuted,
-                letterSpacing: '0.14em',
-              }}
-            >
-              VERSIONS WE DIFF
-            </div>
-            <div
-              style={{
-                marginTop: Math.round(20 * u),
-                padding: Math.round(18 * u),
-                borderRadius: Math.round(14 * u),
-                backgroundColor: 'rgba(238, 107, 71, 0.08)',
-                border: '1px solid rgba(238, 107, 71, 0.35)',
-              }}
-            >
-              <div style={{ fontFamily: FONT_MONO, fontSize: Math.round(14 * u), color: PALETTE.coral }}>
-                - BEFORE // DISCONNECTED
-              </div>
-              <div style={{ marginTop: Math.round(8 * u), fontSize: Math.round(22 * u), fontWeight: 600 }}>
-                Manual CSV + Mismatched UI
-              </div>
-              <div style={{ marginTop: Math.round(6 * u), fontSize: Math.round(17 * u), color: PALETTE.inkSecondary }}>
-                Static proton defaults and blind grid loading.
-              </div>
-            </div>
-
-            <div
-              style={{
-                marginTop: Math.round(18 * u),
-                padding: Math.round(18 * u),
-                borderRadius: Math.round(14 * u),
-                backgroundColor: 'rgba(69, 184, 214, 0.1)',
-                border: `1px solid ${PALETTE.cyan}`,
-              }}
-            >
-              <div style={{ fontFamily: FONT_MONO, fontSize: Math.round(14 * u), color: PALETTE.scannerBright }}>
-                + SHIPPING // DOPAIMINT x CRADLEFLOW
-              </div>
-              <div style={{ marginTop: Math.round(8 * u), fontSize: Math.round(22 * u), fontWeight: 600 }}>
-                Closed-Loop NASA Engine
-              </div>
-              <div style={{ marginTop: Math.round(6 * u), fontSize: Math.round(17 * u), color: PALETTE.inkSecondary }}>
-                Live DONKI flux &amp; Kp auto-seeds orbital shelter survival.
-              </div>
-            </div>
-          </div>
-
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: Math.round(14 * u),
-              paddingTop: Math.round(16 * u),
-              borderTop: '1px dashed rgba(148, 163, 184, 0.25)',
-            }}
-          >
-            <Img
-              src={resolveAssetUrl('/video-assets/bots/tools.png')}
-              style={{ width: Math.round(52 * u), height: Math.round(52 * u), objectFit: 'contain' }}
-            />
-            <div style={{ fontFamily: FONT_MONO, fontSize: Math.round(15 * u), color: PALETTE.inkSecondary }}>
-              100% deterministic · zero external runtime keys
-            </div>
-          </div>
-        </div>
-
-        {/* Right panel: Carbon Window Code Diff */}
-        <div
-          style={{
-            backgroundColor: '#0c121e',
-            border: `1.5px solid rgba(69, 184, 214, 0.42)`,
-            borderRadius: Math.round(20 * u),
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-            boxShadow: `0 ${Math.round(30 * u)}px ${Math.round(80 * u)}px rgba(2, 6, 16, 0.78), 0 0 ${Math.round(36 * u)}px rgba(69, 184, 214, 0.12)`,
-          }}
-        >
-          {/* Carbon title chrome */}
-          <div
-            style={{
-              height: Math.round(54 * u),
-              padding: `0 ${Math.round(24 * u)}px`,
-              backgroundColor: 'rgba(16, 22, 34, 0.98)',
-              borderBottom: '1px solid rgba(148, 163, 184, 0.2)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: Math.round(10 * u) }}>
-              <span style={{ width: Math.round(13 * u), height: Math.round(13 * u), borderRadius: '50%', backgroundColor: PALETTE.coral }} />
-              <span style={{ width: Math.round(13 * u), height: Math.round(13 * u), borderRadius: '50%', backgroundColor: '#f59e0b' }} />
-              <span style={{ width: Math.round(13 * u), height: Math.round(13 * u), borderRadius: '50%', backgroundColor: PALETTE.scannerBright }} />
-              <span
-                style={{
-                  marginLeft: Math.round(14 * u),
-                  fontFamily: FONT_MONO,
-                  fontSize: Math.round(16 * u),
-                  color: PALETTE.inkSecondary,
-                }}
-              >
-                src/engine/corridorHandoff.ts
-              </span>
-            </div>
-            <span
-              style={{
-                fontFamily: FONT_MONO,
-                fontSize: Math.round(14 * u),
-                color: PALETTE.scannerBright,
-              }}
-            >
-              +4 / -1 DIFF
-            </span>
-          </div>
-
-          {/* Code lines */}
-          <div
-            style={{
+          <MdxcnFrame
+            title="HACKATHON VERSION PROGRESSION"
+            mode="dark"
+            scale={u}
+            style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+            bodyStyle={{
               flex: 1,
-              padding: `${Math.round(26 * u)}px ${Math.round(24 * u)}px`,
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'center',
-              gap: Math.round(11 * u),
-              fontFamily: FONT_MONO,
-              fontSize: Math.round(20 * u),
-              lineHeight: 1.45,
+              justifyContent: 'space-between',
+              padding: `${Math.round(24 * u)}px ${Math.round(22 * u)}px`,
             }}
           >
-            {CODE_DIFF_LINES.map((line, index) => {
-              const lineReveal = spring({
-                frame: Math.max(0, frame - (8 + index * 5)),
-                fps,
-                config: { damping: 18, stiffness: 200, mass: 0.7 },
-              });
-              const activeGlow = Math.max(0, 1 - Math.abs(lineCursor - index));
-              const bg =
-                line.kind === 'add'
-                  ? `rgba(93, 255, 154, ${0.09 + activeGlow * 0.14})`
-                  : line.kind === 'del'
-                    ? 'rgba(238, 107, 71, 0.12)'
-                    : 'transparent';
-              const textColor =
-                line.kind === 'add'
-                  ? '#b8ffd6'
-                  : line.kind === 'del'
-                    ? '#ffb4a1'
-                    : PALETTE.inkSecondary;
+            <div style={{ display: 'flex', flexDirection: 'column', gap: Math.round(14 * u) }}>
+              {VERSION_ROWS.map((row, idx) => {
+                const rSpring = spring({
+                  frame: Math.max(0, frame - (10 + idx * (extended ? 16 : 8))),
+                  fps,
+                  config: { damping: 16, stiffness: 175, mass: 0.75 },
+                });
+                const borderCol =
+                  row.tone === 'add'
+                    ? 'rgba(52, 211, 153, 0.45)'
+                    : row.tone === 'mid'
+                      ? 'rgba(69, 184, 214, 0.38)'
+                      : 'rgba(238, 107, 71, 0.36)';
+                const badgeCol =
+                  row.tone === 'add'
+                    ? PALETTE.scannerBright
+                    : row.tone === 'mid'
+                      ? PALETTE.cyan
+                      : PALETTE.coral;
 
-              return (
-                <div
-                  key={line.code}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: Math.round(16 * u),
-                    padding: `${Math.round(8 * u)}px ${Math.round(14 * u)}px`,
-                    borderRadius: Math.round(8 * u),
-                    backgroundColor: bg,
-                    borderLeft:
-                      line.kind === 'add'
-                        ? `3px solid ${PALETTE.scannerBright}`
-                        : line.kind === 'del'
-                          ? `3px solid ${PALETTE.coral}`
-                          : '3px solid transparent',
-                    opacity: interpolate(lineReveal, [0, 1], [0, 1]),
-                    transform: `translateX(${interpolate(lineReveal, [0, 1], [18 * u, 0])}px)`,
-                    color: textColor,
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                  }}
-                >
-                  <span style={{ color: PALETTE.inkMuted, fontSize: Math.round(14 * u), width: Math.round(24 * u) }}>
-                    {index + 1}
-                  </span>
-                  <span>{line.code}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
+                return (
+                  <div
+                    key={row.ver}
+                    style={{
+                      padding: `${Math.round(14 * u)}px ${Math.round(16 * u)}px`,
+                      borderRadius: 4,
+                      border: `1px solid ${borderCol}`,
+                      backgroundColor: 'rgba(16, 22, 34, 0.88)',
+                      transform: `translateX(${interpolate(rSpring, [0, 1], [-16 * u, 0])}px)`,
+                      opacity: rSpring,
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontFamily: FONT_MONO,
+                        fontSize: Math.max(10, Math.round(11.5 * u)),
+                        letterSpacing: '0.08em',
+                        textTransform: 'uppercase',
+                        color: badgeCol,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {row.ver}
+                    </div>
+                    <div
+                      style={{
+                        marginTop: Math.round(5 * u),
+                        fontFamily: FONT_SANS,
+                        fontSize: Math.round(18 * u),
+                        fontWeight: 600,
+                        color: PALETTE.inkPrimary,
+                      }}
+                    >
+                      {row.title}
+                    </div>
+                    <div
+                      style={{
+                        marginTop: Math.round(4 * u),
+                        fontFamily: FONT_SANS,
+                        fontSize: Math.round(13.5 * u),
+                        lineHeight: 1.4,
+                        color: PALETTE.inkMuted,
+                      }}
+                    >
+                      {row.note}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
 
-      {/* Stage Layer B: Step-by-Step Feature Highlight Strip */}
-      <div
-        style={{
-          position: 'absolute',
-          top: Math.round(186 * u),
-          left: Math.round(80 * u),
-          right: Math.round(80 * u),
-          bottom: Math.round(64 * u),
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: Math.round(26 * u),
-          opacity: showFeatureStepsOpacity,
-          transform: `translateY(${interpolate(showFeatureStepsOpacity, [0, 1], [28 * u, 0])}px)`,
-          pointerEvents: 'none',
-        }}
-      >
-        {FEATURE_STEPS.map((feat, idx) => {
-          const cardPop = spring({
-            frame: Math.max(0, frame - (diffSplitEnd + idx * 8)),
-            fps,
-            config: { damping: 16, stiffness: 180, mass: 0.72 },
-          });
-          const scale = interpolate(cardPop, [0, 1], [0.92, 1]);
-          const highlightActive =
-            frame >= diffSplitEnd + 16 + idx * (extended ? 22 : 10) &&
-            frame < diffSplitEnd + 16 + (idx + 1) * (extended ? 22 : 10);
-
-          return (
-            <div
-              key={feat.step}
-              style={{
-                backgroundColor: PALETTE.obsidianCard,
-                border: `${highlightActive ? 2 : 1.5}px dashed ${highlightActive ? feat.accent : 'rgba(148, 163, 184, 0.32)'}`,
-                borderRadius: Math.round(20 * u),
-                overflow: 'hidden',
-                display: 'flex',
-                flexDirection: 'column',
-                transform: `scale(${scale})`,
-                boxShadow: highlightActive
-                  ? `0 0 ${Math.round(36 * u)}px ${feat.accent}33, 0 ${Math.round(24 * u)}px ${Math.round(52 * u)}px rgba(0,0,0,0.65)`
-                  : `0 ${Math.round(18 * u)}px ${Math.round(44 * u)}px rgba(0,0,0,0.5)`,
-              }}
-            >
-              <div
-                style={{
-                  padding: `${Math.round(12 * u)}px ${Math.round(18 * u)}px`,
-                  backgroundColor: 'rgba(11, 16, 27, 0.96)',
-                  borderBottom: '1px solid rgba(148, 163, 184, 0.2)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}
-              >
-                <span
-                  style={{
-                    fontFamily: FONT_MONO,
-                    fontSize: Math.round(14 * u),
-                    fontWeight: 700,
-                    color: feat.accent,
-                    letterSpacing: '0.1em',
-                  }}
-                >
-                  {feat.step}
-                </span>
-                <span
-                  style={{
-                    fontFamily: FONT_MONO,
-                    fontSize: Math.round(12 * u),
-                    color: PALETTE.inkMuted,
-                  }}
-                >
-                  LIVE VIEW
-                </span>
-              </div>
-              <div style={{ position: 'relative', flex: 1, overflow: 'hidden', backgroundColor: '#05080f' }}>
-                <Img
-                  src={resolveAssetUrl(feat.image)}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    objectPosition: 'center top',
-                  }}
+            <div>
+              <MdxcnRule mode="dark" style={{ marginBottom: Math.round(14 * u) }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: Math.round(14 * u) }}>
+                <BotAvatarCell
+                  botFile="review.png"
+                  roleLabel="QA Gate"
+                  statusLabel="PASS"
+                  size={Math.round(68 * u)}
+                  phaseOffset={0.8}
+                  style={{ padding: Math.round(8 * u), flexShrink: 0 }}
                 />
-              </div>
-
-              <div style={{ padding: `${Math.round(20 * u)}px ${Math.round(22 * u)}px` }}>
-                <div style={{ fontSize: Math.round(24 * u), fontWeight: 700, color: PALETTE.inkPrimary }}>
-                  {feat.title}
-                </div>
-                <div
-                  style={{
-                    marginTop: Math.round(6 * u),
-                    fontFamily: FONT_MONO,
-                    fontSize: Math.round(15 * u),
-                    color: PALETTE.inkSecondary,
-                    lineHeight: 1.35,
-                  }}
-                >
-                  {feat.detail}
+                <div style={{ fontFamily: FONT_SANS, fontSize: Math.round(14 * u), lineHeight: 1.45, color: PALETTE.inkSecondary }}>
+                  Verified against 8 keyless public endpoints with deterministic snapshot fallback and zero login gates.
                 </div>
               </div>
             </div>
-          );
-        })}
+          </MdxcnFrame>
+        </div>
+
+        {/* Right: Carbon Code Diff Window inside AndromedaPanel */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            transform: `translateY(${interpolate(rightSpring, [0, 1], [24 * u, 0])}px)`,
+            opacity: rightSpring,
+          }}
+        >
+          <AndromedaPanel
+            mode="dark"
+            markerSize={Math.round(16 * u)}
+            markerColor={PALETTE.cyan}
+            style={{
+              height: '100%',
+              backgroundColor: '#0b101b',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+            }}
+          >
+            {/* Carbon Minimal Terminal Header */}
+            <div
+              style={{
+                height: Math.round(48 * u),
+                padding: `0 ${Math.round(20 * u)}px`,
+                backgroundColor: '#101622',
+                borderBottom: '1px solid rgba(241, 237, 228, 0.12)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                fontFamily: FONT_MONO,
+                fontSize: Math.max(10, Math.round(12.5 * u)),
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: Math.round(8 * u) }}>
+                <span style={{ width: Math.round(10 * u), height: Math.round(10 * u), borderRadius: '50%', backgroundColor: PALETTE.coral }} />
+                <span style={{ width: Math.round(10 * u), height: Math.round(10 * u), borderRadius: '50%', backgroundColor: '#eab308' }} />
+                <span style={{ width: Math.round(10 * u), height: Math.round(10 * u), borderRadius: '50%', backgroundColor: PALETTE.scannerGreen }} />
+                <span style={{ marginLeft: Math.round(10 * u), color: PALETTE.inkPrimary, fontWeight: 600 }}>
+                  src/data/nasaLiveClient.ts
+                </span>
+                <span style={{ color: PALETTE.inkMuted }}>· unified diff</span>
+              </div>
+              <span style={{ color: PALETTE.cyan }}>tsc -b · 0 errors</span>
+            </div>
+
+            {/* Code Diff Body */}
+            <div
+              style={{
+                flex: 1,
+                padding: `${Math.round(22 * u)}px ${Math.round(20 * u)}px`,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                gap: Math.round(9 * u),
+                fontFamily: FONT_MONO,
+                fontSize: Math.max(11, Math.round(15.5 * u)),
+                lineHeight: 1.45,
+              }}
+            >
+              {CARBON_DIFF_LINES.map((line, index) => {
+                const lSpring = spring({
+                  frame: Math.max(0, frame - (12 + index * revealCadence)),
+                  fps,
+                  config: { damping: 18, stiffness: 190, mass: 0.7 },
+                });
+                const proximity = Math.max(0, 1 - Math.abs(activeScanLine - index));
+                const rowBg =
+                  line.kind === 'add'
+                    ? `rgba(52, 211, 153, ${0.08 + proximity * 0.1})`
+                    : line.kind === 'del'
+                      ? 'rgba(238, 107, 71, 0.1)'
+                      : 'rgba(16, 22, 34, 0.45)';
+                const barColor =
+                  line.kind === 'add'
+                    ? PALETTE.scannerBright
+                    : line.kind === 'del'
+                      ? PALETTE.coral
+                      : 'rgba(148, 163, 184, 0.2)';
+                const codeColor =
+                  line.kind === 'add'
+                    ? '#c6ffe0'
+                    : line.kind === 'del'
+                      ? '#ffc1b2'
+                      : PALETTE.inkSecondary;
+
+                return (
+                  <div
+                    key={line.lineNo}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: Math.round(14 * u),
+                      padding: `${Math.round(9 * u)}px ${Math.round(14 * u)}px`,
+                      borderRadius: 4,
+                      backgroundColor: rowBg,
+                      borderLeft: `3px solid ${barColor}`,
+                      transform: `translateX(${interpolate(lSpring, [0, 1], [20 * u, 0])}px)`,
+                      opacity: lSpring,
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: Math.round(26 * u),
+                        flexShrink: 0,
+                        color: PALETTE.inkMuted,
+                        fontSize: Math.max(10, Math.round(12.5 * u)),
+                        fontVariantNumeric: 'tabular-nums',
+                      }}
+                    >
+                      {line.lineNo}
+                    </span>
+                    <span
+                      style={{
+                        color: codeColor,
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word',
+                      }}
+                    >
+                      {line.code}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Footer status strip inside Carbon window */}
+            <div
+              style={{
+                padding: `${Math.round(12 * u)}px ${Math.round(20 * u)}px`,
+                backgroundColor: '#101622',
+                borderTop: '1px solid rgba(241, 237, 228, 0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                fontFamily: FONT_MONO,
+                fontSize: Math.max(10, Math.round(12 * u)),
+                color: PALETTE.inkMuted,
+              }}
+            >
+              <span>FIRMS MODIS C6.1 + VIIRS 375m + NASA POWER + GOES-18 + OSDR</span>
+              <span style={{ color: PALETTE.scannerGreen }}>SAME-ORIGIN /CRADLEFLOW/ READY</span>
+            </div>
+          </AndromedaPanel>
+        </div>
       </div>
     </AbsoluteFill>
   );

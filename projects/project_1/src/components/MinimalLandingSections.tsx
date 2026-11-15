@@ -16,6 +16,7 @@ import { NASA_OPEN_PARTNERS } from '../data/terraspanData';
 import { AskTheGridCopilot } from './aicanvas/AskTheGridCopilot';
 import { GlassDock } from './aicanvas/GlassDock';
 import { SourceRail } from './aicanvas/SourceRail';
+import { DemoShowcaseSection } from './DemoShowcaseSection';
 import { HowItWorksSection } from './HowItWorksSection';
 import { KnowledgeMapBox } from './KnowledgeMapBox';
 import { MissionGameBox } from './MissionGameBox';
@@ -68,6 +69,8 @@ export function MinimalLandingSections({
 
   return (
     <>
+      <DemoShowcaseSection />
+
       <HowItWorksSection
         bundle={bundle}
         activeCorridor={activeCorridor}
@@ -102,7 +105,7 @@ export function MinimalLandingSections({
 
       <section className="lp-section scroll-mt-20 border-t border-[var(--at-border-subtle)]" id="telemetry">
         <div className="lp-container space-y-8">
-          <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
             <div>
               <span className="font-mono text-xs uppercase tracking-[0.14em] text-[var(--at-signal-fire)]">
                 REAL-TIME TELEMETRY
@@ -188,7 +191,7 @@ export function MinimalLandingSections({
 
       <section className="lp-section scroll-mt-20 border-t border-[var(--at-border-subtle)]" id="corridors">
         <div className="lp-container space-y-6">
-          <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
             <div>
               <span className="font-mono text-xs uppercase tracking-[0.14em] text-[var(--at-signal-cyan)]">
                 PROVENANCE GRAPH AND EVIDENCE
@@ -225,7 +228,7 @@ export function MinimalLandingSections({
 
       <section className="lp-section scroll-mt-20 border-t border-[var(--at-border-subtle)]" id="trainer">
         <div className="lp-container space-y-8">
-          <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
             <div>
               <span className="font-mono text-xs uppercase tracking-[0.14em] text-[var(--at-signal-fire)]">
                 UNIFIED EARTH TO ORBIT WORKSPACE
@@ -310,6 +313,13 @@ export function MinimalLandingSections({
           </div>
 
           <div className="flex flex-wrap items-center gap-5">
+            <a
+              href="/demo"
+              className="inline-flex items-center gap-1.5 font-mono text-xs font-medium text-[var(--at-text-secondary)] hover:text-[var(--at-text-primary)] hover:underline"
+            >
+              Fullscreen Video Studio
+              <ArrowUpRight className="size-3.5" aria-hidden="true" />
+            </a>
             <a
               href="/submission/"
               className="inline-flex items-center gap-1.5 font-mono text-xs font-medium text-[var(--at-text-secondary)] hover:text-[var(--at-text-primary)] hover:underline"

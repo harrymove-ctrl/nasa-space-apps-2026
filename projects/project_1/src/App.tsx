@@ -25,6 +25,12 @@ function parseStudioRoute(): { mode: StudioMode; plateIndex: number; slideIndex:
     const plateIndex = Number.isFinite(rawPlate) && rawPlate >= 1 && rawPlate <= 5 ? rawPlate : 1;
     return { mode: present, plateIndex, slideIndex };
   }
+  if (pathname === '/demo' || pathname.startsWith('/demo/')) {
+    return { mode: 'video', plateIndex: 1, slideIndex };
+  }
+  if (pathname === '/slides' || pathname.startsWith('/slides/')) {
+    return { mode: 'slides', plateIndex: 1, slideIndex };
+  }
   if (pathname.startsWith('/submission') || params.get('view') === 'showcase') {
     return { mode: 'showcase', plateIndex: 1, slideIndex };
   }
@@ -72,7 +78,7 @@ function parseUrlFlags() {
 
   return {
     skipPreloader: params.get('skipPreloader') === '1' || initialView !== 'landing' || initialTour,
-    holdMode: params.get('hold') === '1',
+    holdMode: params.get('hold') === '1' || params.get('preloader') === 'hold',
     initialView,
     initialStage,
     initialTour,

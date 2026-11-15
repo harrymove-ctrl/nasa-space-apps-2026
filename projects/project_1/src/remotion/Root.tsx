@@ -1,5 +1,9 @@
 import { Composition, Audio } from 'remotion';
-import { DopaiMintVideo } from './DopaiMintVideo';
+import {
+  DopaiMintVideo,
+  FULL_LAUNCH_FRAMES,
+  NASA_HACKATHON_FRAMES,
+} from './DopaiMintVideo';
 import { CyberpunkTechIntro } from './scenes/CyberpunkTechIntro';
 import { HypeReelScene } from './scenes/HypeReelScene';
 import { WarmPaperPitchScene } from './scenes/WarmPaperPitchScene';
@@ -22,16 +26,28 @@ function StandaloneIntroWithAudio() {
   );
 }
 
+function StandaloneWarmPaperPitch() {
+  return <WarmPaperPitchScene compactSummary={false} />;
+}
+
 export function RemotionRoot() {
   return (
     <>
       <Composition
-        id="NasaHackathon1080x700"
-        component={NasaHackathonComposition}
+        id="DopaiMintFullLaunch1080p"
+        component={FullLaunchComposition}
+        width={1920}
+        height={1080}
+        fps={30}
+        durationInFrames={FULL_LAUNCH_FRAMES}
+      />
+      <Composition
+        id="DopaiMintFullLaunch1080x700"
+        component={FullLaunchComposition}
         width={1080}
         height={700}
         fps={30}
-        durationInFrames={855}
+        durationInFrames={FULL_LAUNCH_FRAMES}
       />
       <Composition
         id="NasaHackathon1080p"
@@ -39,15 +55,15 @@ export function RemotionRoot() {
         width={1920}
         height={1080}
         fps={30}
-        durationInFrames={855}
+        durationInFrames={NASA_HACKATHON_FRAMES}
       />
       <Composition
-        id="DopaiMintFullLaunch1080p"
-        component={FullLaunchComposition}
-        width={1920}
-        height={1080}
+        id="NasaHackathon1080x700"
+        component={NasaHackathonComposition}
+        width={1080}
+        height={700}
         fps={30}
-        durationInFrames={1620}
+        durationInFrames={NASA_HACKATHON_FRAMES}
       />
       <Composition
         id="CyberpunkTechIntro1080p"
@@ -55,7 +71,7 @@ export function RemotionRoot() {
         width={1920}
         height={1080}
         fps={30}
-        durationInFrames={165}
+        durationInFrames={210}
       />
       <Composition
         id="HypeReelStandalone"
@@ -63,15 +79,15 @@ export function RemotionRoot() {
         width={1920}
         height={1080}
         fps={30}
-        durationInFrames={90}
+        durationInFrames={120}
       />
       <Composition
         id="WarmPaperPitch1080p"
-        component={WarmPaperPitchScene}
+        component={StandaloneWarmPaperPitch}
         width={1920}
         height={1080}
         fps={30}
-        durationInFrames={360}
+        durationInFrames={540}
       />
     </>
   );

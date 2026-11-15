@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import {
   AbsoluteFill,
   Easing,
@@ -8,8 +7,18 @@ import {
   useVideoConfig,
 } from 'remotion';
 import { FONT_MONO, FONT_SANS, PALETTE, resolveAssetUrl } from '../palette';
+import {
+  AndromedaBrackets,
+  AndromedaPanel,
+  BotAvatarCell,
+  DopaiMintHudBar,
+  MdxcnFrame,
+  MdxcnRule,
+  RemotionAsciiBackdrop,
+} from '../primitives';
+import { SafeImg } from '../SafeImg';
 
-interface ParticleSpec {
+interface GeoParticle {
   readonly id: number;
   readonly kind: 'hex' | 'tri';
   readonly xPct: number;
@@ -17,50 +26,46 @@ interface ParticleSpec {
   readonly size: number;
   readonly depth: number;
   readonly phase: number;
-  readonly tint: string;
+  readonly color: string;
 }
 
-const PARTICLES: readonly ParticleSpec[] = Array.from({ length: 18 }, (_, i) => {
-  const seed = Math.sin(i * 19.37 + 4.13) * 10000;
-  const frac = seed - Math.floor(seed);
-  const seed2 = Math.cos(i * 41.11 + 1.9) * 10000;
-  const frac2 = seed2 - Math.floor(seed2);
+const GEO_PARTICLES: readonly GeoParticle[] = Array.from({ length: 14 }, (_, i) => {
+  const s1 = Math.sin(i * 17.31 + 2.7) * 10000;
+  const f1 = s1 - Math.floor(s1);
+  const s2 = Math.cos(i * 37.93 + 1.4) * 10000;
+  const f2 = s2 - Math.floor(s2);
   return {
     id: i,
     kind: i % 2 === 0 ? 'hex' : 'tri',
-    xPct: 6 + ((i * 13.7 + frac * 11) % 88),
-    yPct: 8 + ((i * 17.3 + frac2 * 19) % 84),
-    size: 16 + (i % 4) * 9,
-    depth: 0.45 + (i % 3) * 0.25,
-    phase: i * 0.65,
-    tint: i % 3 === 0 ? PALETTE.scannerGreen : i % 3 === 1 ? PALETTE.cyan : PALETTE.coral,
+    xPct: 5 + ((i * 14.2 + f1 * 12) % 90),
+    yPct: 12 + ((i * 18.5 + f2 * 16) % 78),
+    size: 14 + (i % 3) * 8,
+    depth: 0.5 + (i % 3) * 0.22,
+    phase: i * 0.72,
+    color: i % 3 === 0 ? PALETTE.scannerGreen : i % 3 === 1 ? PALETTE.cyan : PALETTE.inkMuted,
   };
 });
 
-function HexagonSvg({ size, color }: { size: number; color: string }) {
+function WireShape({ kind, size, color }: { kind: 'hex' | 'tri'; size: number; color: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true">
-      <polygon
-        points="16,2 28,9 28,23 16,30 4,23 4,9"
-        stroke={color}
-        strokeWidth="1.5"
-        fill={color}
-        fillOpacity="0.08"
-      />
-    </svg>
-  );
-}
-
-function TriangleSvg({ size, color }: { size: number; color: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true">
-      <polygon
-        points="16,3 29,27 3,27"
-        stroke={color}
-        strokeWidth="1.5"
-        fill={color}
-        fillOpacity="0.09"
-      />
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
+      {kind === 'hex' ? (
+        <polygon
+          points="16,2.5 28,9.5 28,22.5 16,29.5 4,22.5 4,9.5"
+          stroke={color}
+          strokeWidth="1.25"
+          fill={color}
+          fillOpacity="0.05"
+        />
+      ) : (
+        <polygon
+          points="16,3.5 28.5,27 3.5,27"
+          stroke={color}
+          strokeWidth="1.25"
+          fill={color}
+          fillOpacity="0.05"
+        />
+      )}
     </svg>
   );
 }
@@ -70,100 +75,102 @@ export interface CyberpunkTechIntroProps {
   readonly showGameBotHook?: boolean;
 }
 
+const CREW_BOTS = [
+  {
+    botFile: 'search.png' as const,
+    roleLabel: 'FIRMS Recon',
+    statusLabel: '375m Lock',
+    delay: 16,
+    phaseOffset: 0.0,
+  },
+  {
+    botFile: 'work.png' as const,
+    roleLabel: 'Grid Triage',
+    statusLabel: 'IEEE 738',
+    delay: 22,
+    phaseOffset: 1.4,
+  },
+  {
+    botFile: 'tools.png' as const,
+    roleLabel: 'CradleFlow',
+    statusLabel: 'Shield S',
+    delay: 28,
+    phaseOffset: 2.9,
+  },
+] as const;
+
 export function CyberpunkTechIntro({
   compact = false,
   showGameBotHook = true,
 }: CyberpunkTechIntroProps) {
   const frame = useCurrentFrame();
   const { fps, width, height, durationInFrames } = useVideoConfig();
-
   const u = Math.min(width / 1920, height / 1080);
 
-  // Corner reticle spring lock-in (stiff tactical snap, subtle settle)
-  const bracketSpring = spring({
+  // Spring-driven tactical corner reticle lock-in (bold & visible at frame 0)
+  const reticleSpring = spring({
     frame,
     fps,
-    config: { damping: 14, stiffness: 170, mass: 0.7 },
+    config: { damping: 16, stiffness: 185, mass: 0.72 },
   });
-  const bracketOffset = interpolate(bracketSpring, [0, 1], [68 * u, 28 * u]);
-  const bracketOpacity = interpolate(frame, [0, 8], [0, 1], { extrapolateRight: 'clamp' });
+  const reticleInset = Math.round(interpolate(reticleSpring, [0, 1], [32 * u, 22 * u]));
 
-  // Vertical green scanner beam sweeps smoothly left -> right -> settles across active target
+  // Vertical green orbital azimuth scanner sweep starting inside stage at frame 0
   const scanProgress = interpolate(
     frame,
-    [4, Math.round(durationInFrames * 0.72), durationInFrames],
-    [0.06, 0.94, 0.72],
+    [0, Math.round(durationInFrames * 0.68), durationInFrames],
+    [0.18, 0.94, 0.61],
     {
       extrapolateLeft: 'clamp',
       extrapolateRight: 'clamp',
       easing: Easing.inOut(Easing.cubic),
-    }
+    },
   );
   const scanX = width * scanProgress;
 
-  // Headline pop-in with physics-based overshoot
-  const titlePop = spring({
-    frame: Math.max(0, frame - 6),
+  // Physics-based pop-in springs matching DopaiMint web cadence (visible poster at frame 0)
+  const pillSpring = spring({
+    frame: Math.max(0, frame - 2),
     fps,
-    config: { damping: 12, stiffness: 195, mass: 0.65 },
+    config: { damping: 16, stiffness: 190, mass: 0.7 },
   });
-  const badgePop = spring({
-    frame: Math.max(0, frame - 14),
+  const heroSpring = spring({
+    frame: Math.max(0, frame - 5),
     fps,
-    config: { damping: 14, stiffness: 185, mass: 0.7 },
+    config: { damping: 15, stiffness: 175, mass: 0.75 },
   });
-
-  // Bot avatar entrance + rhythmic laptop typing bounce
-  const botPop = spring({
-    frame: Math.max(0, frame - 22),
+  const stageSpring = spring({
+    frame: Math.max(0, frame - 8),
     fps,
-    config: { damping: 12, stiffness: 155, mass: 0.85 },
-  });
-  const botBobY = Math.sin(frame * 0.42) * (4.2 * u);
-  const botTilt = Math.sin(frame * 0.21) * 1.4;
-
-  // Camera subtle push-in across duration
-  const cameraScale = interpolate(frame, [0, durationInFrames], [0.985, 1.025], {
-    extrapolateRight: 'clamp',
+    config: { damping: 16, stiffness: 165, mass: 0.8 },
   });
 
-  const statPills = useMemo(
-    () => [
-      { label: '8 NASA FEEDS', value: 'KEYLESS LIVE', accent: PALETTE.cyan },
-      { label: 'VIIRS THERMAL', value: '375 M LOCK', accent: PALETTE.coral },
-      { label: 'HABITAT TWIN', value: 'GRADE S AUTO', accent: PALETTE.scannerGreen },
-    ],
-    []
-  );
-
-  const bracketArm = Math.round((compact ? 42 : 58) * u);
-  const bracketPad = Math.round(bracketOffset);
-  const botCardSize = Math.round((compact ? 255 : 365) * u);
+  const padX = Math.round(64 * u);
+  const padY = Math.round(28 * u);
 
   return (
     <AbsoluteFill
       style={{
         backgroundColor: PALETTE.obsidianBase,
-        overflow: 'hidden',
         fontFamily: FONT_SANS,
+        color: PALETTE.inkPrimary,
+        overflow: 'hidden',
       }}
     >
-      {/* Clean orbital project backdrop: subtle obsidian ambient glow + technical dot matrix */}
-      <AbsoluteFill
-        style={{
-          transform: `scale(${cameraScale})`,
-          backgroundImage: `radial-gradient(64% 58% at 24% 38%, rgba(69, 184, 214, 0.14) 0%, transparent 65%), radial-gradient(48% 52% at 78% 66%, rgba(52, 211, 153, 0.12) 0%, transparent 65%), radial-gradient(circle, rgba(148, 163, 184, 0.22) 1px, transparent 1px)`,
-          backgroundSize: '100% 100%, 100% 100%, 26px 26px',
-        }}
-      />
+      {/* Clean project backdrop: deterministic ascii.rest radar/earthrise field */}
+      <RemotionAsciiBackdrop piece="earthrise" mode="dark" scrimOpacity={0.68} speed={0.9} />
 
-      {/* Deterministic floating geometric triangle + hexagon particles */}
-      {PARTICLES.map((p) => {
-        const driftX = Math.sin(frame * 0.032 * p.depth + p.phase) * 26 * u;
-        const driftY = Math.cos(frame * 0.026 * p.depth + p.phase) * 22 * u;
-        const spin = (frame * 0.65 * p.depth + p.id * 22) % 360;
-        const alpha = 0.26 + 0.24 * Math.sin(frame * 0.05 + p.phase);
-        const scaledSize = Math.max(12, Math.round(p.size * u * 1.15));
+      {/* Subtle floating geometric wireframe triangles & hexagons */}
+      {GEO_PARTICLES.map((p) => {
+        const pEnter = spring({
+          frame: Math.max(0, frame - (p.id % 6) * 2),
+          fps,
+          config: { damping: 18, stiffness: 140, mass: 0.8 },
+        });
+        const dx = Math.sin(frame * 0.03 * p.depth + p.phase) * 20 * u;
+        const dy = Math.cos(frame * 0.024 * p.depth + p.phase) * 16 * u;
+        const rot = (frame * 0.55 * p.depth + p.id * 24) % 360;
+        const opacity = (0.45 + 0.55 * pEnter) * (0.22 + 0.16 * Math.sin(frame * 0.045 + p.phase));
         return (
           <div
             key={p.id}
@@ -171,308 +178,356 @@ export function CyberpunkTechIntro({
               position: 'absolute',
               left: `${p.xPct}%`,
               top: `${p.yPct}%`,
-              opacity: alpha,
-              transform: `translate(${driftX}px, ${driftY}px) rotate(${spin}deg)`,
+              opacity,
+              transform: `translate(${dx}px, ${dy}px) rotate(${rot}deg) scale(${interpolate(pEnter, [0, 1], [0.5, 1])})`,
               pointerEvents: 'none',
             }}
           >
-            {p.kind === 'hex' ? (
-              <HexagonSvg size={scaledSize} color={p.tint} />
-            ) : (
-              <TriangleSvg size={scaledSize} color={p.tint} />
-            )}
+            <WireShape
+              kind={p.kind}
+              size={Math.max(12, Math.round(p.size * u))}
+              color={p.color}
+            />
           </div>
         );
       })}
 
-      {/* Vertical green scanner line + soft emerald phosphor wash */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          bottom: 0,
-          left: scanX - 160 * u,
-          width: 162 * u,
-          background:
-            'linear-gradient(90deg, rgba(52,211,153,0) 0%, rgba(52,211,153,0.06) 72%, rgba(93,255,154,0.22) 100%)',
-          pointerEvents: 'none',
-        }}
+      {/* Exact DopaiMint live web top navbar */}
+      <DopaiMintHudBar
+        mode="dark"
+        activeTab="Overview"
+        rightLabel="8/8 NASA Live · Zero Login"
+        scale={u}
       />
+
+      {/* Animated outer tactical corner brackets */}
       <div
         style={{
           position: 'absolute',
-          top: 0,
-          bottom: 0,
-          left: scanX,
-          width: Math.max(2, Math.round(3 * u)),
-          background: PALETTE.scannerBright,
-          boxShadow: `0 0 ${24 * u}px ${PALETTE.scannerBright}, 0 0 ${52 * u}px ${PALETTE.scannerGreen}`,
+          top: Math.round(56 * u) + reticleInset,
+          left: reticleInset,
+          right: reticleInset,
+          bottom: reticleInset,
           pointerEvents: 'none',
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          top: bracketPad + 10 * u,
-          left: Math.min(width - 170 * u, Math.max(bracketPad + 16 * u, scanX + 12 * u)),
-          fontFamily: FONT_MONO,
-          fontSize: Math.max(10, Math.round(14 * u)),
-          letterSpacing: '0.14em',
-          color: PALETTE.scannerBright,
-          opacity: 0.85,
-          pointerEvents: 'none',
+          opacity: interpolate(frame, [0, 8], [0.85, 0.94], { extrapolateRight: 'clamp' }),
         }}
       >
-        SCAN // {(scanProgress * 360).toFixed(1)}° AZ
+        <AndromedaBrackets
+          size={Math.round(28 * u)}
+          offset={0}
+          strokeWidth={Math.max(1.5, 2 * u)}
+          color={PALETTE.scannerGreen}
+          radius={4}
+        />
       </div>
 
-      {/* Animated corner reticle brackets */}
-      {(
-        [
-          { top: bracketPad, left: bracketPad, bt: true, bl: true },
-          { top: bracketPad, right: bracketPad, bt: true, br: true },
-          { bottom: bracketPad, left: bracketPad, bb: true, bl: true },
-          { bottom: bracketPad, right: bracketPad, bb: true, br: true },
-        ] as Array<{
-          top?: number;
-          bottom?: number;
-          left?: number;
-          right?: number;
-          bt?: boolean;
-          bb?: boolean;
-          bl?: boolean;
-          br?: boolean;
-        }>
-      ).map((corner, idx) => (
-        <div
-          key={idx}
-          style={{
-            position: 'absolute',
-            ...corner,
-            width: bracketArm,
-            height: bracketArm,
-            opacity: bracketOpacity,
-            borderTop: corner.bt ? `${Math.max(2, Math.round(3 * u))}px solid ${PALETTE.scannerGreen}` : 'none',
-            borderBottom: corner.bb ? `${Math.max(2, Math.round(3 * u))}px solid ${PALETTE.scannerGreen}` : 'none',
-            borderLeft: corner.bl ? `${Math.max(2, Math.round(3 * u))}px solid ${PALETTE.scannerGreen}` : 'none',
-            borderRight: corner.br ? `${Math.max(2, Math.round(3 * u))}px solid ${PALETTE.scannerGreen}` : 'none',
-            pointerEvents: 'none',
-          }}
-        />
-      ))}
-
-      {/* Main Content Stage: Left Pop-In Hook + Right Bot-Avatars Game Intro */}
-      <AbsoluteFill
+      {/* Crisp vertical green azimuth scanner beam (clean technical laser, zero muddy neon glow) */}
+      <div
         style={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: `${Math.round(78 * u)}px ${Math.round(92 * u)}px`,
-          gap: Math.round(44 * u),
+          position: 'absolute',
+          top: Math.round(56 * u),
+          bottom: 0,
+          left: scanX - Math.round(110 * u),
+          width: Math.round(110 * u),
+          background:
+            'linear-gradient(90deg, rgba(52,211,153,0) 0%, rgba(52,211,153,0.045) 72%, rgba(93,255,154,0.14) 100%)',
+          pointerEvents: 'none',
+          zIndex: 8,
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          top: Math.round(56 * u),
+          bottom: 0,
+          left: scanX,
+          width: Math.max(1.5, Math.round(2 * u)),
+          backgroundColor: PALETTE.scannerBright,
+          boxShadow: `0 0 ${Math.round(10 * u)}px rgba(52, 211, 153, 0.55)`,
+          pointerEvents: 'none',
+          zIndex: 9,
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          top: Math.round(68 * u),
+          left: Math.min(width - Math.round(210 * u), Math.max(padX, scanX + Math.round(10 * u))),
+          padding: `${Math.round(3 * u)}px ${Math.round(8 * u)}px`,
+          borderRadius: 3,
+          backgroundColor: 'rgba(9, 12, 20, 0.88)',
+          border: '1px solid rgba(52, 211, 153, 0.38)',
+          fontFamily: FONT_MONO,
+          fontSize: Math.max(9, Math.round(11.5 * u)),
+          letterSpacing: '0.1em',
+          color: PALETTE.scannerBright,
+          pointerEvents: 'none',
+          zIndex: 10,
         }}
       >
-        {/* Left: Pop-In Orbital Hook & Metrics */}
-        <div
-          style={{
-            flex: 1.35,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: Math.round(24 * u),
-          }}
-        >
+        AZ SCAN {(scanProgress * 360).toFixed(1)}° · PASS LOCK
+      </div>
+
+      {/* Main Two-Column Stage matching HeroSection.tsx + mdxcn + bot-avatars */}
+      <div
+        style={{
+          position: 'absolute',
+          top: Math.round(64 * u),
+          left: 0,
+          right: 0,
+          bottom: 0,
+          padding: `${padY}px ${padX}px`,
+          display: 'grid',
+          gridTemplateColumns: '1.12fr 1fr',
+          gap: Math.round(36 * u),
+          alignItems: 'center',
+        }}
+      >
+        {/* Left Column: Andromeda Hero Hook + Live Corridor Readout */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: Math.round(18 * u) }}>
+          {/* Exact HeroSection fact badge pill */}
           <div
             style={{
               display: 'inline-flex',
-              alignItems: 'center',
               alignSelf: 'flex-start',
-              gap: Math.round(10 * u),
-              padding: `${Math.round(8 * u)}px ${Math.round(16 * u)}px`,
-              borderRadius: Math.round(6 * u),
-              border: `1px solid rgba(52, 211, 153, 0.45)`,
-              backgroundColor: 'rgba(52, 211, 153, 0.1)',
-              color: PALETTE.scannerBright,
+              alignItems: 'center',
+              gap: Math.round(14 * u),
+              padding: `${Math.round(7 * u)}px ${Math.round(16 * u)}px`,
+              borderRadius: 999,
+              border: '1px solid rgba(241, 237, 228, 0.16)',
+              backgroundColor: 'rgba(16, 22, 34, 0.88)',
               fontFamily: FONT_MONO,
-              fontSize: Math.max(11, Math.round(16 * u)),
-              fontWeight: 700,
-              letterSpacing: '0.16em',
-              transform: `scale(${interpolate(badgePop, [0, 1], [0.8, 1])})`,
-              opacity: badgePop,
+              fontSize: Math.max(10, Math.round(12.5 * u)),
+              color: PALETTE.inkSecondary,
+              transform: `translateY(${interpolate(pillSpring, [0, 1], [8 * u, 0])}px) scale(${interpolate(pillSpring, [0, 1], [0.97, 1])})`,
+              opacity: interpolate(pillSpring, [0, 1], [0.9, 1]),
             }}
           >
-            <span
-              style={{
-                width: Math.round(10 * u),
-                height: Math.round(10 * u),
-                borderRadius: '50%',
-                backgroundColor: PALETTE.scannerBright,
-                boxShadow: `0 0 ${12 * u}px ${PALETTE.scannerBright}`,
-              }}
-            />
-            NASA SPACE APPS 2026 // MISSION TELEMETRY TWIN
+            <span style={{ color: PALETTE.scannerGreen }}>● NASA Space Apps 2026</span>
+            <span style={{ opacity: 0.35 }}>|</span>
+            <span>26 Years MODIS + VIIRS</span>
+            <span style={{ opacity: 0.35 }}>|</span>
+            <span style={{ color: PALETTE.cyan }}>IEEE 738 + GOES-18</span>
           </div>
 
+          {/* Exact Andromeda sentence-case 600 display typography */}
           <div
             style={{
-              transform: `translateY(${interpolate(titlePop, [0, 1], [38 * u, 0])}px) scale(${interpolate(titlePop, [0, 1], [0.9, 1])})`,
-              opacity: titlePop,
+              transform: `translateY(${interpolate(heroSpring, [0, 1], [10 * u, 0])}px) scale(${interpolate(heroSpring, [0, 1], [0.985, 1])})`,
+              opacity: interpolate(heroSpring, [0, 1], [0.94, 1]),
             }}
           >
             <h1
               style={{
                 margin: 0,
-                fontSize: Math.round((compact ? 74 : 96) * u),
-                lineHeight: 0.98,
-                fontWeight: 800,
-                letterSpacing: '-0.03em',
+                fontSize: Math.round((compact ? 50 : 56) * u),
+                fontWeight: 600,
+                lineHeight: 1.08,
+                letterSpacing: '-0.028em',
                 color: PALETTE.inkPrimary,
               }}
             >
-              DOPAIMINT
-              <span style={{ color: PALETTE.cyan }}>.</span>
+              Orbital fire and solar risk telemetry for grid crews and space missions
             </h1>
             <p
               style={{
-                margin: `${Math.round(16 * u)}px 0 0 0`,
-                fontSize: Math.round((compact ? 25 : 32) * u),
-                lineHeight: 1.28,
-                fontWeight: 500,
+                margin: `${Math.round(14 * u)}px 0 0 0`,
+                fontSize: Math.round(19 * u),
+                lineHeight: 1.45,
+                fontWeight: 400,
                 color: PALETTE.inkSecondary,
-                maxWidth: Math.round(780 * u),
+                textShadow: '0 2px 14px rgba(9, 12, 20, 0.95)',
+                maxWidth: Math.round(820 * u),
               }}
             >
-              From orbital thermal lock to autonomous lunar habitat survival in one unified twin.
+              DopaiMint fuses 8 keyless NASA, NOAA, and ESA streams into IEEE 738 conductor safety limits and one-click CradleFlow storm shelter automation.
             </p>
           </div>
 
-          {/* 3 Cyberpunk Telemetry Pop-In Pills */}
+          {/* mdxcn [ LIVE CORRIDOR READOUT ] matching MinimalLandingSections */}
           <div
             style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: Math.round(14 * u),
-              marginTop: Math.round(8 * u),
+              marginTop: Math.round(6 * u),
+              transform: `translateY(${interpolate(stageSpring, [0, 1], [10 * u, 0])}px)`,
+              opacity: interpolate(stageSpring, [0, 1], [0.9, 1]),
             }}
           >
-            {statPills.map((pill, idx) => {
-              const s = spring({
-                frame: Math.max(0, frame - (18 + idx * 5)),
-                fps,
-                config: { damping: 14, stiffness: 185, mass: 0.7 },
-              });
-              return (
-                <div
-                  key={pill.label}
-                  style={{
-                    padding: `${Math.round(12 * u)}px ${Math.round(18 * u)}px`,
-                    borderRadius: Math.round(6 * u),
-                    border: `1px dashed rgba(148, 163, 184, 0.34)`,
-                    backgroundColor: 'rgba(16, 22, 34, 0.9)',
-                    transform: `translateY(${interpolate(s, [0, 1], [20 * u, 0])}px)`,
-                    opacity: s,
-                  }}
-                >
-                  <div
-                    style={{
-                      fontFamily: FONT_MONO,
-                      fontSize: Math.max(10, Math.round(12.5 * u)),
-                      letterSpacing: '0.12em',
-                      color: PALETTE.inkMuted,
-                    }}
-                  >
-                    {pill.label}
+            <MdxcnFrame
+              title="LIVE CORRIDOR READOUT · BUTTE 230 KV"
+              mode="dark"
+              scale={u}
+              bodyStyle={{
+                padding: `${Math.round(18 * u)}px ${Math.round(20 * u)}px`,
+              }}
+            >
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(4, 1fr)',
+                  gap: Math.round(14 * u),
+                }}
+              >
+                {[
+                  { label: 'SAFE LIMIT', value: '425 A', hint: 'IEEE 738 live', color: PALETTE.coral },
+                  { label: 'VIIRS DEDUP', value: '375 m', hint: 'H3 harmonized', color: PALETTE.cyan },
+                  { label: 'GOES-18 FLUX', value: '185 pfu', hint: 'Kp 6.3 handoff', color: PALETTE.scannerGreen },
+                  { label: 'OSDR ASSAYS', value: '1,064', hint: 'Bio-shielded', color: PALETTE.inkPrimary },
+                ].map((stat) => (
+                  <div key={stat.label}>
+                    <div
+                      style={{
+                        fontSize: Math.max(9, Math.round(10.5 * u)),
+                        letterSpacing: '0.08em',
+                        color: PALETTE.inkMuted,
+                      }}
+                    >
+                      {stat.label}
+                    </div>
+                    <div
+                      style={{
+                        marginTop: Math.round(4 * u),
+                        fontSize: Math.round(22 * u),
+                        fontWeight: 700,
+                        fontVariantNumeric: 'tabular-nums',
+                        color: stat.color,
+                      }}
+                    >
+                      {stat.value}
+                    </div>
+                    <div
+                      style={{
+                        marginTop: Math.round(2 * u),
+                        fontSize: Math.max(9, Math.round(10.5 * u)),
+                        color: PALETTE.inkMuted,
+                      }}
+                    >
+                      {stat.hint}
+                    </div>
                   </div>
-                  <div
-                    style={{
-                      marginTop: Math.round(4 * u),
-                      fontFamily: FONT_MONO,
-                      fontSize: Math.max(13, Math.round(19 * u)),
-                      fontWeight: 700,
-                      color: pill.accent,
-                    }}
-                  >
-                    {pill.value}
-                  </div>
-                </div>
-              );
-            })}
+                ))}
+              </div>
+            </MdxcnFrame>
           </div>
         </div>
 
-        {/* Right: Bot-Avatars Animated Game Intro Card */}
-        {showGameBotHook ? (
-          <div
+        {/* Right Column: Live Web Observatory Window + Bot-Avatars Mission Game Hook */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: Math.round(18 * u),
+            transform: `translateY(${interpolate(stageSpring, [0, 1], [12 * u, 0])}px) scale(${interpolate(stageSpring, [0, 1], [0.98, 1])})`,
+            opacity: interpolate(stageSpring, [0, 1], [0.9, 1]),
+          }}
+        >
+          {/* Real live DopaiMint web UI frame */}
+          <AndromedaPanel
+            mode="dark"
+            markerSize={Math.round(16 * u)}
+            markerColor={PALETTE.cyan}
             style={{
-              flex: 0.9,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              transform: `translateY(${interpolate(botPop, [0, 1], [54 * u, 0])}px) scale(${interpolate(botPop, [0, 1], [0.85, 1])})`,
-              opacity: botPop,
+              padding: Math.round(10 * u),
+              backgroundColor: 'rgba(11, 16, 27, 0.94)',
             }}
           >
             <div
               style={{
-                position: 'relative',
-                padding: `${Math.round(24 * u)}px ${Math.round(28 * u)}px`,
-                borderRadius: Math.round(14 * u),
-                border: `1px solid rgba(69, 184, 214, 0.42)`,
-                backgroundColor: 'rgba(16, 22, 34, 0.92)',
-                boxShadow: `0 ${26 * u}px ${64 * u}px rgba(0, 0, 0, 0.65), 0 0 ${36 * u}px rgba(69, 184, 214, 0.14)`,
                 display: 'flex',
-                flexDirection: 'column',
                 alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: `${Math.round(4 * u)}px ${Math.round(8 * u)}px ${Math.round(10 * u)}px`,
+                fontFamily: FONT_MONO,
+                fontSize: Math.max(9, Math.round(11 * u)),
+                color: PALETTE.inkMuted,
               }}
             >
-              {/* Soft cyan monitor glow behind the typing plush Engineer bot */}
-              <div
+              <span>https://dopaimint-production.up.railway.app</span>
+              <span style={{ color: PALETTE.scannerGreen }}>HTTP 200 · LIVE WEB</span>
+            </div>
+            <div
+              style={{
+                position: 'relative',
+                width: '100%',
+                height: Math.round((showGameBotHook ? 390 : 560) * u),
+                borderRadius: 3,
+                overflow: 'hidden',
+                border: '1px solid rgba(241, 237, 228, 0.12)',
+              }}
+            >
+              <SafeImg
+                src={resolveAssetUrl('/video-assets/screens/step-1-observatory.jpg')}
+                alt="DopaiMint live web observatory"
                 style={{
-                  position: 'absolute',
-                  width: botCardSize * 0.85,
-                  height: botCardSize * 0.85,
-                  borderRadius: '50%',
-                  background:
-                    'radial-gradient(circle, rgba(69, 184, 214, 0.25) 0%, rgba(52, 211, 153, 0.08) 55%, transparent 75%)',
-                  top: Math.round(24 * u),
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  objectPosition: 'center top',
                 }}
               />
-              <img
-                src={resolveAssetUrl('/video-assets/bots/work.png')}
-                alt="Bot Engineer introducing CradleFlow mission game"
-                style={{
-                  position: 'relative',
-                  width: botCardSize,
-                  height: botCardSize,
-                  objectFit: 'contain',
-                  transform: `translateY(${botBobY}px) rotate(${botTilt}deg)`,
-                }}
-              />
+            </div>
+          </AndromedaPanel>
+
+          {/* bot-avatars.vercel.app Animated Crew Cells Introducing Phase 01 -> Phase 02 */}
+          {showGameBotHook ? (
+            <MdxcnFrame
+              title="MISSION DRILL CREW · PHASE 01 TRIAGE → PHASE 02 CRADLEFLOW"
+              mode="dark"
+              accentColor={PALETTE.scannerGreen}
+              scale={u}
+              bodyStyle={{
+                padding: `${Math.round(18 * u)}px ${Math.round(18 * u)}px ${Math.round(14 * u)}px`,
+              }}
+            >
               <div
                 style={{
-                  marginTop: Math.round(12 * u),
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: Math.round(10 * u),
-                  fontFamily: FONT_MONO,
-                  fontSize: Math.max(11, Math.round(15 * u)),
-                  color: PALETTE.inkPrimary,
-                  letterSpacing: '0.08em',
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: Math.round(12 * u),
                 }}
               >
-                <span
-                  style={{
-                    color: PALETTE.scannerBright,
-                    fontWeight: 700,
-                  }}
-                >
-                  PHASE 01 → 02
-                </span>
-                <span style={{ color: PALETTE.inkMuted }}>TRIAGE TO CRADLEFLOW</span>
+                {CREW_BOTS.map((bot) => {
+                  const bSpring = spring({
+                    frame: Math.max(0, frame - bot.delay),
+                    fps,
+                    config: { damping: 13, stiffness: 180, mass: 0.72 },
+                  });
+                  return (
+                    <div
+                      key={bot.roleLabel}
+                      style={{
+                        transform: `translateY(${interpolate(bSpring, [0, 1], [8 * u, 0])}px) scale(${interpolate(bSpring, [0, 1], [0.93, 1])})`,
+                        opacity: interpolate(bSpring, [0, 1], [0.88, 1]),
+                      }}
+                    >
+                      <BotAvatarCell
+                        botFile={bot.botFile}
+                        roleLabel={bot.roleLabel}
+                        statusLabel={bot.statusLabel}
+                        size={Math.round(112 * u)}
+                        phaseOffset={bot.phaseOffset}
+                      />
+                    </div>
+                  );
+                })}
               </div>
-            </div>
-          </div>
-        ) : null}
-      </AbsoluteFill>
+              <MdxcnRule mode="dark" style={{ marginTop: Math.round(12 * u) }} />
+              <div
+                style={{
+                  marginTop: Math.round(9 * u),
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  fontSize: Math.max(9, Math.round(11.5 * u)),
+                  color: PALETTE.inkSecondary,
+                }}
+              >
+                <span>Interactive 3-wave grid drill + React Flow habitat shelter</span>
+                <span style={{ color: PALETTE.cyan, fontWeight: 600 }}>/?view=game →</span>
+              </div>
+            </MdxcnFrame>
+          ) : null}
+        </div>
+      </div>
     </AbsoluteFill>
   );
 }

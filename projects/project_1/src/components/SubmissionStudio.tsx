@@ -2,7 +2,11 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import { MotionConfig } from 'motion/react';
 import { Player } from '@remotion/player';
 import { AsciiRestBackdrop, type AsciiPieceName } from './AsciiRestBackdrop';
-import { DopaiMintVideo } from '@/remotion/DopaiMintVideo';
+import {
+  DopaiMintVideo,
+  FULL_LAUNCH_FRAMES,
+  NASA_HACKATHON_FRAMES,
+} from '@/remotion/DopaiMintVideo';
 import { CyberpunkTechIntro } from '@/remotion/scenes/CyberpunkTechIntro';
 import { HypeReelScene } from '@/remotion/scenes/HypeReelScene';
 import { WarmPaperPitchScene } from '@/remotion/scenes/WarmPaperPitchScene';
@@ -876,74 +880,127 @@ function CyberpunkIntroPlayerView() {
 
 const REMOTION_PRESETS = [
   {
+    id: 'launch',
+    label: 'Full Product Demo 1080p · 1:32',
+    badge: '1920x1080 · 30 FPS · FULL WEB SHOWCASE',
+    width: 1920,
+    height: 1080,
+    durationInFrames: FULL_LAUNCH_FRAMES,
+    component: FullLaunchPlayerView,
+    downloadHref: '/submission/dopaimint-cyberpunk-1080p.mp4',
+  },
+  {
+    id: '1080p-28s',
+    label: 'NASA <=30s Cut 1080p · 28.5s',
+    badge: '1920x1080 · 30 FPS · SUBMISSION CAP',
+    width: 1920,
+    height: 1080,
+    durationInFrames: NASA_HACKATHON_FRAMES,
+    component: NasaHackathonPlayerView,
+    downloadHref: '/submission/dopaimint-demo-1080p-28s.mp4',
+  },
+  {
     id: 'nasa',
     label: 'NASA Hackathon 1080x700 · 28.5s',
     badge: '1080x700 · 30 FPS · SUBMISSION CAP',
     width: 1080,
     height: 700,
-    durationInFrames: 855,
+    durationInFrames: NASA_HACKATHON_FRAMES,
     component: NasaHackathonPlayerView,
     downloadHref: '/submission/dopaimint-demo-28s.mp4',
   },
   {
-    id: '1080p-28s',
-    label: 'NASA 16:9 HD 1080p · 28.5s',
-    badge: '1920x1080 · 30 FPS · SUBMISSION CAP',
-    width: 1920,
-    height: 1080,
-    durationInFrames: 855,
-    component: NasaHackathonPlayerView,
-    downloadHref: '/submission/dopaimint-demo-1080p-28s.mp4',
-  },
-  {
-    id: 'launch',
-    label: 'Launch Film 1080p · 54.0s',
-    badge: '1920x1080 · 30 FPS · FULL SHOWCASE',
-    width: 1920,
-    height: 1080,
-    durationInFrames: 1620,
-    component: FullLaunchPlayerView,
-    downloadHref: '/submission/dopaimint-cyberpunk-1080p.mp4',
-  },
-  {
     id: 'intro',
-    label: 'Cyberpunk Intro + Bot Hook · 5.5s',
+    label: 'Cyberpunk Intro + Bot Hook · 7.0s',
     badge: '1920x1080 · SCANNER + BOT AVATARS',
     width: 1920,
     height: 1080,
-    durationInFrames: 165,
+    durationInFrames: 210,
     component: CyberpunkIntroPlayerView,
     downloadHref: '/submission/dopaimint-cyberpunk-1080p.mp4',
   },
   {
     id: 'hype',
-    label: 'Hype Reel 999k · 3.0s',
+    label: 'Hype Reel 999k · 4.0s',
     badge: '1920x1080 · SNAPCN SOCIAL BURST',
     width: 1920,
     height: 1080,
-    durationInFrames: 90,
+    durationInFrames: 120,
     component: HypeReelScene,
-    downloadHref: '/submission/dopaimint-demo-28s.mp4',
+    downloadHref: '/submission/dopaimint-demo-1080p-28s.mp4',
   },
   {
     id: 'pitch',
-    label: 'Warm Paper Pitch · 12.0s',
+    label: 'Warm Paper Pitch · 18.0s',
     badge: '1920x1080 · ZERO CAPTIONS · DEMO DAY',
     width: 1920,
     height: 1080,
-    durationInFrames: 360,
+    durationInFrames: 540,
     component: WarmPaperPitchScene,
     downloadHref: '/submission/dopaimint-cyberpunk-1080p.mp4',
   },
 ] as const;
 
 function RemotionVideoShowcase({ fullscreen = false }: { fullscreen?: boolean }) {
-  const [presetId, setPresetId] = useState<(typeof REMOTION_PRESETS)[number]['id']>('nasa');
+  const [presetId, setPresetId] = useState<(typeof REMOTION_PRESETS)[number]['id']>('launch');
   const active = REMOTION_PRESETS.find((p) => p.id === presetId) ?? REMOTION_PRESETS[0];
 
   return (
     <SurfacePanel>
       <div data-testid="remotion-showcase-studio" className="flex flex-col gap-4">
+        {fullscreen ? (
+          <nav
+            data-testid="video-studio-breadcrumbs"
+            aria-label="Video studio navigation"
+            className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-2 pb-3 font-mono text-xs"
+          >
+            <div className="flex flex-wrap items-center gap-2 text-graph-muted">
+              <a
+                href="/?skipPreloader=1"
+                className="text-graph-accent underline decoration-dashed underline-offset-4 hover:text-foreground"
+              >
+                DopaiMint Observatory
+              </a>
+              <span>/</span>
+              <a
+                href="/submission/"
+                className="underline decoration-dashed underline-offset-4 hover:text-foreground"
+              >
+                Submission Hub
+              </a>
+              <span>/</span>
+              <span className="text-foreground">Video Studio</span>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <a
+                href="/submission/"
+                className="graph-frame px-2.5 py-1 text-foreground hover:bg-white/5"
+              >
+                Submission Hub
+              </a>
+              <a
+                href="/?skipPreloader=1"
+                className="graph-frame px-2.5 py-1 text-graph-accent hover:bg-white/5"
+              >
+                Open Website
+              </a>
+              <a
+                href="/?present=slides"
+                className="graph-frame px-2.5 py-1 text-foreground hover:bg-white/5"
+              >
+                Slide Deck
+              </a>
+              <a
+                href={active.downloadHref}
+                download
+                className="graph-frame px-2.5 py-1 text-graph-accent hover:bg-white/5"
+              >
+                Download MP4
+              </a>
+            </div>
+          </nav>
+        ) : null}
+
         <div className="flex flex-wrap items-center justify-between gap-3 px-2">
           <div>
             <div className="font-mono text-[11px] tracking-[0.16em] text-graph-accent uppercase">
@@ -974,7 +1031,7 @@ function RemotionVideoShowcase({ fullscreen = false }: { fullscreen?: boolean })
 
         <Graph title={active.label.toUpperCase()}>
           <GraphBody className="p-3 sm:p-4">
-            <div className="flex w-full justify-center bg-[#060911]">
+            <div className="remotion-player-shell flex w-full justify-center rounded border border-white/10 bg-[#060911] p-1">
               <Player
                 key={active.id}
                 component={active.component}
@@ -1128,7 +1185,7 @@ export function SubmissionStudio({
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  /submission/dopaimint-cyberpunk-1080p.mp4 (1920x1080 · 54.00s)
+                  /submission/dopaimint-cyberpunk-1080p.mp4 (1920x1080 · 92.00s)
                 </a>
               </li>
             </ul>
@@ -1203,6 +1260,8 @@ export function SubmissionStudio({
           </div>
         </SurfacePanel>
 
+        <RemotionVideoShowcase />
+
         <SurfacePanel>
           <GraphTable
             title="WEBSITE & LIVE FEATURES"
@@ -1211,13 +1270,24 @@ export function SubmissionStudio({
             rows={[
               [
                 'DopaiMint Website Landing',
-                'Andromeda minimalist hero, 6 orbital plates gallery, corridor metrics',
+                'Andromeda minimalist hero, live #demo studio, 6 orbital plates gallery',
                 <a
                   key="f-home"
                   href="/?skipPreloader=1"
                   className="text-graph-accent underline decoration-dashed underline-offset-4"
                 >
                   Open Website
+                </a>,
+              ],
+              [
+                'Fullscreen Product Video Studio',
+                '92.0s Full Launch Demo + 28.5s NASA <=30s Cap Cut with directed VO',
+                <a
+                  key="f-demo"
+                  href="/demo"
+                  className="text-graph-accent underline decoration-dashed underline-offset-4"
+                >
+                  /demo
                 </a>,
               ],
               [
@@ -1279,8 +1349,6 @@ export function SubmissionStudio({
           />
         </SurfacePanel>
 
-        <RemotionVideoShowcase />
-
         <div id="slides" className="scroll-mt-8">
           <InteractiveSlideDeck initialSlide={initialSlide} />
         </div>
@@ -1307,7 +1375,7 @@ export function SubmissionStudio({
                 title="CAPS"
                 items={[
                   { value: '28.5s', label: 'strict <= 30s cap', accent: true },
-                  { value: '54.0s', label: '1080p launch film' },
+                  { value: '92.0s', label: '1080p launch film' },
                   { value: '7', label: 'pdf deck slides' },
                 ]}
               />
@@ -1318,7 +1386,7 @@ export function SubmissionStudio({
                 rows={[
                   { label: 'nasa cut', value: '1080x700 at 30 fps (28.50s)', accent: true },
                   { label: 'nasa 16:9', value: '1920x1080 at 30 fps (28.50s)' },
-                  { label: 'launch cut', value: '1920x1080 at 30 fps (54.00s)' },
+                  { label: 'launch cut', value: '1920x1080 at 30 fps (92.00s)' },
                   { label: 'audio mix', value: 'H.264 + AAC stereo (-16 LUFS)' },
                   { label: 'streaming', value: 'HTTP 206 byte range enabled' },
                 ]}

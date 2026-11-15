@@ -1,28 +1,30 @@
-# DopaiMint + CradleFlow Audio & Music Architecture
+# DopaiMint and CradleFlow Audio and Music Architecture
 
-This document records the music synthesis, ElevenLabs voiceover integration, and broadcast loudness normalization implemented for `NasaHackathon1080x700` and `DopaiMintFullLaunch1080p`.
+This document records the launch music synthesis, directed English narration, ElevenLabs CLI/SDK pipeline, sidechain ducking, and broadcast loudness normalization implemented for `DopaiMintFullLaunch1080p` (`92.00s`) and `NasaHackathon1080p` / `NasaHackathon1080x700` (`28.50s`).
 
 ## Mood, Progression, and Dynamic Envelope
 
-1. **Tempo & Tonality**: `124 BPM` on a 16th-note pulse grid in F# minor / Dorian (`F#m -> D -> E -> C#m` chord progression), matching the high-energy cyberpunk-to-executive-briefing arc.
-2. **Narrative Energy Envelope** (authored in `projects/project_1/scripts/build-audio.mjs`):
-   1. `0% to 8%` (Early Hook): Opens immediately with punchy sub-bass and pad motif (`0.68 -> 0.82` intensity) to anchor the Cyberpunk Tech Intro and vertical scanner reveal.
-   2. `8% to 35%` (Problem & Carbon Diff Build): Tightens percussive groove (`0.52 -> 0.76`) with driving 16th-note arpeggiator rising into the architecture and code diff reveal.
-   3. `35% to 78%` (Reveal & Feature Peak): Full chorus energy (`0.88`) adding stereo shimmer pads, snare/clap accents on beats 1 and 3, and full arpeggio momentum through `CardRail`, `ReelWall`, `HypeReelScene`, and `ChannelThread`.
-   4. `78% to 94%` (Warm-Paper Demo Pitch): Drops kick drum and heavy closed hats cleanly while pulling overall energy back to `0.44` so the warm paper Problem, Numbers, and Ask boards carry executive breathing room.
-   5. `94% to 100%` (Final Landing): Smooth exponential tail fade over the final `0.60s` so `28.50s` and `54.00s` cuts land cleanly with zero click or abrupt cutoff.
+1. **Tempo and Tonality**: `124 BPM` on a 16th note pulse grid in F# minor / Dorian (`F#m -> D -> E -> C#m` progression), tailored to open with crisp telemetry tension, drive momentum through the live browser walkthrough, and settle into an understated warm paper executive finish.
+2. **Narrative Energy Envelope** (`projects/project_1/scripts/build-audio.mjs`):
+   1. `0% to 8%` (Opening Hook): Opens with sub bass pulse and pad motif (`0.68 to 0.82` intensity) locked to the vertical `#5dff9a` scanner sweep and `bot-avatars` crew reveal.
+   2. `8% to 35%` (Thesis and Carbon Diff Build): Tightens percussive groove (`0.52 to 0.76`) with rising 16th note arpeggiator across `HelloZoom`, `SpecSweep`, and `CarbonDiffScene`.
+   3. `35% to 74%` (Walkthrough and Showcase Peak): Full chorus energy (`0.88`) driving `@snapcn/screen-recording` cursor clicks, `CardRail` perspective flicks, `ReelWall`, `HypeReelScene` (`+999k`), and `ChannelThread`.
+   4. `74% to 94%` (Warm Paper Demo Pitch): Drops heavy percussion and pulls music intensity down to `0.42` so the `#f5f2ea` Problem, Numbers, and Ask boards carry calm Demo Day clarity underneath the voiceover.
+   5. `94% to 100%` (Clean Final Landing): Smooth exponential tail fade over the final `0.85s` so both `28.50s` and `92.00s` cuts land cleanly on the final frame with zero abrupt cutoff.
 
-## Loudness Mastering & Verification
+## Directed Voiceover and Sidechain Ducking
 
-All exported stereo MP3 tracks (`48,000 Hz`, `192 kbps`, high-pass filtered at `28 Hz`) are mastered via `ffmpeg` EBU R128 loudness normalization (`loudnorm=I=-16:TP=-1.5:LRA=11`).
+1. **Narration Direction**: `scripts/build-audio.mjs` synthesizes 5 timed English cues for the `28.50s` NASA cut and 15 timed English cues for the `92.00s` Full Product Demo, trimming leading/trailing silence (`silenceremove`) and fitting each cue inside its exact chapter window with zero overlap.
+2. **ElevenLabs CLI and Neural Studio Fallback**:
+   1. `@elevenlabs/elevenlabs-js` is installed in `projects/project_1`, and `scripts/generate-elevenlabs-audio.mjs` automatically reads `ELEVENLABS_API_KEY` from `.env.local` (`eleven_multilingual_v2`, stability `0.50`, similarityBoost `0.78`, speaker boost enabled).
+   2. When `ELEVENLABS_API_KEY` is not set in the local environment, `build-audio.mjs` synthesizes studio English narration via `uvx edge-tts` (`en-US-ChristopherNeural`), guaranteeing every rendered MP4 ships with crisp, audible English voiceover out of the box.
+3. **Sidechain Compression**: The music + tactile SFX bed is sidechain ducked underneath the narration via `ffmpeg sidechaincompress=threshold=0.022:ratio=4.8:attack=24:release=290` so the score breathes between sentences and never clashes with speech.
 
-| Output Asset | Runtime | Channels / Rate | Measured Mean / Max Peak | Purpose |
+## Loudness Mastering and Verification
+
+All exported stereo MP3 tracks (`48,000 Hz`, `192 kbps`, high pass filtered at `30 Hz`) are mastered via `ffmpeg loudnorm=I=-16:TP=-1.5:LRA=11`.
+
+| Output Asset | Runtime | Channels / Rate | Muxed MP4 Mean / Peak | Purpose |
 | :--- | :--- | :--- | :--- | :--- |
-| `public/audio/dopaimint-hackathon-28s.mp3` | `28.500s` | Stereo / 48 kHz | `-17.4 dB` mean / `-2.5 dB` peak (`-18.1 dB` AAC muxed) | Primary audio bed + timed SFX for `NasaHackathon1080x700` |
-| `public/audio/dopaimint-launch-1080p.mp3` | `54.000s` | Stereo / 48 kHz | `-17.3 dB` mean / `-1.9 dB` peak (`-18.1 dB` AAC muxed) | Primary audio bed + timed SFX for `DopaiMintFullLaunch1080p` |
-
-## ElevenLabs CLI Onboarding & Voiceover Ducking Pipeline
-
-1. **CLI Onboard**: Installed `@elevenlabs/elevenlabs-js` (`^2.78.0`) and verified workflow via `npx -y @elevenlabs/cli@latest onboard init` and `onboard check --env-path .env.local` in `projects/project_1`.
-2. **Zero-Secret SDK Script**: `projects/project_1/scripts/generate-elevenlabs-audio.mjs` reads `ELEVENLABS_API_KEY` automatically via `new ElevenLabsClient()` without storing or echoing credentials in code or committing `.env.local`.
-3. **Sidechain Narration Ducking**: When `ELEVENLABS_API_KEY` is authorized via `npx -y @elevenlabs/cli@latest onboard connect --env-path .env.local`, `generate-elevenlabs-audio.mjs` synthesizes narration (`eleven_multilingual_v2`, stability `0.48`, similarityBoost `0.78`, speaker boost enabled) and AI SFX stems, then mixes voiceover at `+1.15x` over the `-0.58` music bed using `ffmpeg sidechaincompress=threshold=0.025:ratio=4.5:attack=30:release=260` before mastering back to `-16 LUFS`.
+| `public/audio/dopaimint-hackathon-28s.mp3` | `28.500s` | Stereo / 48 kHz | `-19.7 dB` mean / `-2.8 dB` peak | Directed 5 cue VO + ducked launch score + SFX for `NasaHackathon1080p` and `NasaHackathon1080x700` |
+| `public/audio/dopaimint-launch-1080p.mp3` | `92.000s` | Stereo / 48 kHz | `-19.6 dB` mean / `-2.2 dB` peak | Directed 15 cue VO + ducked launch score + SFX for `DopaiMintFullLaunch1080p` |

@@ -45,7 +45,7 @@ export const NODE_DEFINITIONS: readonly NodeDefinition[] = [
     label: "DONKI Kp Geomagnetic",
     description:
       "Tracks planetary geomagnetic storm index (Kp 0 to 9) from NASA DONKI / NOAA SWPC.",
-    color: "#ff6b35",
+    color: "#45b8d6",
     icon: "activity",
     category: "sensor-trigger",
     chipLabel: "KP-IDX",

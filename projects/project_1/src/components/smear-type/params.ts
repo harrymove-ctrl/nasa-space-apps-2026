@@ -1,7 +1,7 @@
 // Smear type (https://design.how/vault/smear-type), params.ts.
 // VARIABLE: DEFAULT_LINES, DEFAULT_GROUND, DEFAULT_RIBBON, DEFAULT_RIM, DEFAULT_TYPE, DEFAULT_INK, KEY_MS, CAP, WIDEN, EMBOLDEN, BLUR, FONT_WEIGHT, FONT_VAR, LAYERS_URL, INK_URL. Change these freely. Everything else here is FIXED: it is the effect, so changing it makes a different visual. layers.webp and ink.webp are the traced layers the effect plays: serve them at LAYERS_URL and INK_URL.
 export const SCENE = 600;
-export const KEY_MS = 50;
+export const KEY_MS = 40;
 export const LOOP_KEYS = 48;
 
 export const DEFAULT_LINES = ['DOPAIMINT', 'ORBIT TO GRID'] as const;

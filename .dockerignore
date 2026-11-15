@@ -8,3 +8,6 @@ projects/project_1/docs/qa-shots
 reference-project
 docs
 .agents
+**/.cache-vo
+**/.elevenlabs
+**/.env*
